@@ -63,3 +63,23 @@ func NewWasm(code []byte, imports []WasmImport) (*Wasm, error) {
 		instance: instance,
 	}, nil
 }
+
+func (wasm *Wasm)GetFunction(name string) (w.NativeFunction, error) {
+	return wasm.instance.Exports.GetFunction(name)
+}
+
+func (wasm *Wasm)ExecuteFunction(name string, args ...interface{}) (interface{}, error) {
+	fn, e := wasm.instance.Exports.GetFunction(name)
+	if e != nil {
+		return nil, e
+	}
+	return fn(args...)
+}
+
+func (wasm *Wasm)GetMemory(name string) ([]byte, error) {
+	memory, e := wasm.instance.Exports.GetMemory(name)
+	if e != nil {
+		return nil, e
+	}
+	return memory.Data(), nil
+}
