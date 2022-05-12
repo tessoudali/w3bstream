@@ -14,11 +14,16 @@ type Wasm struct {
 
 type NativeFunc = func(args []w.Value) ([]w.Value, error)
 
-type WasmImport struct {
+type WasmImportFunc struct {
 	name			string
 	inputTypes		[]w.ValueKind
 	outputTypes		[]w.ValueKind
 	nativeFunc		NativeFunc
+}
+
+type WasmImport struct {
+	namespace		string
+	functions		[]WasmImportFunc
 }
 
 func NewWasm(code []byte, imports []WasmImport) (*Wasm, error) {
@@ -30,19 +35,20 @@ func NewWasm(code []byte, imports []WasmImport) (*Wasm, error) {
 
 	importObject := w.NewImportObject()
 
-	intoExtern := make(map[string]w.IntoExtern)
 	for _, v := range imports {
-		intoExtern[v.name] = w.NewFunction(
-			store,
-			w.NewFunctionType(w.NewValueTypes(v.inputTypes...), w.NewValueTypes(v.outputTypes...)),
-			v.nativeFunc,
+		intoExtern := make(map[string]w.IntoExtern)
+		for _, fn := range v.functions {
+			intoExtern[fn.name] = w.NewFunction(
+				store,
+				w.NewFunctionType(w.NewValueTypes(fn.inputTypes...), w.NewValueTypes(fn.outputTypes...)),
+				fn.nativeFunc,
+			)
+		}
+		importObject.Register(
+			v.namespace,
+			intoExtern,
 		)
 	}
-
-	importObject.Register(
-		"env",
-		intoExtern,
-	)
 
 	instance, e := w.NewInstance(module, importObject)
 	if e != nil {
