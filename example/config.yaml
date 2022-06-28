@@ -1,4 +1,3 @@
-name: hello
+name: "hello"
 module:
   path: "path"
-  weight: 100

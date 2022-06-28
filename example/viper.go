@@ -16,22 +16,33 @@ type config struct {
 }
 
 func main() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
+	x := viper.New()
+	y := viper.New()
+
+	x.SetConfigFile("./config.default.yaml")
+	x.AddConfigPath(".")
+	err := x.ReadInConfig()
 	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
+		panic(fmt.Errorf("%v\n", err))
 	}
 
 	var C config
-	err = viper.Unmarshal(&C)
+	err = x.Unmarshal(&C)
 	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
+		panic(fmt.Errorf("%v\n", err))
 	}
 
-	weight := viper.Get("module.weight")
-	fmt.Printf("weight=%d\n", weight)
+	y.SetConfigFile("./config.yaml")
+	y.AddConfigPath(".")
+	err = y.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("%v\n", err))
+	}
+
+	err = y.Unmarshal(&C)
+	if err != nil {
+		panic(fmt.Errorf("%v\n", err))
+	}
+
+	fmt.Printf("weight=%d\n", C.module.weight)
 }

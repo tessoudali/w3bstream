@@ -1,0 +1,4 @@
+name: "default name"
+module:
+  path: "default path"
+  weight: 100
