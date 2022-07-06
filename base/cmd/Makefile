@@ -1,4 +1,5 @@
-PKG = $(shell cat go.mod | grep "^module " | sed -e "s/module //g")
+#PKG = $(shell cat go.mod | grep "^module " | sed -e "s/module //g")
+PKG = cmd
 VERSION = v$(shell cat version/version)
 COMMIT_SHA ?= $(shell git describe --always)-devel
 
