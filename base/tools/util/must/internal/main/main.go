@@ -71,7 +71,7 @@ func main() {
 					Do(
 						If(SnippetExpr("err != nil")).
 							Do(
-								Call(file.Use("log", "Panic"), file.Value("err")),
+								Call(file.Use("log", "Panic"), Ident("err")),
 							),
 						Return(Ident("v")),
 					),
