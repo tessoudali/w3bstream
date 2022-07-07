@@ -4,7 +4,7 @@ import (
 	"github.com/go-courier/httptransport/generators/openapi"
 	_ "github.com/go-courier/httptransport/validator/strfmt"
 	"github.com/go-courier/packagesx"
-	"github.com/iotexproject/w3bstream/base/cmd/internal/generate"
+	"github.com/iotexproject/w3bstream/base/tools/cmd/internal/generate"
 	"github.com/spf13/cobra"
 )
 

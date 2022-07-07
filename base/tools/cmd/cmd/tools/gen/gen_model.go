@@ -3,7 +3,7 @@ package gen
 import (
 	"github.com/go-courier/packagesx"
 	"github.com/go-courier/sqlx/v2/generator"
-	"github.com/iotexproject/w3bstream/base/cmd/internal/generate"
+	"github.com/iotexproject/w3bstream/base/tools/cmd/internal/generate"
 	"github.com/spf13/cobra"
 )
 

@@ -1,7 +1,7 @@
 package hook
 
 import (
-	"github.com/iotexproject/w3bstream/base/cmd/internal/githooks"
+	"github.com/iotexproject/w3bstream/base/tools/cmd/internal/githooks"
 	"github.com/spf13/cobra"
 )
 

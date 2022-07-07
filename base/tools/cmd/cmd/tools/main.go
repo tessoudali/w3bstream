@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/iotexproject/w3bstream/base/cmd/cmd/tools/gen"
-	"github.com/iotexproject/w3bstream/base/cmd/cmd/tools/hook"
-	"github.com/iotexproject/w3bstream/base/cmd/version"
+	"github.com/iotexproject/w3bstream/base/tools/cmd/cmd/tools/gen"
+	"github.com/iotexproject/w3bstream/base/tools/cmd/cmd/tools/hook"
+	"github.com/iotexproject/w3bstream/base/tools/cmd/version"
 
 	"github.com/go-courier/logr"
 	"github.com/spf13/cobra"
