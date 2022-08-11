@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
+
 	"github.com/iotexproject/w3bstream/pkg/modules/applet"
 )
 
 type CreateApplet struct {
-	httpx.MethodPost             `summary:"create applet by name"`
+	httpx.MethodPost
 	applet.CreateAppletByNameReq `in:"body"`
 }
 

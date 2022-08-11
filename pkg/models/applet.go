@@ -1,15 +1,17 @@
 package models
 
+import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+
 //go:generate toolkit gen model Applet --database Demo
 // Applet database model demo
 // @def primary                     ID
 // @def unique_index UI_applet_name Name
 // @def unique_index UI_applet_id   AppletID
 type Applet struct {
-	PrimaryID
+	datatypes.PrimaryID
 	RefApplet
 	AppletInfo
-	OperationTimes
+	datatypes.OperationTimes
 }
 
 type RefApplet struct {

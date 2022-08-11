@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/iotexproject/Bumblebee/kit/kit"
+
 	"github.com/iotexproject/w3bstream/cmd/demo/apis"
 	"github.com/iotexproject/w3bstream/cmd/demo/global"
 )

@@ -5,25 +5,25 @@ import (
 )
 
 type Wasm struct {
-	code	 []byte
-	engine	 *w.Engine
-	store	 *w.Store
-	module	 *w.Module
+	code     []byte
+	engine   *w.Engine
+	store    *w.Store
+	module   *w.Module
 	instance *w.Instance
 }
 
 type NativeFunc = func(args []w.Value) ([]w.Value, error)
 
 type WasmImportFunc struct {
-	name			string
-	inputTypes		[]w.ValueKind
+	name        string
+	inputTypes  []w.ValueKind
 	outputTypes []w.ValueKind
 	nativeFunc  NativeFunc
 }
 
 type WasmImport struct {
-	namespace		string
-	functions		[]WasmImportFunc
+	namespace string
+	functions []WasmImportFunc
 }
 
 func NewWasm(code []byte, imports []WasmImport) (*Wasm, error) {
@@ -56,19 +56,19 @@ func NewWasm(code []byte, imports []WasmImport) (*Wasm, error) {
 	}
 
 	return &Wasm{
-		code: 	  code,
+		code:     code,
 		engine:   engine,
-		store: 	  store,
+		store:    store,
 		module:   module,
 		instance: instance,
 	}, nil
 }
 
-func (wasm *Wasm)GetFunction(name string) (w.NativeFunction, error) {
+func (wasm *Wasm) GetFunction(name string) (w.NativeFunction, error) {
 	return wasm.instance.Exports.GetFunction(name)
 }
 
-func (wasm *Wasm)ExecuteFunction(name string, args ...interface{}) (interface{}, error) {
+func (wasm *Wasm) ExecuteFunction(name string, args ...interface{}) (interface{}, error) {
 	fn, e := wasm.instance.Exports.GetFunction(name)
 	if e != nil {
 		return nil, e
@@ -76,7 +76,7 @@ func (wasm *Wasm)ExecuteFunction(name string, args ...interface{}) (interface{},
 	return fn(args...)
 }
 
-func (wasm *Wasm)GetMemory(name string) ([]byte, error) {
+func (wasm *Wasm) GetMemory(name string) ([]byte, error) {
 	memory, e := wasm.instance.Exports.GetMemory(name)
 	if e != nil {
 		return nil, e

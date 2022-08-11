@@ -6,6 +6,7 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/kit"
 
 	"github.com/iotexproject/w3bstream/cmd/demo/apis/applet"
+	"github.com/iotexproject/w3bstream/cmd/demo/apis/deploy"
 )
 
 var (
@@ -18,4 +19,5 @@ func init() {
 	RouterRoot.Register(RouterV0)
 
 	RouterV0.Register(applet.Root)
+	RouterV0.Register(deploy.Root)
 }

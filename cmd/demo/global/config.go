@@ -12,6 +12,7 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/kit"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/migration"
 	"github.com/iotexproject/Bumblebee/x/contextx"
+
 	"github.com/iotexproject/w3bstream/pkg/models"
 )
 

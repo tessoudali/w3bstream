@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/iotexproject/Bumblebee/kit/sqlx"
+	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+
 	"github.com/iotexproject/w3bstream/cmd/demo/global"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
-
-	"github.com/iotexproject/Bumblebee/kit/sqlx"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 )
 
 type CreateAppletByNameReq struct {
@@ -51,7 +52,7 @@ type ListAppletReq struct {
 	IDs       []string `in:"query" name:"id,omitempty"`
 	AppletIDs []string `in:"query" name:"appletID,omitempty"`
 	Names     []string `in:"query" name:"name,omitempty"`
-	builder.Pager
+	datatypes.Pager
 }
 
 func (r *ListAppletReq) Condition() builder.SqlCondition {
@@ -79,7 +80,12 @@ func (r *ListAppletReq) Additions() builder.Additions {
 	}
 }
 
-func ListApplets(ctx context.Context, r *ListAppletReq) ([]models.Applet, error) {
+type ListAppletRsp struct {
+	Data  []models.Applet `json:"data"`
+	Hints int64           `json:"hints"`
+}
+
+func ListApplets(ctx context.Context, r *ListAppletReq) (*ListAppletRsp, error) {
 	applet := &models.Applet{}
 
 	d := global.DBExecutorFromContext(ctx)
@@ -93,5 +99,35 @@ func ListApplets(ctx context.Context, r *ListAppletReq) ([]models.Applet, error)
 		l.Error(err)
 		return nil, err
 	}
-	return applets, nil
+	hints, err := applet.Count(d, r.Condition())
+	if err != nil {
+		l.Error(err)
+		return nil, err
+	}
+	return &ListAppletRsp{applets, hints}, nil
+}
+
+func RemoveApplet(ctx context.Context, appletID string) error {
+	d := global.DBExecutorFromContext(ctx)
+	l := global.LoggerFromContext(ctx)
+
+	err := sqlx.NewTasks(d).With(
+		func(d sqlx.DBExecutor) error {
+			return (&models.Applet{}).DeleteByAppletID(d)
+		},
+		func(d sqlx.DBExecutor) error {
+			m := &models.AppletDeploy{}
+			_, err := d.Exec(
+				builder.Delete().From(
+					models.AppletDeployTable,
+					builder.Where(m.ColAppletID().Eq(appletID)),
+				),
+			)
+			return err
+		},
+	).Do()
+	if err != nil {
+		l.Error(err)
+	}
+	return err
 }

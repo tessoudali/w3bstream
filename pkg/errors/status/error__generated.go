@@ -40,42 +40,48 @@ func (v Error) Code() int {
 
 func (v Error) Key() string {
 	switch v {
+	case BadRequest:
+		return "BadRequest"
 	case Unauthorized:
 		return "Unauthorized"
+	case NotFound:
+		return "NotFound"
 	case Conflict:
 		return "Conflict"
 	case InternalServerError:
 		return "InternalServerError"
-	case SomeBusinessErrorAs5xx:
-		return "SomeBusinessErrorAs5xx"
 	}
 	return "UNKNOWN"
 }
 
 func (v Error) Msg() string {
 	switch v {
+	case BadRequest:
+		return "BadRequest"
 	case Unauthorized:
 		return "Unauthorized"
+	case NotFound:
+		return "NotFound"
 	case Conflict:
 		return "Conflict conflict error"
 	case InternalServerError:
 		return "InternalServerError 内部错误"
-	case SomeBusinessErrorAs5xx:
-		return "业务处理错误"
 	}
 	return "-"
 }
 
 func (v Error) CanBeTalk() bool {
 	switch v {
+	case BadRequest:
+		return false
 	case Unauthorized:
 		return true
+	case NotFound:
+		return false
 	case Conflict:
 		return false
 	case InternalServerError:
 		return false
-	case SomeBusinessErrorAs5xx:
-		return true
 	}
 	return false
 }
