@@ -13,7 +13,7 @@ import (
 var HandlerTable *builder.Table
 
 func init() {
-	HandlerTable = Demo.Register(&Handler{})
+	HandlerTable = DB.Register(&Handler{})
 }
 
 type HandlerIterator struct {
@@ -235,24 +235,6 @@ func (m *Handler) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Handler) FetchByHandlerID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	err := db.QueryAndScan(
-		builder.Select(nil).
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
-					),
-				),
-				builder.Comment("Handler.FetchByHandlerID"),
-			),
-		m,
-	)
-	return err
-}
-
 func (m *Handler) FetchByAppletIDAndName(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
@@ -266,6 +248,24 @@ func (m *Handler) FetchByAppletIDAndName(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("Handler.FetchByAppletIDAndName"),
+			),
+		m,
+	)
+	return err
+}
+
+func (m *Handler) FetchByHandlerID(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	err := db.QueryAndScan(
+		builder.Select(nil).
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
+					),
+				),
+				builder.Comment("Handler.FetchByHandlerID"),
 			),
 		m,
 	)
@@ -298,32 +298,6 @@ func (m *Handler) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByIDWithFVs(db, fvs)
 }
 
-func (m *Handler) UpdateByHandlerIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
-	tbl := db.T(m)
-	res, err := db.Exec(
-		builder.Update(tbl).
-			Where(
-				builder.And(
-					tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
-				),
-				builder.Comment("Handler.UpdateByHandlerIDWithFVs"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
-	)
-	if err != nil {
-		return err
-	}
-	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByHandlerID(db)
-	}
-	return nil
-}
-
-func (m *Handler) UpdateByHandlerID(db sqlx.DBExecutor, zeros ...string) error {
-	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByHandlerIDWithFVs(db, fvs)
-}
-
 func (m *Handler) UpdateByAppletIDAndNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 	tbl := db.T(m)
 	res, err := db.Exec(
@@ -349,6 +323,32 @@ func (m *Handler) UpdateByAppletIDAndNameWithFVs(db sqlx.DBExecutor, fvs builder
 func (m *Handler) UpdateByAppletIDAndName(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
 	return m.UpdateByAppletIDAndNameWithFVs(db, fvs)
+}
+
+func (m *Handler) UpdateByHandlerIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+	tbl := db.T(m)
+	res, err := db.Exec(
+		builder.Update(tbl).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
+				),
+				builder.Comment("Handler.UpdateByHandlerIDWithFVs"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	if err != nil {
+		return err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return m.FetchByHandlerID(db)
+	}
+	return nil
+}
+
+func (m *Handler) UpdateByHandlerID(db sqlx.DBExecutor, zeros ...string) error {
+	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
+	return m.UpdateByHandlerIDWithFVs(db, fvs)
 }
 
 func (m *Handler) Delete(db sqlx.DBExecutor) error {
@@ -380,23 +380,6 @@ func (m *Handler) DeleteByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Handler) DeleteByHandlerID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	_, err := db.Exec(
-		builder.Delete().
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
-					),
-				),
-				builder.Comment("Handler.DeleteByHandlerID"),
-			),
-	)
-	return err
-}
-
 func (m *Handler) DeleteByAppletIDAndName(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	_, err := db.Exec(
@@ -410,6 +393,23 @@ func (m *Handler) DeleteByAppletIDAndName(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("Handler.DeleteByAppletIDAndName"),
+			),
+	)
+	return err
+}
+
+func (m *Handler) DeleteByHandlerID(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	_, err := db.Exec(
+		builder.Delete().
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
+					),
+				),
+				builder.Comment("Handler.DeleteByHandlerID"),
 			),
 	)
 	return err

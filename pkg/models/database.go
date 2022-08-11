@@ -4,4 +4,4 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 )
 
-var Demo = sqlx.NewDatabase("demo").WithSchema("applet_management")
+var DB = sqlx.NewDatabase("demo").WithSchema("applet_management")

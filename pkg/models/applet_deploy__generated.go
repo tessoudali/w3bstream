@@ -15,7 +15,7 @@ import (
 var AppletDeployTable *builder.Table
 
 func init() {
-	AppletDeployTable = Demo.Register(&AppletDeploy{})
+	AppletDeployTable = DB.Register(&AppletDeploy{})
 }
 
 type AppletDeployIterator struct {

@@ -6,7 +6,7 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 )
 
-//go:generate toolkit gen model Handler --database Demo
+//go:generate toolkit gen model Handler --database DB
 // Handler handler info
 // @def primary                        ID
 // @def unique_index UI_handler_id     HandlerID

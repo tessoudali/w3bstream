@@ -2,7 +2,7 @@ package models
 
 import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-//go:generate toolkit gen model Applet --database Demo
+//go:generate toolkit gen model Applet --database DB
 // Applet database model demo
 // @def primary                     ID
 // @def unique_index UI_applet_name Name

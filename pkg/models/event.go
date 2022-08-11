@@ -2,7 +2,7 @@ package models
 
 import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-//go:generate toolkit gen model Event --database Demo
+//go:generate toolkit gen model Event --database DB
 // Event database model demo
 // @def primary                     ID
 // @def unique_index UI_event_id    EventID

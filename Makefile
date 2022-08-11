@@ -1,8 +1,7 @@
 MODULE_NAME = $(shell cat go.mod | grep "^module" | sed -e "s/module //g")
-TOOLKIT_PKG = ${MODULE_NAME}/gen/cmd/toolkit
 
 install_toolkit:
-	@go install "${TOOLKIT_PKG}/..."
+	@go install github.com/iotexproject/Bumblebee/gen/cmd/...
 
 install_goimports:
 	@go install golang.org/x/tools/cmd/goimports@latest

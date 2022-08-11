@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/google/uuid v1.3.0
-	github.com/iotexproject/Bumblebee v0.0.0-20220808112510-6aa0c252b82c
+	github.com/iotexproject/Bumblebee v0.0.0-20220811005239-ca4615bfa7d1
 	github.com/onsi/gomega v1.20.0
 	github.com/stretchr/testify v1.8.0
 	github.com/wasmerio/wasmer-go v1.0.4
@@ -52,4 +52,4 @@ replace (
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v1.9.0 // indirect
 )
 
-replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee
+// replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee

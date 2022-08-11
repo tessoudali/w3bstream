@@ -15,7 +15,7 @@ import (
 var EventTable *builder.Table
 
 func init() {
-	EventTable = Demo.Register(&Event{})
+	EventTable = DB.Register(&Event{})
 }
 
 type EventIterator struct {

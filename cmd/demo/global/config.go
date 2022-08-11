@@ -2,7 +2,9 @@ package global
 
 import (
 	"context"
+	"os"
 
+	"github.com/iotexproject/Bumblebee/base/consts"
 	confapp "github.com/iotexproject/Bumblebee/conf/app"
 	confhttp "github.com/iotexproject/Bumblebee/conf/http"
 	confjwt "github.com/iotexproject/Bumblebee/conf/jwt"
@@ -19,7 +21,7 @@ import (
 // global vars
 
 var (
-	postgres = &confpostgres.Endpoint{Database: models.Demo}
+	postgres = &confpostgres.Endpoint{Database: models.DB}
 	mqtt     = &confmqtt.Broker{}
 	server   = &confhttp.Server{}
 	jwt      = &confjwt.Jwt{}
@@ -30,8 +32,12 @@ var (
 )
 
 func init() {
+	name := os.Getenv(consts.EnvProjectName)
+	if name == "" {
+		name = "srv-applet-mgr"
+	}
 	App = confapp.New(
-		confapp.WithName("demo"),
+		confapp.WithName(name),
 		confapp.WithRoot(".."),
 		confapp.WithVersion("0.0.1"),
 		confapp.WithLogger(conflog.Std()),

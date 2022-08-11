@@ -15,7 +15,7 @@ import (
 var AppletTable *builder.Table
 
 func init() {
-	AppletTable = Demo.Register(&Applet{})
+	AppletTable = DB.Register(&Applet{})
 }
 
 type AppletIterator struct {
