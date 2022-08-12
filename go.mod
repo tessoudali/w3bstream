@@ -3,9 +3,11 @@ module github.com/iotexproject/w3bstream
 go 1.18
 
 require (
+	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/google/uuid v1.3.0
 	github.com/iotexproject/Bumblebee v0.0.0-20220811005239-ca4615bfa7d1
 	github.com/onsi/gomega v1.20.0
+	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.0
 	github.com/wasmerio/wasmer-go v1.0.4
 	gopkg.in/yaml.v2 v2.4.0
@@ -13,7 +15,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/eclipse/paho.mqtt.golang v1.4.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -25,7 +26,6 @@ require (
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/saitofun/qlib v0.0.0-20220804014931-3a213f937710 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
@@ -52,4 +52,4 @@ require (
 // 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v1.9.0 // indirect
 // )
 
-replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee
+// replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee
