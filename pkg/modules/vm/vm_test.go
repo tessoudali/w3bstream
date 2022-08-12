@@ -5,8 +5,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 	. "github.com/onsi/gomega"
+
+	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 )
 
 func TestNewWasm(t *testing.T) {

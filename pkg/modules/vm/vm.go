@@ -10,11 +10,12 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/iotexproject/Bumblebee/conf/log"
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
-	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/pkg/errors"
 	w "github.com/wasmerio/wasmer-go/wasmer"
 	"gopkg.in/yaml.v2"
+
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/models"
 )
 
 type VM struct {

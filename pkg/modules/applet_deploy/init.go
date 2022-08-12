@@ -7,6 +7,7 @@ import (
 
 	"github.com/iotexproject/Bumblebee/conf/log"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
