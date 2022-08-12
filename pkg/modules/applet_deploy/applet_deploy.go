@@ -2,6 +2,7 @@ package applet_deploy
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"runtime"
 
@@ -9,40 +10,90 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+	"github.com/iotexproject/w3bstream/pkg/errors/status"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 
-	"github.com/iotexproject/w3bstream/cmd/demo/global"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
 	"github.com/iotexproject/w3bstream/pkg/models"
 )
 
-type CreateDeployReq struct {
-	models.RefApplet
+type CreateDeployContext struct {
+	models.RelApplet
 	models.DeployInfo
+	Handlers []models.HandlerInfo
+}
+
+type CreateDeployReq struct {
+	AppletID string `in:"path" name:"appletID"`
+	Location string `in:"path" name:"location,omitempty"`
 }
 
 type CreateDeployRsp struct {
-	models.RefApplet
+	models.RelApplet
 	models.RelDeploy
 	models.DeployInfo
+	Handlers []models.HandlerInfo
 	datatypes.OperationTimes
 }
 
-func CreateDeploy(ctx context.Context, r *CreateDeployReq) (*CreateDeployRsp, error) {
+func CreateDeployByContext(ctx context.Context, c *vm.VM, r *CreateDeployContext) (*CreateDeployRsp, error) {
 	deploy := models.AppletDeploy{
 		RelDeploy:  models.RelDeploy{DeployID: uuid.New().String()},
-		RefApplet:  r.RefApplet,
+		RelApplet:  r.RelApplet,
 		DeployInfo: r.DeployInfo,
 	}
-	applet := models.Applet{RefApplet: models.RefApplet{AppletID: r.AppletID}}
+	applet := models.Applet{RelApplet: models.RelApplet{AppletID: r.AppletID}}
 
 	d := global.DBExecutorFromContext(ctx)
 	l := global.LoggerFromContext(ctx)
 
 	err := sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
-			return applet.FetchByAppletID(db)
+			err := applet.FetchByAppletID(db)
+			if err != nil {
+				if sqlx.DBErr(err).IsNotFound() {
+					return status.NotFound.StatusErr().WithMsg(
+						fmt.Sprintf("applet %s not found", r.AppletID),
+					)
+				}
+				return err
+			}
+			return nil
 		},
 		func(db sqlx.DBExecutor) error {
-			return deploy.Create(db)
+			err := deploy.Create(db)
+			if err != nil {
+				if sqlx.DBErr(err).IsConflict() {
+					return status.Conflict.StatusErr().WithMsg(
+						fmt.Sprintf(
+							"applet: %v version: %v are already exist",
+							deploy.AppletID, deploy.Version,
+						),
+					)
+				}
+				return err
+			}
+			return nil
+		},
+		func(db sqlx.DBExecutor) error {
+			for _, h := range r.Handlers {
+				err := (&models.Handler{
+					RelApplet:   models.RelApplet{AppletID: r.AppletID},
+					RelDeploy:   models.RelDeploy{DeployID: deploy.DeployID},
+					RelHandler:  models.RelHandler{HandlerID: uuid.New().String()},
+					HandlerInfo: models.HandlerInfo{Name: h.Name, Params: h.Params},
+				}).Create(db)
+				if err != nil {
+					if sqlx.DBErr(err).IsConflict() {
+						return status.Conflict.StatusErr().WithMsg(fmt.Sprintf(
+							"applet: %v version: %v handler: %v are already exist",
+							deploy.AppletID, deploy.Version, h.Name,
+						))
+					}
+					return err
+				}
+			}
+			return nil
 		},
 	).Do()
 
@@ -50,35 +101,46 @@ func CreateDeploy(ctx context.Context, r *CreateDeployReq) (*CreateDeployRsp, er
 		l.Error(err)
 		return nil, err
 	}
+
+	vm.Start(
+		ctx,
+		vm.NewMonitorContext(
+			c, applet.AppletID, applet.Name, deploy.Version, r.Handlers...,
+		),
+	)
+
 	return &CreateDeployRsp{
-		RefApplet:      applet.RefApplet,
+		RelApplet:      applet.RelApplet,
 		RelDeploy:      deploy.RelDeploy,
 		DeployInfo:     deploy.DeployInfo,
 		OperationTimes: deploy.OperationTimes,
 	}, nil
 }
 
-type CreateDeployByAssertReq struct {
-	AppletID string `in:"path" name:"appletID"`
-	Location string `in:"path" name:"location,omitempty"`
-}
-
-func CreateDeployByAssert(ctx context.Context, r *CreateDeployByAssertReq) (*CreateDeployRsp, error) {
+func CreateDeploy(ctx context.Context, r *CreateDeployReq) (*CreateDeployRsp, error) {
 	// TODO fetch asserts from loc(ipfs)
-
 	l := global.LoggerFromContext(ctx)
 
 	_, current, _, _ := runtime.Caller(0)
-	root := filepath.Join(filepath.Dir(current), "testdata")
-	c, err := LoadConfigFrom(filepath.Join(root, "applet.yaml"))
+	root := filepath.Join(filepath.Dir(current), "../testdata/simple")
+	c, err := vm.Load(root)
 	if err != nil {
 		l.Error(err)
 		return nil, err
 	}
 	m := c.DataSources[0].Mapping
 
-	return CreateDeploy(ctx, &CreateDeployReq{
-		RefApplet: models.RefApplet{AppletID: r.AppletID},
+	hdls := make([]models.HandlerInfo, 0)
+	for _, h := range m.EventHandlers {
+		// TODO abi -> wasm caller
+		hdls = append(hdls, models.HandlerInfo{
+			Name:   h.Handler,
+			Params: nil,
+		})
+	}
+
+	return CreateDeployByContext(ctx, c, &CreateDeployContext{
+		RelApplet: models.RelApplet{AppletID: r.AppletID},
 		DeployInfo: models.DeployInfo{
 			Location: r.Location,
 			Version:  m.APIVersion,
@@ -86,6 +148,7 @@ func CreateDeployByAssert(ctx context.Context, r *CreateDeployByAssertReq) (*Cre
 			AbiName:  m.ABIs[0].Name,
 			AbiFile:  m.ABIs[0].File,
 		},
+		Handlers: hdls,
 	})
 }
 
@@ -181,7 +244,7 @@ func RemoveDeployByAppletIDAndVersion(ctx context.Context, appletID, version str
 	d := global.DBExecutorFromContext(ctx)
 	l := global.LoggerFromContext(ctx)
 	m := &models.AppletDeploy{
-		RefApplet:  models.RefApplet{AppletID: appletID},
+		RelApplet:  models.RelApplet{AppletID: appletID},
 		DeployInfo: models.DeployInfo{Version: version},
 	}
 

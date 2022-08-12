@@ -44,7 +44,6 @@ func TestNewWasm(t *testing.T) {
 					},
 					outputTypes: []w.ValueKind{},
 					nativeFunc: func(args []w.Value) ([]w.Value, error) {
-						// TODO
 						return []w.Value{}, nil
 					},
 				},

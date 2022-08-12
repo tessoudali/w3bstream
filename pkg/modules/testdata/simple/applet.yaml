@@ -1,11 +1,10 @@
 specVersion: 0.0.2
-description: Gravatar for Ethereum
-repository: https://github.com/maswalker/example-applet
+description: Simple Wasm Applet
 schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Gravity
+    name: Simple
     network: mainnet
     source:
       address: "0x2E645469f354BB4F5c8a05B3b30A929361cf77eC"
@@ -15,13 +14,13 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Gravatar
+        - Simple
       abis:
-        - name: Gravity
-          file: Gravity/abis/Gravity.json
+        - name: Simple
+          file: Simple/abis/Simple.json
       eventHandlers:
         - event: NewGravatar(uint256,address,string,string)
-          handler: handleNewGravatar
+          handler: add
         - event: UpdatedGravatar(uint256,address,string,string)
-          handler: handleUpdatedGravatar
-      file: Gravity/Gravity.wasm
+          handler: hello
+      file: Simple/Simple.wasm

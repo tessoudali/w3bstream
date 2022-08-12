@@ -18,6 +18,6 @@ type RefEventID struct {
 }
 
 type EventInfo struct {
-	RefApplet
-	RefHandler
+	RelApplet
+	RelHandler
 }

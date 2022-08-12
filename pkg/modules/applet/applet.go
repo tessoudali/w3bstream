@@ -8,7 +8,7 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-	"github.com/iotexproject/w3bstream/cmd/demo/global"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
 )
@@ -19,7 +19,7 @@ type CreateAppletByNameReq struct {
 
 func CreateAppletByName(ctx context.Context, req *CreateAppletByNameReq) (*models.Applet, error) {
 	applet := &models.Applet{
-		RefApplet:  models.RefApplet{AppletID: uuid.New().String()},
+		RelApplet:  models.RelApplet{AppletID: uuid.New().String()},
 		AppletInfo: models.AppletInfo{Name: req.Name},
 	}
 
@@ -113,7 +113,9 @@ func RemoveApplet(ctx context.Context, appletID string) error {
 
 	err := sqlx.NewTasks(d).With(
 		func(d sqlx.DBExecutor) error {
-			return (&models.Applet{}).DeleteByAppletID(d)
+			return (&models.Applet{
+				RelApplet: models.RelApplet{AppletID: appletID},
+			}).DeleteByAppletID(d)
 		},
 		func(d sqlx.DBExecutor) error {
 			m := &models.AppletDeploy{}

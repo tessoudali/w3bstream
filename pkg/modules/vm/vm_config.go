@@ -1,10 +1,4 @@
-package applet_deploy
-
-import (
-	"os"
-
-	"gopkg.in/yaml.v2"
-)
+package vm
 
 type Config struct {
 	SpecVersion string       `yaml:"specVersion"`
@@ -19,11 +13,11 @@ type Schema struct {
 }
 
 type DataSource struct {
-	Kind    string  `yaml:"kind"`
-	Name    string  `yaml:"name"`
-	Network string  `yaml:"network"`
-	Source  Source  `yaml:"source"`
-	Mapping Mapping `yaml:"mapping"`
+	Kind    string `yaml:"kind"`
+	Name    string `yaml:"name"`
+	Network string `yaml:"network"`
+	Source  `yaml:"source"`
+	Mapping `yaml:"mapping"`
 }
 
 type Source struct {
@@ -42,24 +36,11 @@ type Mapping struct {
 }
 
 type ABI struct {
-	Name string `yaml:"name"`
-	File string `yaml:"file"`
+	Name string `yml:"name"`
+	File string `yml:"file"`
 }
 
 type EventHandler struct {
-	Event   string `yaml:"event"`
-	Handler string `yaml:"handler"`
-}
-
-func LoadConfigFrom(path string) (*Config, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	dec := yaml.NewDecoder(f)
-	cfg := &Config{}
-	if err = dec.Decode(cfg); err != nil {
-		return nil, err
-	}
-	return cfg, nil
+	Event   string `yml:"event"`
+	Handler string `yml:"handler"`
 }

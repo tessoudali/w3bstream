@@ -1,9 +1,16 @@
+SRV_APPLET_MGR__BROKER__Keepalive: 3h
+SRV_APPLET_MGR__BROKER__QoS: ONCE
+SRV_APPLET_MGR__BROKER__RetainPublish: "false"
+SRV_APPLET_MGR__BROKER__Retry_Interval: 3s
+SRV_APPLET_MGR__BROKER__Retry_Repeats: "3"
+SRV_APPLET_MGR__BROKER__Server: mqtt://127.0.0.1:1883
+SRV_APPLET_MGR__BROKER__Timeout: 3s
 SRV_APPLET_MGR__JWT__ExpIn: 0s
 SRV_APPLET_MGR__JWT__Issuer: ""
 SRV_APPLET_MGR__JWT__SignKey: ""
 SRV_APPLET_MGR__LOG__Format: JSON
 SRV_APPLET_MGR__LOG__Level: debug
-SRV_APPLET_MGR__LOG__Name: srv-demo
+SRV_APPLET_MGR__LOG__Name: srv-applet-mgr
 SRV_APPLET_MGR__LOG__Output: ALWAYS
 SRV_APPLET_MGR__LOG__ReportCaller: "false"
 SRV_APPLET_MGR__PGCLI__ConnMaxLifetime: 1h

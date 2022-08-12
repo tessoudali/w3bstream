@@ -9,12 +9,12 @@ import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 // @def unique_index UI_applet_id   AppletID
 type Applet struct {
 	datatypes.PrimaryID
-	RefApplet
+	RelApplet
 	AppletInfo
 	datatypes.OperationTimes
 }
 
-type RefApplet struct {
+type RelApplet struct {
 	AppletID string `db:"f_applet_id" json:"appletID"`
 }
 

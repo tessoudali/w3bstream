@@ -36,13 +36,14 @@ func init() {
 	if name == "" {
 		name = "srv-applet-mgr"
 	}
+	logger.Name = name
 	App = confapp.New(
 		confapp.WithName(name),
 		confapp.WithRoot(".."),
 		confapp.WithVersion("0.0.1"),
 		confapp.WithLogger(conflog.Std()),
 	)
-	App.Conf(postgres, server, jwt, logger)
+	App.Conf(postgres, server, jwt, logger, mqtt)
 
 	confhttp.RegisterCheckerBy(postgres, mqtt, server)
 	std.(conflog.LevelSetter).SetLevel(conflog.InfoLevel)
@@ -51,6 +52,7 @@ func init() {
 var WithContext = contextx.WithContextCompose(
 	WithDatabase(postgres),
 	WithLogger(conflog.Std()),
+	WithMqtt(mqtt),
 )
 
 func Server() kit.Transport {

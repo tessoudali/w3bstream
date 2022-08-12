@@ -8,29 +8,24 @@ import (
 
 //go:generate toolkit gen model Handler --database DB
 // Handler handler info
-// @def primary                        ID
-// @def unique_index UI_handler_id     HandlerID
-// @def unique_index UI_applet_handler AppletID Name
+// @def primary                               ID
+// @def unique_index UI_applet_deploy_handler AppletID DeployID HandlerID
 type Handler struct {
 	datatypes.PrimaryID
-	RefApplet
-	RefHandler
+	RelApplet
+	RelDeploy
+	RelHandler
 	HandlerInfo
+	datatypes.OperationTimes
 }
 
-type RefHandler struct {
+type RelHandler struct {
 	HandlerID string `db:"f_handler_id" json:"handlerID"`
 }
 
 type HandlerInfo struct {
-	Address    string      `db:"f_address"           json:"address"`
-	Network    string      `db:"f_network"           json:"network"`
-	WasmFile   string      `db:"f_wasm_file"         json:"wasmFile"`
-	AbiFile    string      `db:"f_abi_file"          json:"abiFile"`
-	AbiName    string      `db:"f_abi_name"          json:"abiName"`
-	AbiVersion string      `db:"f_abi_version"       json:"abiVersion"`
-	Name       string      `db:"f_name"              json:"name"`
-	Params     EventParams `db:"f_params,default=''" json:"params"`
+	Name   string        `db:"f_name"              json:"name"`
+	Params HandlerParams `db:"f_params,default=''" json:"params"`
 }
 
 type HandlerParam struct {
@@ -38,14 +33,14 @@ type HandlerParam struct {
 	Type string `json:"type"`
 }
 
-type EventParams []HandlerParam
+type HandlerParams []HandlerParam
 
-func (EventParams) DataType(engine string) string { return "TEXT" }
+func (HandlerParams) DataType(engine string) string { return "TEXT" }
 
-func (p EventParams) Value() (driver.Value, error) {
+func (p HandlerParams) Value() (driver.Value, error) {
 	return datatypes.JSONValue(p)
 }
 
-func (p *EventParams) Scan(src interface{}) error {
+func (p *HandlerParams) Scan(src interface{}) error {
 	return datatypes.JSONScan(src, p)
 }

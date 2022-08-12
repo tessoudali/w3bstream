@@ -8,8 +8,8 @@ import (
 	"github.com/iotexproject/Bumblebee/conf/http"
 	"github.com/iotexproject/Bumblebee/kit/httptransport"
 	"github.com/iotexproject/Bumblebee/kit/kit"
-	"github.com/iotexproject/w3bstream/cmd/demo/apis/applet"
-	"github.com/iotexproject/w3bstream/cmd/demo/apis/deploy"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/applet"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/deploy"
 )
 
 var (

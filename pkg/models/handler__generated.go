@@ -5,7 +5,9 @@ package models
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/iotexproject/Bumblebee/base/types"
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 )
@@ -58,30 +60,24 @@ func (Handler) PrimaryKey() []string {
 func (m *Handler) IndexFieldNames() []string {
 	return []string{
 		"AppletID",
+		"DeployID",
 		"HandlerID",
 		"ID",
-		"Name",
 	}
 }
 
 func (Handler) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
-		"ui_applet_handler": []string{
+		"ui_applet_deploy_handler": []string{
 			"AppletID",
-			"Name",
-		},
-		"ui_handler_id": []string{
+			"DeployID",
 			"HandlerID",
 		},
 	}
 }
 
-func (Handler) UniqueIndexUiAppletHandler() string {
-	return "ui_applet_handler"
-}
-
-func (Handler) UniqueIndexUiHandlerId() string {
-	return "ui_handler_id"
+func (Handler) UniqueIndexUiAppletDeployHandler() string {
+	return "ui_applet_deploy_handler"
 }
 
 func (m *Handler) ColID() *builder.Column {
@@ -100,60 +96,20 @@ func (Handler) FieldAppletID() string {
 	return "AppletID"
 }
 
+func (m *Handler) ColDeployID() *builder.Column {
+	return HandlerTable.ColByFieldName(m.FieldDeployID())
+}
+
+func (Handler) FieldDeployID() string {
+	return "DeployID"
+}
+
 func (m *Handler) ColHandlerID() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldHandlerID())
 }
 
 func (Handler) FieldHandlerID() string {
 	return "HandlerID"
-}
-
-func (m *Handler) ColAddress() *builder.Column {
-	return HandlerTable.ColByFieldName(m.FieldAddress())
-}
-
-func (Handler) FieldAddress() string {
-	return "Address"
-}
-
-func (m *Handler) ColNetwork() *builder.Column {
-	return HandlerTable.ColByFieldName(m.FieldNetwork())
-}
-
-func (Handler) FieldNetwork() string {
-	return "Network"
-}
-
-func (m *Handler) ColWasmFile() *builder.Column {
-	return HandlerTable.ColByFieldName(m.FieldWasmFile())
-}
-
-func (Handler) FieldWasmFile() string {
-	return "WasmFile"
-}
-
-func (m *Handler) ColAbiFile() *builder.Column {
-	return HandlerTable.ColByFieldName(m.FieldAbiFile())
-}
-
-func (Handler) FieldAbiFile() string {
-	return "AbiFile"
-}
-
-func (m *Handler) ColAbiName() *builder.Column {
-	return HandlerTable.ColByFieldName(m.FieldAbiName())
-}
-
-func (Handler) FieldAbiName() string {
-	return "AbiName"
-}
-
-func (m *Handler) ColAbiVersion() *builder.Column {
-	return HandlerTable.ColByFieldName(m.FieldAbiVersion())
-}
-
-func (Handler) FieldAbiVersion() string {
-	return "AbiVersion"
 }
 
 func (m *Handler) ColName() *builder.Column {
@@ -170,6 +126,22 @@ func (m *Handler) ColParams() *builder.Column {
 
 func (Handler) FieldParams() string {
 	return "Params"
+}
+
+func (m *Handler) ColCreatedAt() *builder.Column {
+	return HandlerTable.ColByFieldName(m.FieldCreatedAt())
+}
+
+func (Handler) FieldCreatedAt() string {
+	return "CreatedAt"
+}
+
+func (m *Handler) ColUpdatedAt() *builder.Column {
+	return HandlerTable.ColByFieldName(m.FieldUpdatedAt())
+}
+
+func (Handler) FieldUpdatedAt() string {
+	return "UpdatedAt"
 }
 
 func (m *Handler) CondByValue(db sqlx.DBExecutor) builder.SqlCondition {
@@ -195,6 +167,14 @@ func (m *Handler) CondByValue(db sqlx.DBExecutor) builder.SqlCondition {
 }
 
 func (m *Handler) Create(db sqlx.DBExecutor) error {
+
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt.Set(time.Now())
+	}
+
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt.Set(time.Now())
+	}
 
 	_, err := db.Exec(sqlx.InsertToDB(db, m, nil))
 	return err
@@ -235,7 +215,7 @@ func (m *Handler) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Handler) FetchByAppletIDAndName(db sqlx.DBExecutor) error {
+func (m *Handler) FetchByAppletIDAndDeployIDAndHandlerID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
 		builder.Select(nil).
@@ -244,28 +224,11 @@ func (m *Handler) FetchByAppletIDAndName(db sqlx.DBExecutor) error {
 				builder.Where(
 					builder.And(
 						tbl.ColByFieldName("AppletID").Eq(m.AppletID),
-						tbl.ColByFieldName("Name").Eq(m.Name),
-					),
-				),
-				builder.Comment("Handler.FetchByAppletIDAndName"),
-			),
-		m,
-	)
-	return err
-}
-
-func (m *Handler) FetchByHandlerID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	err := db.QueryAndScan(
-		builder.Select(nil).
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
+						tbl.ColByFieldName("DeployID").Eq(m.DeployID),
 						tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
 					),
 				),
-				builder.Comment("Handler.FetchByHandlerID"),
+				builder.Comment("Handler.FetchByAppletIDAndDeployIDAndHandlerID"),
 			),
 		m,
 	)
@@ -273,6 +236,10 @@ func (m *Handler) FetchByHandlerID(db sqlx.DBExecutor) error {
 }
 
 func (m *Handler) UpdateByIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
 	tbl := db.T(m)
 	res, err := db.Exec(
 		builder.Update(tbl).
@@ -298,42 +265,21 @@ func (m *Handler) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByIDWithFVs(db, fvs)
 }
 
-func (m *Handler) UpdateByAppletIDAndNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+func (m *Handler) UpdateByAppletIDAndDeployIDAndHandlerIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
 	tbl := db.T(m)
 	res, err := db.Exec(
 		builder.Update(tbl).
 			Where(
 				builder.And(
 					tbl.ColByFieldName("AppletID").Eq(m.AppletID),
-					tbl.ColByFieldName("Name").Eq(m.Name),
-				),
-				builder.Comment("Handler.UpdateByAppletIDAndNameWithFVs"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
-	)
-	if err != nil {
-		return err
-	}
-	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByAppletIDAndName(db)
-	}
-	return nil
-}
-
-func (m *Handler) UpdateByAppletIDAndName(db sqlx.DBExecutor, zeros ...string) error {
-	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByAppletIDAndNameWithFVs(db, fvs)
-}
-
-func (m *Handler) UpdateByHandlerIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
-	tbl := db.T(m)
-	res, err := db.Exec(
-		builder.Update(tbl).
-			Where(
-				builder.And(
+					tbl.ColByFieldName("DeployID").Eq(m.DeployID),
 					tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
 				),
-				builder.Comment("Handler.UpdateByHandlerIDWithFVs"),
+				builder.Comment("Handler.UpdateByAppletIDAndDeployIDAndHandlerIDWithFVs"),
 			).
 			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)
@@ -341,14 +287,14 @@ func (m *Handler) UpdateByHandlerIDWithFVs(db sqlx.DBExecutor, fvs builder.Field
 		return err
 	}
 	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByHandlerID(db)
+		return m.FetchByAppletIDAndDeployIDAndHandlerID(db)
 	}
 	return nil
 }
 
-func (m *Handler) UpdateByHandlerID(db sqlx.DBExecutor, zeros ...string) error {
+func (m *Handler) UpdateByAppletIDAndDeployIDAndHandlerID(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByHandlerIDWithFVs(db, fvs)
+	return m.UpdateByAppletIDAndDeployIDAndHandlerIDWithFVs(db, fvs)
 }
 
 func (m *Handler) Delete(db sqlx.DBExecutor) error {
@@ -380,7 +326,7 @@ func (m *Handler) DeleteByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Handler) DeleteByAppletIDAndName(db sqlx.DBExecutor) error {
+func (m *Handler) DeleteByAppletIDAndDeployIDAndHandlerID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	_, err := db.Exec(
 		builder.Delete().
@@ -389,27 +335,11 @@ func (m *Handler) DeleteByAppletIDAndName(db sqlx.DBExecutor) error {
 				builder.Where(
 					builder.And(
 						tbl.ColByFieldName("AppletID").Eq(m.AppletID),
-						tbl.ColByFieldName("Name").Eq(m.Name),
-					),
-				),
-				builder.Comment("Handler.DeleteByAppletIDAndName"),
-			),
-	)
-	return err
-}
-
-func (m *Handler) DeleteByHandlerID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	_, err := db.Exec(
-		builder.Delete().
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
+						tbl.ColByFieldName("DeployID").Eq(m.DeployID),
 						tbl.ColByFieldName("HandlerID").Eq(m.HandlerID),
 					),
 				),
-				builder.Comment("Handler.DeleteByHandlerID"),
+				builder.Comment("Handler.DeleteByAppletIDAndDeployIDAndHandlerID"),
 			),
 	)
 	return err

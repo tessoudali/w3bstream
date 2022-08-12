@@ -10,7 +10,7 @@ import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 // @def unique_index UI_deploy_version AppletID Version
 type AppletDeploy struct {
 	datatypes.PrimaryID
-	RefApplet
+	RelApplet
 	RelDeploy
 	DeployInfo
 	datatypes.OperationTimes
