@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/google/uuid v1.3.0
-	github.com/iotexproject/Bumblebee v0.0.0-20220811005239-ca4615bfa7d1
+	github.com/iotexproject/Bumblebee v0.0.0-20220814070215-c6ead31e6f23
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.0
@@ -31,7 +31,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	go.opentelemetry.io/contrib/propagators/b3 v1.8.0 // indirect
+	go.opentelemetry.io/contrib/propagators/b3 v1.9.0 // indirect
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.9.0 // indirect
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
@@ -43,13 +43,5 @@ require (
 	golang.org/x/tools v0.1.12 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-// replace (
-// 	go.opentelemetry.io/contrib/propagators/b3 => go.opentelemetry.io/contrib/propagators/b3 v1.8.0 // indirect
-// 	go.opentelemetry.io/otel => go.opentelemetry.io/otel v1.9.0 // indirect
-// 	go.opentelemetry.io/otel/exporters/zipkin => go.opentelemetry.io/otel/exporters/zipkin v1.9.0 // indirect
-// 	go.opentelemetry.io/otel/sdk => go.opentelemetry.io/otel/sdk v1.9.0 // indirect
-// 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v1.9.0 // indirect
-// )
 
 // replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee
