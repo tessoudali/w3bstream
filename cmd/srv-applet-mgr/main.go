@@ -7,10 +7,9 @@ import (
 
 	"github.com/iotexproject/Bumblebee/kit/kit"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/applet_deploy"
-
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/modules/applet_deploy"
 )
 
 var app = global.App
@@ -31,6 +30,7 @@ func main() {
 				ctx = global.WithDatabaseContext(ctx)
 				ctx = global.WithMqttContext(ctx)
 				ctx = global.WithLoggerContext(ctx)
+				ctx = global.WithConfContext(ctx)
 				if err := applet_deploy.StartAppletVMs(ctx); err != nil {
 					panic(err)
 				}

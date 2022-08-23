@@ -56,3 +56,19 @@ func WithMqttContext(ctx context.Context) context.Context {
 func MqttFromContext(ctx context.Context) *confmqtt.Broker {
 	return ctx.Value(keyMqtt{}).(*confmqtt.Broker)
 }
+
+type keyConf struct{}
+
+func WithConf(conf *config) contextx.WithContext {
+	return func(ctx context.Context) context.Context {
+		return contextx.WithValue(ctx, keyConf{}, conf)
+	}
+}
+
+func WithConfContext(ctx context.Context) context.Context {
+	return contextx.WithValue(ctx, keyConf{}, conf)
+}
+
+func ConfFromContext(ctx context.Context) *config {
+	return ctx.Value(keyConf{}).(*config)
+}

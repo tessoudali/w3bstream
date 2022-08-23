@@ -14,9 +14,21 @@ type CreateDeploy struct {
 }
 
 func (r *CreateDeploy) Path() string {
-	return "/:appletID/:location"
+	return "/applet/:appletID/location/:location"
 }
 
 func (r *CreateDeploy) Output(ctx context.Context) (interface{}, error) {
-	return applet_deploy.CreateDeploy(ctx, &r.CreateDeployReq)
+	return nil, nil
+	// return applet_deploy.CreateDeploy(ctx, &r.CreateDeployReq)
+}
+
+type CreateDeployByAssert struct {
+	httpx.MethodPost
+	applet_deploy.CreateDeployByAssertReq `in:"body" mime:"multipart"`
+}
+
+func (r *CreateDeployByAssert) Path() string { return "/assert" }
+
+func (r *CreateDeployByAssert) Output(ctx context.Context) (interface{}, error) {
+	return applet_deploy.CreateDeployByAssert(ctx, &r.CreateDeployByAssertReq)
 }
