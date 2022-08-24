@@ -1,0 +1,23 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "name": "x",
+        "type": "int64"
+      },
+      {
+        "name": "y",
+        "type": "int64"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z",
+        "type": "int64"
+      }
+    ],
+    "name": "add",
+    "type": "function"
+  }
+]

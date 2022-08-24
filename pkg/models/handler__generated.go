@@ -120,6 +120,14 @@ func (Handler) FieldName() string {
 	return "Name"
 }
 
+func (m *Handler) ColHandler() *builder.Column {
+	return HandlerTable.ColByFieldName(m.FieldHandler())
+}
+
+func (Handler) FieldHandler() string {
+	return "Handler"
+}
+
 func (m *Handler) ColParams() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldParams())
 }

@@ -3,20 +3,33 @@ package applet_deploy
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
+	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-	"github.com/iotexproject/w3bstream/pkg/errors/status"
-	"github.com/iotexproject/w3bstream/pkg/modules/vm"
-
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
+	"github.com/iotexproject/w3bstream/pkg/modules/resource"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 )
+
+type CreateDeployByAssertReq struct {
+	File *multipart.FileHeader `name:"file"`
+	Info AssertInfo            `name:"info"`
+}
+
+
+
+type AssertInfo struct {
+	AppletID  string `json:"appletID"`
+	AssertMd5 string `json:"assertMd5,omitempty"`
+}
 
 type CreateDeployContext struct {
 	models.RelApplet
@@ -118,32 +131,44 @@ func CreateDeployByContext(ctx context.Context, c *vm.VM, r *CreateDeployContext
 	}, nil
 }
 
-func CreateDeploy(ctx context.Context, r *CreateDeployReq) (*CreateDeployRsp, error) {
-	// TODO fetch asserts from loc(ipfs)
+func CreateDeployByAssert(ctx context.Context, r *CreateDeployByAssertReq) (*CreateDeployRsp, error) {
+	root, filename, err := resource.Upload(ctx, r.File, r.Info.AppletID)
+	if err != nil {
+		return nil, status.UploadFileFailed.StatusErr().WithDesc(err.Error())
+	}
+	if r.Info.AssertMd5 != "" {
+		if err = resource.CheckMD5(filename, r.Info.AssertMd5); err != nil {
+			return nil, status.MD5ChecksumFailed.StatusErr().WithDesc(err.Error())
+		}
+	}
+	dst := filepath.Join(root, uuid.New().String())
+	defer os.RemoveAll(filename)
+	if err = resource.UnTar(dst, filename); err != nil {
+		return nil, status.ExtractFileFailed.StatusErr().WithDesc(err.Error())
+	}
+
 	l := global.LoggerFromContext(ctx)
 
-	_, current, _, _ := runtime.Caller(0)
-	root := filepath.Join(filepath.Dir(current), "../testdata/simple")
-	c, err := vm.Load(root)
+	c, err := vm.Load(dst)
 	if err != nil {
 		l.Error(err)
-		return nil, err
+		return nil, status.LoadVMFailed.StatusErr().WithDesc(err.Error())
 	}
 	m := c.DataSources[0].Mapping
 
-	hdls := make([]models.HandlerInfo, 0)
-	for _, h := range m.EventHandlers {
-		// TODO abi -> wasm caller
-		hdls = append(hdls, models.HandlerInfo{
-			Name:   h.Handler,
-			Params: nil,
-		})
+	hdls, err := LoadHandlers(
+		filepath.Join(dst, m.ABIs[0].File),
+		m.EventHandlers...,
+	)
+	if err != nil {
+		l.Error(err)
+		return nil, status.LoadVMFailed.StatusErr().WithDesc(err.Error())
 	}
 
-	return CreateDeployByContext(ctx, c, &CreateDeployContext{
-		RelApplet: models.RelApplet{AppletID: r.AppletID},
+	rsp, err := CreateDeployByContext(ctx, c, &CreateDeployContext{
+		RelApplet: models.RelApplet{AppletID: r.Info.AppletID},
 		DeployInfo: models.DeployInfo{
-			Location: r.Location,
+			Location: filepath.Join(root, m.APIVersion),
 			Version:  m.APIVersion,
 			WasmFile: m.File,
 			AbiName:  m.ABIs[0].Name,
@@ -151,6 +176,16 @@ func CreateDeploy(ctx context.Context, r *CreateDeployReq) (*CreateDeployRsp, er
 		},
 		Handlers: hdls,
 	})
+	if err != nil {
+		_ = os.RemoveAll(dst)
+	} else {
+		installed := filepath.Join(root, m.APIVersion)
+		_ = os.RemoveAll(installed)
+		if err := os.Rename(dst, installed); err != nil {
+			return nil, err
+		}
+	}
+	return rsp, err
 }
 
 type ListDeployReq struct {

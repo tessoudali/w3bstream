@@ -131,7 +131,7 @@ func Start(ctx context.Context, m *Monitor) {
 		for {
 			err = cli.WithTopic(topic).Subscribe(
 				func(c mqtt.Client, msg mqtt.Message) {
-					// TODO defer log event
+					// TODO: defer log event
 					inputs := [2]int{}
 					payload := msg.Payload()
 					err := json.Unmarshal(payload, &inputs)

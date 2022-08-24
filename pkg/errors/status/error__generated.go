@@ -42,6 +42,8 @@ func (v Error) Key() string {
 	switch v {
 	case BadRequest:
 		return "BadRequest"
+	case MD5ChecksumFailed:
+		return "MD5ChecksumFailed"
 	case Unauthorized:
 		return "Unauthorized"
 	case NotFound:
@@ -50,6 +52,12 @@ func (v Error) Key() string {
 		return "Conflict"
 	case InternalServerError:
 		return "InternalServerError"
+	case UploadFileFailed:
+		return "UploadFileFailed"
+	case ExtractFileFailed:
+		return "ExtractFileFailed"
+	case LoadVMFailed:
+		return "LoadVMFailed"
 	}
 	return "UNKNOWN"
 }
@@ -58,6 +66,8 @@ func (v Error) Msg() string {
 	switch v {
 	case BadRequest:
 		return "BadRequest"
+	case MD5ChecksumFailed:
+		return ""
 	case Unauthorized:
 		return "Unauthorized"
 	case NotFound:
@@ -66,6 +76,12 @@ func (v Error) Msg() string {
 		return "Conflict conflict error"
 	case InternalServerError:
 		return "InternalServerError 内部错误"
+	case UploadFileFailed:
+		return ""
+	case ExtractFileFailed:
+		return ""
+	case LoadVMFailed:
+		return ""
 	}
 	return "-"
 }
@@ -74,6 +90,8 @@ func (v Error) CanBeTalk() bool {
 	switch v {
 	case BadRequest:
 		return false
+	case MD5ChecksumFailed:
+		return false
 	case Unauthorized:
 		return true
 	case NotFound:
@@ -81,6 +99,12 @@ func (v Error) CanBeTalk() bool {
 	case Conflict:
 		return false
 	case InternalServerError:
+		return false
+	case UploadFileFailed:
+		return false
+	case ExtractFileFailed:
+		return false
+	case LoadVMFailed:
 		return false
 	}
 	return false

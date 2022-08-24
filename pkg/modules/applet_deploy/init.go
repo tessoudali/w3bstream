@@ -2,8 +2,6 @@ package applet_deploy
 
 import (
 	"context"
-	"path/filepath"
-	"runtime"
 
 	"github.com/iotexproject/Bumblebee/conf/log"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
@@ -21,6 +19,7 @@ func StartAppletVMs(ctx context.Context) error {
 	mh := &models.Handler{}
 
 	monitors := make([]struct {
+		Location      string               `db:"f_location"`
 		AppletID      string               `db:"f_applet_id"`
 		AppletName    string               `db:"f_applet_name"`
 		Version       string               `db:"f_version"`
@@ -35,6 +34,7 @@ func StartAppletVMs(ctx context.Context) error {
 			builder.Alias(md.ColVersion(), `f_version`),
 			builder.Alias(mh.ColName(), `f_handler_name`),
 			builder.Alias(mh.ColParams(), `f_handler_params`),
+			builder.Alias(md.ColLocation(), `f_location`),
 		)).
 			From(
 				d.T(ma),
@@ -47,17 +47,15 @@ func StartAppletVMs(ctx context.Context) error {
 		return err
 	}
 
-	_, current, _, _ := runtime.Caller(0)
-	root := filepath.Join(filepath.Dir(current), "../testdata/simple")
-	c, err := vm.Load(root)
-	if err != nil {
-		l.Error(err)
-		return err
-	}
-
 	m := make(map[string]map[string]*vm.Monitor)
 
 	for _, v := range monitors {
+		c, err := vm.Load(v.Location)
+		if err != nil {
+			l.Error(err)
+			return err
+		}
+
 		if m[v.AppletID] == nil {
 			m[v.AppletID] = make(map[string]*vm.Monitor)
 		}

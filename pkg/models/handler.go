@@ -24,8 +24,9 @@ type RelHandler struct {
 }
 
 type HandlerInfo struct {
-	Name   string        `db:"f_name"              json:"name"`
-	Params HandlerParams `db:"f_params,default=''" json:"params"`
+	Name    string        `db:"f_name"              json:"name"`
+	Handler string        `db:"f_handler"           json:"handler"`
+	Params  HandlerParams `db:"f_params,default=''" json:"params"`
 }
 
 type HandlerParam struct {
@@ -33,7 +34,10 @@ type HandlerParam struct {
 	Type string `json:"type"`
 }
 
-type HandlerParams []HandlerParam
+type HandlerParams struct {
+	Inputs  []HandlerParam `json:"inputs"`
+	Outputs []HandlerParam `json:"outputs"`
+}
 
 func (HandlerParams) DataType(engine string) string { return "TEXT" }
 

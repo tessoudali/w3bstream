@@ -14,6 +14,9 @@ func (Error) ServiceCode() int {
 const (
 	// InternalServerError 内部错误
 	InternalServerError Error = http.StatusInternalServerError*1e6 + iota + 1
+	UploadFileFailed
+	ExtractFileFailed
+	LoadVMFailed
 )
 
 const (
@@ -29,6 +32,7 @@ const (
 const (
 	// BadRequest
 	BadRequest Error = http.StatusBadRequest*1e6 + iota + 1
+	MD5ChecksumFailed
 )
 
 const (
