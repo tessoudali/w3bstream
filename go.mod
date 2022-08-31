@@ -11,6 +11,7 @@ require (
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
 	github.com/saitofun/qlib v0.0.0-20220822220243-9fdd3992fe4b
+	github.com/second-state/WasmEdge-go v0.10.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.8.0
 	github.com/wasmerio/wasmer-go v1.0.4

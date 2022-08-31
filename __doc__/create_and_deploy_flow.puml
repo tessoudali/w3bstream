@@ -1,0 +1,54 @@
+@startuml
+
+actor       "user"              as cli
+participant "storage"           as fs
+participant "w3bstream_backend" as srv
+participant "event_publisher"   as pub
+participant "vm instance"       as vm
+participant "blockchain"        as bc
+
+== AUTH ==
+
+cli -> srv: POST /auth\nauth
+srv -> cli: token
+
+== REGISTER APPLET ==
+
+cli -> srv: POST /applet {token}\n{applet_name, author, publisher...}
+srv -> srv: register applet, create applet namespace
+srv -> cli: {applet_id}
+
+== CLIENT STORE ==
+
+cli -> fs: applet assets
+fs -> cli: storage location
+
+== DEPLOY APPLET ==
+
+cli -> srv: POST /deploy {token}\n{applet_id, deploy_version, storage_location}\n{applet_id, deploy_version, assets, assets_md5}
+srv -> fs:  fetch applet assets from `applet_location` or `assets`
+fs -> srv:  applet assets
+srv -> srv: extract and parse applet deploy info from `applet.yaml`
+srv -> srv: validating(uniqueness, validation)
+srv -> fs:  store applet info and assets
+fs -> srv:  assets identifier
+
+srv -> srv: create wasm vm instance
+srv -> srv: start event monitoring
+srv -> cli: event pub topic(applet_name@deploy_version)
+
+== PUBLISHER AUTH==
+
+pub -> srv: auth
+srv -> pub: token
+
+== EVENT MONITORING ==
+
+pub -> srv: event {token}
+srv -> srv: event data memory mapping
+srv -> vm : call handler(handler_name,memory_address)
+vm  -> vm : event handle
+vm  -> srv: handler result
+srv -> srv: store result
+
+@enduml

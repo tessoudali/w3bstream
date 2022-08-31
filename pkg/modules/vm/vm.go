@@ -2,7 +2,6 @@ package vm
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -56,7 +55,8 @@ func Load(root string) (*VM, error) {
 						if e != nil {
 							return nil, e
 						}
-						fmt.Println(string(data[args[0].I32():]))
+						offset := args[0].I32()
+						fmt.Println(string(data[offset:]))
 						return []w.Value{}, nil
 					},
 				}, {
@@ -70,6 +70,26 @@ func Load(root string) (*VM, error) {
 					OutputTypes: []w.ValueKind{},
 					NativeFunc: func(args []w.Value) ([]w.Value, error) {
 						return []w.Value{}, nil
+					},
+				}, {
+					Name:        "run",
+					InputTypes:  []w.ValueKind{w.I32},
+					OutputTypes: []w.ValueKind{},
+					NativeFunc: func(args []w.Value) ([]w.Value, error) {
+						return []w.Value{}, nil
+					},
+				}, {
+					Name:        "alloc",
+					InputTypes:  []w.ValueKind{w.I32},
+					OutputTypes: []w.ValueKind{w.I32},
+					NativeFunc: func(args []w.Value) ([]w.Value, error) {
+						data, e := wasm.GetMemory("memory")
+						if e != nil {
+							return nil, err
+						}
+						return []w.Value{
+							w.NewValue(data[args[0].I32():], w.AnyRef),
+						}, nil
 					},
 				},
 			},
@@ -132,18 +152,16 @@ func Start(ctx context.Context, m *Monitor) {
 			err = cli.WithTopic(topic).Subscribe(
 				func(c mqtt.Client, msg mqtt.Message) {
 					// TODO: defer log event
-					inputs := [2]int{}
 					payload := msg.Payload()
-					err := json.Unmarshal(payload, &inputs)
+					// TODO get wasm addr(size)
+					// TODO pl -> addr
+					sum, err := m.instance.ExecuteFunction("run", payload)
 					if err != nil {
 						logger.Error(err)
 						return
 					}
-					sum, err := m.instance.ExecuteFunction("add", inputs[0], inputs[1])
-					if err != nil {
-						logger.Error(err)
-						return
-					}
+					// msg seq id
+					// result.Method DB output
 					logger.Info(
 						"topic: %s payload: %s result: %v",
 						topic, payload, sum,
