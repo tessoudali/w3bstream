@@ -29,29 +29,29 @@ func (EventIterator) Resolve(v interface{}) *Event {
 	return v.(*Event)
 }
 
-func (Event) TableName() string {
+func (*Event) TableName() string {
 	return "t_event"
 }
 
-func (Event) TableDesc() []string {
+func (*Event) TableDesc() []string {
 	return []string{
 		"Event database model demo",
 	}
 }
 
-func (Event) Comments() map[string]string {
+func (*Event) Comments() map[string]string {
 	return map[string]string{}
 }
 
-func (Event) ColDesc() map[string][]string {
+func (*Event) ColDesc() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Event) ColRel() map[string][]string {
+func (*Event) ColRel() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Event) PrimaryKey() []string {
+func (*Event) PrimaryKey() []string {
 	return []string{
 		"ID",
 	}
@@ -64,7 +64,7 @@ func (m *Event) IndexFieldNames() []string {
 	}
 }
 
-func (Event) UniqueIndexes() builder.Indexes {
+func (*Event) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
 		"ui_event_id": []string{
 			"EventID",
@@ -72,7 +72,7 @@ func (Event) UniqueIndexes() builder.Indexes {
 	}
 }
 
-func (Event) UniqueIndexUiEventId() string {
+func (*Event) UniqueIndexUIEventID() string {
 	return "ui_event_id"
 }
 
@@ -80,7 +80,7 @@ func (m *Event) ColID() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldID())
 }
 
-func (Event) FieldID() string {
+func (*Event) FieldID() string {
 	return "ID"
 }
 
@@ -88,7 +88,7 @@ func (m *Event) ColEventID() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldEventID())
 }
 
-func (Event) FieldEventID() string {
+func (*Event) FieldEventID() string {
 	return "EventID"
 }
 
@@ -96,7 +96,7 @@ func (m *Event) ColAppletID() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldAppletID())
 }
 
-func (Event) FieldAppletID() string {
+func (*Event) FieldAppletID() string {
 	return "AppletID"
 }
 
@@ -104,7 +104,7 @@ func (m *Event) ColHandlerID() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldHandlerID())
 }
 
-func (Event) FieldHandlerID() string {
+func (*Event) FieldHandlerID() string {
 	return "HandlerID"
 }
 
@@ -112,7 +112,7 @@ func (m *Event) ColCreatedAt() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldCreatedAt())
 }
 
-func (Event) FieldCreatedAt() string {
+func (*Event) FieldCreatedAt() string {
 	return "CreatedAt"
 }
 
@@ -120,7 +120,7 @@ func (m *Event) ColUpdatedAt() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldUpdatedAt())
 }
 
-func (Event) FieldUpdatedAt() string {
+func (*Event) FieldUpdatedAt() string {
 	return "UpdatedAt"
 }
 

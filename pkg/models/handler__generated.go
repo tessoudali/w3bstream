@@ -29,29 +29,29 @@ func (HandlerIterator) Resolve(v interface{}) *Handler {
 	return v.(*Handler)
 }
 
-func (Handler) TableName() string {
+func (*Handler) TableName() string {
 	return "t_handler"
 }
 
-func (Handler) TableDesc() []string {
+func (*Handler) TableDesc() []string {
 	return []string{
 		"Handler handler info",
 	}
 }
 
-func (Handler) Comments() map[string]string {
+func (*Handler) Comments() map[string]string {
 	return map[string]string{}
 }
 
-func (Handler) ColDesc() map[string][]string {
+func (*Handler) ColDesc() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Handler) ColRel() map[string][]string {
+func (*Handler) ColRel() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Handler) PrimaryKey() []string {
+func (*Handler) PrimaryKey() []string {
 	return []string{
 		"ID",
 	}
@@ -66,7 +66,7 @@ func (m *Handler) IndexFieldNames() []string {
 	}
 }
 
-func (Handler) UniqueIndexes() builder.Indexes {
+func (*Handler) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
 		"ui_applet_deploy_handler": []string{
 			"AppletID",
@@ -76,7 +76,7 @@ func (Handler) UniqueIndexes() builder.Indexes {
 	}
 }
 
-func (Handler) UniqueIndexUiAppletDeployHandler() string {
+func (*Handler) UniqueIndexUIAppletDeployHandler() string {
 	return "ui_applet_deploy_handler"
 }
 
@@ -84,7 +84,7 @@ func (m *Handler) ColID() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldID())
 }
 
-func (Handler) FieldID() string {
+func (*Handler) FieldID() string {
 	return "ID"
 }
 
@@ -92,7 +92,7 @@ func (m *Handler) ColAppletID() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldAppletID())
 }
 
-func (Handler) FieldAppletID() string {
+func (*Handler) FieldAppletID() string {
 	return "AppletID"
 }
 
@@ -100,7 +100,7 @@ func (m *Handler) ColDeployID() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldDeployID())
 }
 
-func (Handler) FieldDeployID() string {
+func (*Handler) FieldDeployID() string {
 	return "DeployID"
 }
 
@@ -108,7 +108,7 @@ func (m *Handler) ColHandlerID() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldHandlerID())
 }
 
-func (Handler) FieldHandlerID() string {
+func (*Handler) FieldHandlerID() string {
 	return "HandlerID"
 }
 
@@ -116,7 +116,7 @@ func (m *Handler) ColName() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldName())
 }
 
-func (Handler) FieldName() string {
+func (*Handler) FieldName() string {
 	return "Name"
 }
 
@@ -124,7 +124,7 @@ func (m *Handler) ColHandler() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldHandler())
 }
 
-func (Handler) FieldHandler() string {
+func (*Handler) FieldHandler() string {
 	return "Handler"
 }
 
@@ -132,7 +132,7 @@ func (m *Handler) ColParams() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldParams())
 }
 
-func (Handler) FieldParams() string {
+func (*Handler) FieldParams() string {
 	return "Params"
 }
 
@@ -140,7 +140,7 @@ func (m *Handler) ColCreatedAt() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldCreatedAt())
 }
 
-func (Handler) FieldCreatedAt() string {
+func (*Handler) FieldCreatedAt() string {
 	return "CreatedAt"
 }
 
@@ -148,7 +148,7 @@ func (m *Handler) ColUpdatedAt() *builder.Column {
 	return HandlerTable.ColByFieldName(m.FieldUpdatedAt())
 }
 
-func (Handler) FieldUpdatedAt() string {
+func (*Handler) FieldUpdatedAt() string {
 	return "UpdatedAt"
 }
 

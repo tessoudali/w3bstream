@@ -1,0 +1,77 @@
+@startuml
+
+!define DomainStory https://raw.githubusercontent.com/johthor/DomainStory-PlantUML/main
+!include DomainStory/domainStory.puml
+!define Office https://raw.githubusercontent.com/Roemer/plantuml-office/master/office2014
+!include Office/Devices/cell_phone_generic.puml
+
+
+Person(user, w3bstream user)
+Boundary(api_server) {
+    Boundary(user_mgr)
+    Boundary(global_configuration)
+    Boundary(project_mgr) {
+        Boundary(publisher_mgr)
+        Boundary(applet_mgr)
+    }
+}
+
+
+
+System(device, event publisher\n(phone|edge device))
+
+Boundary(proxy, event_proxy) {
+    Boundary(transporter)
+    Boundary(filter, event filter)
+    Boundary(dispatcher, event dispatcher)
+}
+
+Boundary(vm_management) {
+    Boundary(memory_mgr)
+    Boundary(vm_mgr)
+    Boundary(vm_instance)
+}
+
+Boundary(external) {
+    Boundary(bc, block chain)
+}
+
+Boundary(host, host infra) {
+    Boundary(db, database)
+    Boundary(vm_dependencies, wasm dependencies)
+}
+
+
+activity(_, user, user register(user_info), user_mgr, $color = red, $scale = 2)
+activity(_<, user_mgr, user created(user_id), user)
+activity(_, user, user login(auth_info), user_mgr)
+activity(_<, user_mgr, signed in(token), user)
+
+activity(_, user, project register(user_id,project_id), project_mgr)
+activity(_<, project_mgr, project created, user)
+
+activity(_, user, publisher register(token, project_id, publisher_info), publisher_mgr)
+activity(_<, publisher_mgr, publisher created(publisher_id), user)
+
+activity(_, user, applet register(token,project_id,applet_info), applet_mgr)
+activity(_<, applet_mgr, applet created(applet_id), user)
+
+activity(_, user, deployment control(token,project_id,applet_id,deploy_cmd), applet_mgr)
+activity(|, applet_mgr, (deploy_cmd), vm_mgr)
+activity(|, vm_mgr, exec cmd,vm_instance)
+activity(|, vm_instance, cmd result, vm_mgr)
+activity(|, vm_mgr, (deploy_control_result), applet_mgr)
+activity(_, applet_mgr, (deploy_control_result), user)
+
+activity(_, device, event message, transporter)
+activity(_, transporter, event_data, filter)
+activity(_, filter, event_route event_data, dispatcher)
+activity(_, dispatcher, event_data, vm_instance)
+activity(_, vm_instance, data original, vm_dependencies)
+activity(_, vm_dependencies, data, vm_instance)
+activity(_, vm_instance, data, external)
+activity(_, external, result, vm_instance)
+activity(_, vm_instance, result, transporter)
+activity(_, transporter, result, device)
+
+@enduml

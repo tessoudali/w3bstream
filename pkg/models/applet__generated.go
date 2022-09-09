@@ -29,29 +29,29 @@ func (AppletIterator) Resolve(v interface{}) *Applet {
 	return v.(*Applet)
 }
 
-func (Applet) TableName() string {
+func (*Applet) TableName() string {
 	return "t_applet"
 }
 
-func (Applet) TableDesc() []string {
+func (*Applet) TableDesc() []string {
 	return []string{
 		"Applet database model demo",
 	}
 }
 
-func (Applet) Comments() map[string]string {
+func (*Applet) Comments() map[string]string {
 	return map[string]string{}
 }
 
-func (Applet) ColDesc() map[string][]string {
+func (*Applet) ColDesc() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Applet) ColRel() map[string][]string {
+func (*Applet) ColRel() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Applet) PrimaryKey() []string {
+func (*Applet) PrimaryKey() []string {
 	return []string{
 		"ID",
 	}
@@ -65,7 +65,7 @@ func (m *Applet) IndexFieldNames() []string {
 	}
 }
 
-func (Applet) UniqueIndexes() builder.Indexes {
+func (*Applet) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
 		"ui_applet_id": []string{
 			"AppletID",
@@ -76,11 +76,11 @@ func (Applet) UniqueIndexes() builder.Indexes {
 	}
 }
 
-func (Applet) UniqueIndexUiAppletId() string {
+func (*Applet) UniqueIndexUIAppletID() string {
 	return "ui_applet_id"
 }
 
-func (Applet) UniqueIndexUiAppletName() string {
+func (*Applet) UniqueIndexUIAppletName() string {
 	return "ui_applet_name"
 }
 
@@ -88,7 +88,7 @@ func (m *Applet) ColID() *builder.Column {
 	return AppletTable.ColByFieldName(m.FieldID())
 }
 
-func (Applet) FieldID() string {
+func (*Applet) FieldID() string {
 	return "ID"
 }
 
@@ -96,7 +96,7 @@ func (m *Applet) ColAppletID() *builder.Column {
 	return AppletTable.ColByFieldName(m.FieldAppletID())
 }
 
-func (Applet) FieldAppletID() string {
+func (*Applet) FieldAppletID() string {
 	return "AppletID"
 }
 
@@ -104,7 +104,7 @@ func (m *Applet) ColName() *builder.Column {
 	return AppletTable.ColByFieldName(m.FieldName())
 }
 
-func (Applet) FieldName() string {
+func (*Applet) FieldName() string {
 	return "Name"
 }
 
@@ -112,7 +112,7 @@ func (m *Applet) ColCreatedAt() *builder.Column {
 	return AppletTable.ColByFieldName(m.FieldCreatedAt())
 }
 
-func (Applet) FieldCreatedAt() string {
+func (*Applet) FieldCreatedAt() string {
 	return "CreatedAt"
 }
 
@@ -120,7 +120,7 @@ func (m *Applet) ColUpdatedAt() *builder.Column {
 	return AppletTable.ColByFieldName(m.FieldUpdatedAt())
 }
 
-func (Applet) FieldUpdatedAt() string {
+func (*Applet) FieldUpdatedAt() string {
 	return "UpdatedAt"
 }
 

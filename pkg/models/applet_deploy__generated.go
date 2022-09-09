@@ -29,35 +29,35 @@ func (AppletDeployIterator) Resolve(v interface{}) *AppletDeploy {
 	return v.(*AppletDeploy)
 }
 
-func (AppletDeploy) TableName() string {
+func (*AppletDeploy) TableName() string {
 	return "t_applet_deploy"
 }
 
-func (AppletDeploy) TableDesc() []string {
+func (*AppletDeploy) TableDesc() []string {
 	return []string{
 		"AppletDeploy applet deploy info",
 	}
 }
 
-func (AppletDeploy) Comments() map[string]string {
+func (*AppletDeploy) Comments() map[string]string {
 	return map[string]string{}
 }
 
-func (AppletDeploy) ColDesc() map[string][]string {
+func (*AppletDeploy) ColDesc() map[string][]string {
 	return map[string][]string{}
 }
 
-func (AppletDeploy) ColRel() map[string][]string {
+func (*AppletDeploy) ColRel() map[string][]string {
 	return map[string][]string{}
 }
 
-func (AppletDeploy) PrimaryKey() []string {
+func (*AppletDeploy) PrimaryKey() []string {
 	return []string{
 		"ID",
 	}
 }
 
-func (AppletDeploy) Indexes() builder.Indexes {
+func (*AppletDeploy) Indexes() builder.Indexes {
 	return builder.Indexes{
 		"i_applet_id": []string{
 			"AppletID",
@@ -74,7 +74,7 @@ func (m *AppletDeploy) IndexFieldNames() []string {
 	}
 }
 
-func (AppletDeploy) UniqueIndexes() builder.Indexes {
+func (*AppletDeploy) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
 		"ui_deploy_id": []string{
 			"DeployID",
@@ -86,11 +86,11 @@ func (AppletDeploy) UniqueIndexes() builder.Indexes {
 	}
 }
 
-func (AppletDeploy) UniqueIndexUiDeployId() string {
+func (*AppletDeploy) UniqueIndexUIDeployID() string {
 	return "ui_deploy_id"
 }
 
-func (AppletDeploy) UniqueIndexUiDeployVersion() string {
+func (*AppletDeploy) UniqueIndexUIDeployVersion() string {
 	return "ui_deploy_version"
 }
 
@@ -98,7 +98,7 @@ func (m *AppletDeploy) ColID() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldID())
 }
 
-func (AppletDeploy) FieldID() string {
+func (*AppletDeploy) FieldID() string {
 	return "ID"
 }
 
@@ -106,7 +106,7 @@ func (m *AppletDeploy) ColAppletID() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldAppletID())
 }
 
-func (AppletDeploy) FieldAppletID() string {
+func (*AppletDeploy) FieldAppletID() string {
 	return "AppletID"
 }
 
@@ -114,7 +114,7 @@ func (m *AppletDeploy) ColDeployID() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldDeployID())
 }
 
-func (AppletDeploy) FieldDeployID() string {
+func (*AppletDeploy) FieldDeployID() string {
 	return "DeployID"
 }
 
@@ -122,7 +122,7 @@ func (m *AppletDeploy) ColLocation() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldLocation())
 }
 
-func (AppletDeploy) FieldLocation() string {
+func (*AppletDeploy) FieldLocation() string {
 	return "Location"
 }
 
@@ -130,7 +130,7 @@ func (m *AppletDeploy) ColVersion() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldVersion())
 }
 
-func (AppletDeploy) FieldVersion() string {
+func (*AppletDeploy) FieldVersion() string {
 	return "Version"
 }
 
@@ -138,7 +138,7 @@ func (m *AppletDeploy) ColWasmFile() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldWasmFile())
 }
 
-func (AppletDeploy) FieldWasmFile() string {
+func (*AppletDeploy) FieldWasmFile() string {
 	return "WasmFile"
 }
 
@@ -146,7 +146,7 @@ func (m *AppletDeploy) ColAbiName() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldAbiName())
 }
 
-func (AppletDeploy) FieldAbiName() string {
+func (*AppletDeploy) FieldAbiName() string {
 	return "AbiName"
 }
 
@@ -154,7 +154,7 @@ func (m *AppletDeploy) ColAbiFile() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldAbiFile())
 }
 
-func (AppletDeploy) FieldAbiFile() string {
+func (*AppletDeploy) FieldAbiFile() string {
 	return "AbiFile"
 }
 
@@ -162,7 +162,7 @@ func (m *AppletDeploy) ColCreatedAt() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldCreatedAt())
 }
 
-func (AppletDeploy) FieldCreatedAt() string {
+func (*AppletDeploy) FieldCreatedAt() string {
 	return "CreatedAt"
 }
 
@@ -170,7 +170,7 @@ func (m *AppletDeploy) ColUpdatedAt() *builder.Column {
 	return AppletDeployTable.ColByFieldName(m.FieldUpdatedAt())
 }
 
-func (AppletDeploy) FieldUpdatedAt() string {
+func (*AppletDeploy) FieldUpdatedAt() string {
 	return "UpdatedAt"
 }
 

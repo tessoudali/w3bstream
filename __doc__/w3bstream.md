@@ -2,6 +2,9 @@
 
 ## 目标
 
+1. project注册
+
+
 1. applet创建和注册
 2. applet版本控制
 3. applet wasm vm部署和生命周期控制
