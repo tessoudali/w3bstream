@@ -80,7 +80,7 @@ fn _start(resource_id i32) -> i32 {
 }
 ```
 
-- Func imported to wasm(WIP)
+- Func imported to wasm
 
 ```rust
 fn getData(resource_id i32, return_ptr i32, return_size i32) i32 {
@@ -88,14 +88,19 @@ fn getData(resource_id i32, return_ptr i32, return_size i32) i32 {
     return Result_OK
 }
 
-fn setData(resource_id i32, ptr i32, size i32) {}
+fn setData(resource_id i32, ptr i32, size i32) i32 {
+    return Result_OK
+}
 
 fn getDB(namespace_data i32, namespace_size i32, key_data i32, key_size i32,
     return_value_ptr i32, return_value_size i32) i32 {
     return Result_OK
 }
 
-fn setDB() {}
+fn setDB(namespace_data i32, namespace_size i32, key_data i32, key_size i32,
+    value_ptr i32, value_size i32) i32 {
+    return Result_OK
+}
 
 fn log(logLevel i32, ptr i32, size i32) i32 {
     return Result_OK
