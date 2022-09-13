@@ -2,3 +2,4 @@ go.work
 build
 .session.vim
 .undodir
+.vscode
