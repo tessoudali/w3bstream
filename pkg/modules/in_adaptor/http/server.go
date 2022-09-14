@@ -9,10 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/iotexproject/Bumblebee/conf/log"
 
+	"github.com/iotexproject/w3bstream/pkg/common"
 	me "github.com/iotexproject/w3bstream/pkg/modules/event"
 )
 
-const strLenLimit = 50
+const (
+	strLenLimit   = 50
+	dataSizeLimit = 2 * common.KiB
+)
 
 // Run run http server
 func Run(events chan<- me.Event) {
@@ -27,10 +31,13 @@ func Run(events chan<- me.Event) {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		// TODO data size check
 		data, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			logger.Error(err)
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		if len(data) > dataSizeLimit {
 			c.Status(http.StatusBadRequest)
 			return
 		}
