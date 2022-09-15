@@ -1,4 +1,4 @@
-package common
+package unit
 
 const (
 	_ = iota // ignore first value by assigning to blank identifier

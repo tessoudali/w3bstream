@@ -12,3 +12,7 @@ type MetaData struct {
 	ProjectID   string
 	AppletID    string // optional
 }
+
+type EventResult interface {
+	ResultChan() chan<- bool
+}

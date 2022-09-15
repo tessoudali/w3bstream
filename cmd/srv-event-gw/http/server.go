@@ -9,25 +9,24 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/iotexproject/Bumblebee/conf/log"
 
-	"github.com/iotexproject/w3bstream/pkg/common"
+	"github.com/iotexproject/w3bstream/pkg/depends/unit"
 	me "github.com/iotexproject/w3bstream/pkg/modules/event"
 )
 
 const (
 	strLenLimit   = 50
-	dataSizeLimit = 2 * common.KiB
+	dataSizeLimit = 2 * unit.KiB
 )
 
 // Run run http server
-func Run(events chan<- me.Event) {
+func Run(events chan<- me.Event, logger log.Logger) {
 	r := gin.Default()
 
 	r.POST("/:project/*applet", func(c *gin.Context) {
-		logger := log.Std()
-		project := strings.TrimSpace(c.Param("project"))
-		applet := strings.TrimSpace(c.Param("applet"))
-		publisher := strings.TrimSpace(c.GetHeader("publisher"))
-		if !check(project, applet, publisher) {
+		projectID := strings.TrimSpace(c.Param("project"))
+		appletID := strings.TrimSpace(c.Param("applet"))
+		publisherID := strings.TrimSpace(c.GetHeader("publisher"))
+		if !check(projectID, appletID, publisherID) {
 			c.Status(http.StatusBadRequest)
 			return
 		}
@@ -42,13 +41,21 @@ func Run(events chan<- me.Event) {
 			return
 		}
 
+		res := make(chan bool)
 		events <- &event{
-			project:   project,
-			applet:    applet,
-			publisher: publisher,
-			data:      data,
+			projectID:   projectID,
+			appletID:    appletID,
+			publisherID: publisherID,
+			data:        data,
+			result:      res,
 		}
-		c.Status(http.StatusOK)
+		// TODO timeout
+		result := <-res
+		s := http.StatusOK
+		if !result {
+			s = http.StatusInternalServerError
+		}
+		c.Status(s)
 	})
 	r.Run()
 }
