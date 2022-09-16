@@ -7,7 +7,7 @@ type event struct {
 	appletID    string
 	publisherID string
 	data        []byte
-	result      chan bool
+	result      chan me.Result
 }
 
 func (e *event) Meta() me.MetaData {
@@ -22,6 +22,6 @@ func (e *event) Raw() []byte {
 	return e.data
 }
 
-func (e *event) ResultChan() chan<- bool {
+func (e *event) ResultChan() chan<- me.Result {
 	return e.result
 }

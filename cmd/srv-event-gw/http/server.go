@@ -41,7 +41,7 @@ func Run(events chan<- me.Event, logger log.Logger) {
 			return
 		}
 
-		res := make(chan bool)
+		res := make(chan me.Result)
 		events <- &event{
 			projectID:   projectID,
 			appletID:    appletID,
@@ -52,10 +52,10 @@ func Run(events chan<- me.Event, logger log.Logger) {
 		// TODO timeout
 		result := <-res
 		s := http.StatusOK
-		if !result {
+		if !result.Success {
 			s = http.StatusInternalServerError
 		}
-		c.Status(s)
+		c.Data(s, "application/octet-stream", result.Data)
 	})
 	r.Run()
 }

@@ -12,21 +12,24 @@ func (p *Proxifier) Proxy(events <-chan Event) {
 	for e := range events {
 		func() {
 			success := false
+			var data []byte
 			result, ok := e.(EventResult)
 			defer func() {
 				if ok {
-					result.ResultChan() <- success
+					result.ResultChan() <- Result{success, data}
 				}
 			}()
 
 			if !p.f.filter(e) {
 				return
 			}
-			if err := p.d.dispatch(e); err != nil {
+			res, err := p.d.dispatch(e)
+			if err != nil {
 				p.logger.Error(err)
 				return
 			}
 			success = true
+			data = res
 		}()
 	}
 }

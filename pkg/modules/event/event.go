@@ -13,6 +13,11 @@ type MetaData struct {
 	AppletID    string // optional
 }
 
+type Result struct {
+	Success bool
+	Data    []byte
+}
+
 type EventResult interface {
-	ResultChan() chan<- bool
+	ResultChan() chan<- Result
 }
