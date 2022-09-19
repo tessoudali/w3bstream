@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"sync"
 	"time"
 
@@ -9,7 +8,6 @@ import (
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
-	"github.com/iotexproject/w3bstream/pkg/modules/applet_deploy"
 )
 
 var app = global.App
@@ -19,22 +17,18 @@ func main() {
 		global.Migrate()
 	})
 
-	// TODO should add batch routines/daemons to app context
 	app.Execute(func(args ...string) {
 		BatchRun(
 			func() {
-				kit.Run(apis.RouterRoot, global.Server())
+				kit.Run(apis.Root, global.Server())
 			},
-			func() {
-				ctx := context.Background()
-				ctx = global.WithDatabaseContext(ctx)
-				ctx = global.WithMqttContext(ctx)
-				ctx = global.WithLoggerContext(ctx)
-				ctx = global.WithConfContext(ctx)
-				if err := applet_deploy.StartAppletVMs(ctx); err != nil {
-					panic(err)
-				}
-			},
+			// func() {
+			// 	if err := applet_deploy.StartAppletVMs(
+			// 		global.WithContext(context.Background()),
+			// 	); err != nil {
+			// 		panic(err)
+			// 	}
+			// },
 		)
 	})
 }

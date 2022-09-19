@@ -22,5 +22,5 @@ type RelApplet struct {
 
 type AppletInfo struct {
 	Name     string `db:"f_name"      json:"name"`
-	AssetLoc string `db:"f_asset_loc" json:"assetLoc"`
+	AssetLoc string `db:"f_asset_loc" json:"-"`
 }

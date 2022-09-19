@@ -92,6 +92,14 @@ func (*Applet) FieldID() string {
 	return "ID"
 }
 
+func (m *Applet) ColProjectID() *builder.Column {
+	return AppletTable.ColByFieldName(m.FieldProjectID())
+}
+
+func (*Applet) FieldProjectID() string {
+	return "ProjectID"
+}
+
 func (m *Applet) ColAppletID() *builder.Column {
 	return AppletTable.ColByFieldName(m.FieldAppletID())
 }
@@ -106,6 +114,14 @@ func (m *Applet) ColName() *builder.Column {
 
 func (*Applet) FieldName() string {
 	return "Name"
+}
+
+func (m *Applet) ColAssetLoc() *builder.Column {
+	return AppletTable.ColByFieldName(m.FieldAssetLoc())
+}
+
+func (*Applet) FieldAssetLoc() string {
+	return "AssetLoc"
 }
 
 func (m *Applet) ColCreatedAt() *builder.Column {

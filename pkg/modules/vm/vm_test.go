@@ -10,8 +10,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/wasmerio/wasmer-go/wasmer"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 	"github.com/second-state/WasmEdge-go/wasmedge"
+
+	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 )
 
 func TestNewWasm(t *testing.T) {
@@ -37,7 +38,6 @@ func TestNewWasm(t *testing.T) {
 func TestWasmRun(t *testing.T) {
 	_, current, _, _ := runtime.Caller(0)
 	root := filepath.Join(filepath.Dir(current), "../testdata/word_count/")
-
 
 	wasmedge.NewConfigure(wasmedge.WASI)
 

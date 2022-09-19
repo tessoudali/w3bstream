@@ -2,16 +2,66 @@ package applet
 
 import (
 	"context"
+	"mime/multipart"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/modules/project"
+	"github.com/iotexproject/w3bstream/pkg/modules/resource"
+	v1 "github.com/iotexproject/w3bstream/pkg/modules/vm/v1"
+	"github.com/iotexproject/w3bstream/pkg/types"
+
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
 )
+
+type CreateAndDeployReq struct {
+	File *multipart.FileHeader `name:"file"`
+	Info `name:"info"`
+}
+
+type Info struct {
+	ProjectID  string `json:"projectID"`
+	AppletName string `json:"appletName"`
+}
+
+func CreateAndDeployApplet(ctx context.Context, r *CreateAndDeployReq) (*models.Applet, error) {
+	// handle upload
+	appletID := uuid.New().String()
+	_, filename, err := resource.Upload(ctx, r.File, appletID)
+	if err != nil {
+		return nil, err
+	}
+
+	d := types.MustDBExecutorFromContext(ctx)
+
+	prj, err := project.GetAndValidateProjectPerm(ctx, r.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	m := &models.Applet{
+		RelProject: models.RelProject{ProjectID: r.ProjectID},
+		RelApplet:  models.RelApplet{AppletID: appletID},
+		AppletInfo: models.AppletInfo{Name: r.AppletName, AssetLoc: filename},
+	}
+	if err := m.Create(d); err != nil {
+		defer os.RemoveAll(filename)
+		return nil, err
+	}
+
+	_, err = v1.NewInstance(ctx, m.AssetLoc, prj.Name+"@"+m.Name)
+	if err != nil {
+		defer os.RemoveAll(filename)
+		return nil, err
+	}
+
+	return m, nil
+}
 
 type CreateAppletByNameReq struct {
 	Name string `json:"name"`
@@ -23,8 +73,8 @@ func CreateAppletByName(ctx context.Context, req *CreateAppletByNameReq) (*model
 		AppletInfo: models.AppletInfo{Name: req.Name},
 	}
 
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 
 	l.Start(ctx, "CreateAppletByName")
 	defer l.End()
@@ -88,8 +138,8 @@ type ListAppletRsp struct {
 func ListApplets(ctx context.Context, r *ListAppletReq) (*ListAppletRsp, error) {
 	applet := &models.Applet{}
 
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 
 	l.Start(ctx, "ListApplets")
 	defer l.End()
@@ -108,8 +158,8 @@ func ListApplets(ctx context.Context, r *ListAppletReq) (*ListAppletRsp, error) 
 }
 
 func RemoveApplet(ctx context.Context, appletID string) error {
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 
 	err := sqlx.NewTasks(d).With(
 		func(d sqlx.DBExecutor) error {

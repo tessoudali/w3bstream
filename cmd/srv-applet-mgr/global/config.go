@@ -16,41 +16,29 @@ import (
 	"github.com/iotexproject/Bumblebee/x/contextx"
 
 	"github.com/iotexproject/w3bstream/pkg/models"
+	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
 // global vars
 
 var (
-	postgres = &confpostgres.Endpoint{Database: models.DB}
-	mqtt     = &confmqtt.Broker{}
-	server   = &confhttp.Server{}
-	jwt      = &confjwt.Jwt{}
-	logger   = &conflog.Log{Name: "srv-demo"}
-	std      = conflog.Std()
-	conf     = &config{}
+	postgres   = &confpostgres.Endpoint{Database: models.DB}
+	mqtt       = &confmqtt.Broker{}
+	server     = &confhttp.Server{}
+	jwt        = &confjwt.Jwt{}
+	logger     = &conflog.Log{Name: "srv-demo"}
+	std        = conflog.Std()
+	uploadConf = &types.UploadConfig{}
 
 	App *confapp.Ctx
 )
-
-type config struct {
-	ResourceRoot string `env:""`
-	UploadLimit  int64  `env:""`
-}
-
-func (c *config) SetDefault() {
-	if c.ResourceRoot == "" {
-		c.ResourceRoot = "./asserts"
-	}
-	if c.UploadLimit == 0 {
-		c.UploadLimit = 100 * 1024 * 1024
-	}
-}
 
 func init() {
 	name := os.Getenv(consts.EnvProjectName)
 	if name == "" {
 		name = "srv-applet-mgr"
 	}
+	os.Setenv(consts.EnvProjectName, name)
 	logger.Name = name
 	App = confapp.New(
 		confapp.WithName(name),
@@ -58,22 +46,24 @@ func init() {
 		confapp.WithVersion("0.0.1"),
 		confapp.WithLogger(conflog.Std()),
 	)
-	App.Conf(postgres, server, jwt, logger, mqtt, conf)
+	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf)
 
 	confhttp.RegisterCheckerBy(postgres, mqtt, server)
 	std.(conflog.LevelSetter).SetLevel(conflog.InfoLevel)
+
+	WithContext = contextx.WithContextCompose(
+		types.WithDBExecutorContext(postgres),
+		types.WithPgEndpointContext(postgres),
+		types.WithLoggerContext(conflog.Std()),
+		types.WithMqttBrokerContext(mqtt),
+		types.WithUploadConfigContext(uploadConf),
+		confjwt.WithConfContext(jwt),
+	)
 }
 
-var WithContext = contextx.WithContextCompose(
-	WithDatabase(postgres),
-	WithLogger(conflog.Std()),
-	WithMqtt(mqtt),
-	WithConf(conf),
-)
+var WithContext contextx.WithContext
 
-func Server() kit.Transport {
-	return server.WithContextInjector(WithContext)
-}
+func Server() kit.Transport { return server.WithContextInjector(WithContext) }
 
 func Migrate() {
 	ctx, log := conflog.StdContext(context.Background())

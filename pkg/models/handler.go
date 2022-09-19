@@ -6,10 +6,11 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 )
 
-//go:generate toolkit gen model Handler --database DB
 // Handler handler info
 // @def primary                               ID
 // @def unique_index UI_applet_deploy_handler AppletID DeployID HandlerID
+//
+//go:generate toolkit gen model Handler --database DB
 type Handler struct {
 	datatypes.PrimaryID
 	RelApplet

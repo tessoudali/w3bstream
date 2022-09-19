@@ -5,8 +5,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/iotexproject/w3bstream/pkg/depends/schema"
 	. "github.com/onsi/gomega"
+
+	"github.com/iotexproject/w3bstream/pkg/depends/schema"
 )
 
 var c = &schema.Schema{}

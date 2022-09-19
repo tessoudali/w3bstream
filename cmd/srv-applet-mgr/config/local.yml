@@ -11,7 +11,7 @@ SRV_APPLET_MGR__CONFIG__UploadLimit: "104857600"
 
 SRV_APPLET_MGR__JWT__ExpIn: 1h
 SRV_APPLET_MGR__JWT__Issuer: "srv-applet-mgr"
-SRV_APPLET_MGR__JWT__SignKey: ""
+SRV_APPLET_MGR__JWT__SignKey: "xxxx"
 
 SRV_APPLET_MGR__LOG__Format: JSON
 SRV_APPLET_MGR__LOG__Level: DEBUG

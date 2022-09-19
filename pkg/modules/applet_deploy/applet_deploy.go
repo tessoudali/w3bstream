@@ -12,7 +12,8 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/types"
+
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/resource"
@@ -23,8 +24,6 @@ type CreateDeployByAssertReq struct {
 	File *multipart.FileHeader `name:"file"`
 	Info AssertInfo            `name:"info"`
 }
-
-
 
 type AssertInfo struct {
 	AppletID  string `json:"appletID"`
@@ -58,8 +57,8 @@ func CreateDeployByContext(ctx context.Context, c *vm.VM, r *CreateDeployContext
 	}
 	applet := models.Applet{RelApplet: models.RelApplet{AppletID: r.AppletID}}
 
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 
 	err := sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
@@ -147,7 +146,7 @@ func CreateDeployByAssert(ctx context.Context, r *CreateDeployByAssertReq) (*Cre
 		return nil, status.ExtractFileFailed.StatusErr().WithDesc(err.Error())
 	}
 
-	l := global.LoggerFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 
 	c, err := vm.Load(dst)
 	if err != nil {
@@ -240,8 +239,8 @@ type ListDeployRsp struct {
 }
 
 func ListDeploy(ctx context.Context, r *ListDeployReq) ([]models.AppletDeploy, error) {
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 
 	md := &models.AppletDeploy{}
 	ma := &models.Applet{}
@@ -277,8 +276,8 @@ func ListDeploy(ctx context.Context, r *ListDeployReq) ([]models.AppletDeploy, e
 }
 
 func RemoveDeployByAppletIDAndVersion(ctx context.Context, appletID, version string) error {
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := &models.AppletDeploy{
 		RelApplet:  models.RelApplet{AppletID: appletID},
 		DeployInfo: models.DeployInfo{Version: version},
@@ -293,8 +292,8 @@ func RemoveDeployByAppletIDAndVersion(ctx context.Context, appletID, version str
 }
 
 func RemoveDeployByDeployID(ctx context.Context, deployID string) error {
-	d := global.DBExecutorFromContext(ctx)
-	l := global.LoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := &models.AppletDeploy{
 		RelDeploy: models.RelDeploy{DeployID: deployID},
 	}

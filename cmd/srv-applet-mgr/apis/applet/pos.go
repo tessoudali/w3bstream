@@ -8,11 +8,11 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/modules/applet"
 )
 
-type CreateApplet struct {
+type CreateAndDeployApplet struct {
 	httpx.MethodPost
-	applet.CreateAppletByNameReq `in:"body"`
+	applet.CreateAndDeployReq `in:"body" mime:"multipart"`
 }
 
-func (r *CreateApplet) Output(ctx context.Context) (interface{}, error) {
-	return applet.CreateAppletByName(ctx, &r.CreateAppletByNameReq)
+func (r *CreateAndDeployApplet) Output(ctx context.Context) (interface{}, error) {
+	return applet.CreateAndDeployApplet(ctx, &r.CreateAndDeployReq)
 }

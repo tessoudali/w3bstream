@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 )

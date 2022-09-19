@@ -29,7 +29,7 @@ func main() {
 	{
 		_, err := r.NewModuleBuilder("env").
 			ExportFunction("log", log).
-			ExportFunction("add", add).
+			ExportFunction("inc", inc).
 			ExportFunction("get", get).
 			Instantiate(ctx, r)
 		if err != nil {
@@ -48,34 +48,38 @@ func main() {
 
 	// fns
 	var (
-		counter = mod.ExportedFunction("countWords")
+		counter = mod.ExportedFunction("start")
 		_       = mod.ExportedFunction("greet")
 		malloc  = mod.ExportedFunction("malloc")
 		free    = mod.ExportedFunction("free")
 	)
 
-	str := os.Args[1]
-	strlen := uint64(len(str))
+	// event handle
+	{
+		str := os.Args[1]
+		strlen := uint64(len(str))
 
-	results, err := malloc.Call(ctx, strlen)
-	if err != nil {
-		panic(err)
+		results, err := malloc.Call(ctx, strlen)
+		if err != nil {
+			panic(err)
+		}
+		ptr := results[0]
+		defer free.Call(ctx, ptr)
+		// free.Call(ctx, ptr2)
+
+		if !mod.Memory().Write(ctx, uint32(ptr), []byte(str)) {
+			panic(fmt.Sprintf("Memory.Write(%d, %d) out of range of memory size %d",
+				ptr, strlen, mod.Memory().Size(ctx)))
+		}
+
+		_, err = counter.Call(ctx, ptr, strlen)
+		if err != nil {
+			panic(err)
+		}
+
+		msg, _ := json.Marshal(words)
+		fmt.Println("host >> " + string(msg))
 	}
-	ptr := results[0]
-	defer free.Call(ctx, ptr)
-
-	if !mod.Memory().Write(ctx, uint32(ptr), []byte(str)) {
-		panic(fmt.Sprintf("Memory.Write(%d, %d) out of range of memory size %d",
-			ptr, strlen, mod.Memory().Size(ctx)))
-	}
-
-	_, err = counter.Call(ctx, ptr, strlen)
-	if err != nil {
-		panic(err)
-	}
-
-	msg, _ := json.Marshal(words)
-	fmt.Println("host >> " + string(msg))
 }
 
 func log(ctx context.Context, m api.Module, offset, size uint32) {
@@ -88,16 +92,16 @@ func log(ctx context.Context, m api.Module, offset, size uint32) {
 
 var words = make(map[string]int32)
 
-func add(ctx context.Context, m api.Module, offset, size uint32) (code int32) {
+func inc(ctx context.Context, m api.Module, offset, size uint32, delta int32) (code int32) {
 	buf, ok := m.Memory().Read(ctx, offset, size)
 	if !ok {
 		return 1
 	}
 	str := string(buf)
 	if _, ok := words[str]; !ok {
-		words[str] = 1
+		words[str] = delta
 	} else {
-		words[str]++
+		words[str] = words[str] + delta
 	}
 	return 0
 }

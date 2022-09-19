@@ -40,15 +40,38 @@ func (*Project) TableDesc() []string {
 }
 
 func (*Project) Comments() map[string]string {
-	return map[string]string{}
+	return map[string]string{
+		"AccountID": "AccountID  account id",
+		"Name":      "Name project name",
+		"Protocol":  "Protocol project protocol for event publisher",
+		"Version":   "Version project version",
+	}
 }
 
 func (*Project) ColDesc() map[string][]string {
-	return map[string][]string{}
+	return map[string][]string{
+		"AccountID": []string{
+			"AccountID  account id",
+		},
+		"Name": []string{
+			"Name project name",
+		},
+		"Protocol": []string{
+			"Protocol project protocol for event publisher",
+		},
+		"Version": []string{
+			"Version project version",
+		},
+	}
 }
 
 func (*Project) ColRel() map[string][]string {
-	return map[string][]string{}
+	return map[string][]string{
+		"AccountID": []string{
+			"Account",
+			"AccountID",
+		},
+	}
 }
 
 func (*Project) PrimaryKey() []string {
@@ -61,6 +84,7 @@ func (m *Project) IndexFieldNames() []string {
 	return []string{
 		"ID",
 		"Name",
+		"ProjectID",
 		"Version",
 	}
 }
@@ -72,11 +96,19 @@ func (*Project) UniqueIndexes() builder.Indexes {
 			"Version",
 			"DeletedAt",
 		},
+		"ui_project_id": []string{
+			"ProjectID",
+			"DeletedAt",
+		},
 	}
 }
 
 func (*Project) UniqueIndexUINameVersion() string {
 	return "ui_name_version"
+}
+
+func (*Project) UniqueIndexUIProjectID() string {
+	return "ui_project_id"
 }
 
 func (m *Project) ColID() *builder.Column {
@@ -85,6 +117,22 @@ func (m *Project) ColID() *builder.Column {
 
 func (*Project) FieldID() string {
 	return "ID"
+}
+
+func (m *Project) ColProjectID() *builder.Column {
+	return ProjectTable.ColByFieldName(m.FieldProjectID())
+}
+
+func (*Project) FieldProjectID() string {
+	return "ProjectID"
+}
+
+func (m *Project) ColAccountID() *builder.Column {
+	return ProjectTable.ColByFieldName(m.FieldAccountID())
+}
+
+func (*Project) FieldAccountID() string {
+	return "AccountID"
 }
 
 func (m *Project) ColName() *builder.Column {
@@ -109,6 +157,14 @@ func (m *Project) ColProtocol() *builder.Column {
 
 func (*Project) FieldProtocol() string {
 	return "Protocol"
+}
+
+func (m *Project) ColSchema() *builder.Column {
+	return ProjectTable.ColByFieldName(m.FieldSchema())
+}
+
+func (*Project) FieldSchema() string {
+	return "Schema"
 }
 
 func (m *Project) ColCreatedAt() *builder.Column {
@@ -209,6 +265,25 @@ func (m *Project) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
+func (m *Project) FetchByProjectID(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	err := db.QueryAndScan(
+		builder.Select(nil).
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
+						tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+					),
+				),
+				builder.Comment("Project.FetchByProjectID"),
+			),
+		m,
+	)
+	return err
+}
+
 func (m *Project) FetchByNameAndVersion(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
@@ -258,6 +333,37 @@ func (m *Project) UpdateByIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues)
 func (m *Project) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
 	return m.UpdateByIDWithFVs(db, fvs)
+}
+
+func (m *Project) UpdateByProjectIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
+	tbl := db.T(m)
+	res, err := db.Exec(
+		builder.Update(tbl).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
+					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+				),
+				builder.Comment("Project.UpdateByProjectIDWithFVs"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	if err != nil {
+		return err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return m.FetchByProjectID(db)
+	}
+	return nil
+}
+
+func (m *Project) UpdateByProjectID(db sqlx.DBExecutor, zeros ...string) error {
+	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
+	return m.UpdateByProjectIDWithFVs(db, fvs)
 }
 
 func (m *Project) UpdateByNameAndVersionWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
@@ -341,6 +447,49 @@ func (m *Project) SoftDeleteByID(db sqlx.DBExecutor) error {
 					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
 				),
 				builder.Comment("Project.SoftDeleteByID"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	return err
+}
+
+func (m *Project) DeleteByProjectID(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	_, err := db.Exec(
+		builder.Delete().
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
+						tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+					),
+				),
+				builder.Comment("Project.DeleteByProjectID"),
+			),
+	)
+	return err
+}
+
+func (m *Project) SoftDeleteByProjectID(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	fvs := builder.FieldValues{}
+
+	if _, ok := fvs["DeletedAt"]; !ok {
+		fvs["DeletedAt"] = types.Timestamp{Time: time.Now()}
+	}
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
+	_, err := db.Exec(
+		builder.Update(db.T(m)).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
+					tbl.ColByFieldName("DeletedAt").Eq(m.DeletedAt),
+				),
+				builder.Comment("Project.SoftDeleteByProjectID"),
 			).
 			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)

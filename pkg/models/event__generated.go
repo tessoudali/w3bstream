@@ -92,6 +92,14 @@ func (*Event) FieldEventID() string {
 	return "EventID"
 }
 
+func (m *Event) ColProjectID() *builder.Column {
+	return EventTable.ColByFieldName(m.FieldProjectID())
+}
+
+func (*Event) FieldProjectID() string {
+	return "ProjectID"
+}
+
 func (m *Event) ColAppletID() *builder.Column {
 	return EventTable.ColByFieldName(m.FieldAppletID())
 }

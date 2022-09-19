@@ -13,7 +13,8 @@ import (
 	w "github.com/wasmerio/wasmer-go/wasmer"
 	"gopkg.in/yaml.v2"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/types"
+
 	"github.com/iotexproject/w3bstream/pkg/models"
 )
 
@@ -139,7 +140,7 @@ func NewMonitorContext(c *VM, appletID, appletName, version string, hdls ...mode
 func Start(ctx context.Context, m *Monitor) {
 	topic := fmt.Sprintf("%s@%s", m.AppletName, m.Version)
 	logger := log.Std()
-	broker := global.MqttFromContext(ctx)
+	broker := types.MustMqttBrokerFromContext(ctx)
 
 	logger.Info("%s subscribe started", topic)
 	go func() {
@@ -152,7 +153,9 @@ func Start(ctx context.Context, m *Monitor) {
 			err = cli.WithTopic(topic).Subscribe(
 				func(c mqtt.Client, msg mqtt.Message) {
 					// TODO: defer log event
-					payload := msg.Payload()
+					payload := msg.Payload() // route data
+					// instance = dispatch(route)
+					// instance.exec(data)
 					// TODO get wasm addr(size)
 					// TODO pl -> addr
 					sum, err := m.instance.ExecuteFunction("run", payload)

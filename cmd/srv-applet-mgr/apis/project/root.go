@@ -1,12 +1,12 @@
-package applet
+package project
 
 import (
 	"github.com/iotexproject/Bumblebee/kit/httptransport"
 	"github.com/iotexproject/Bumblebee/kit/kit"
 )
 
-var Root = kit.NewRouter(httptransport.Group("/applet"))
+var Root = kit.NewRouter(httptransport.Group("/project"))
 
 func init() {
-	Root.Register(kit.NewRouter(&CreateAndDeployApplet{}))
+	Root.Register(kit.NewRouter(&CreateProject{}))
 }

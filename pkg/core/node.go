@@ -36,7 +36,8 @@ func NewNode(cfg Config, ac access.Control, client web3.Client, rawDB storage.KV
 }
 
 // Put puts message into db after processing
-//   Single node mode, without consensus module
+//
+//	Single node mode, without consensus module
 func (node *Node) Put(msg types.Message) error {
 	auth, err := node.ac.Check(msg.Sender, msg.Nonce, msg.Hash(), msg.Authentication)
 	if err != nil {

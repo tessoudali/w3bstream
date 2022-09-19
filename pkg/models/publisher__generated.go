@@ -29,29 +29,29 @@ func (PublisherIterator) Resolve(v interface{}) *Publisher {
 	return v.(*Publisher)
 }
 
-func (Publisher) TableName() string {
+func (*Publisher) TableName() string {
 	return "t_publisher"
 }
 
-func (Publisher) TableDesc() []string {
+func (*Publisher) TableDesc() []string {
 	return []string{
 		"Publisher database model demo",
 	}
 }
 
-func (Publisher) Comments() map[string]string {
+func (*Publisher) Comments() map[string]string {
 	return map[string]string{}
 }
 
-func (Publisher) ColDesc() map[string][]string {
+func (*Publisher) ColDesc() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Publisher) ColRel() map[string][]string {
+func (*Publisher) ColRel() map[string][]string {
 	return map[string][]string{}
 }
 
-func (Publisher) PrimaryKey() []string {
+func (*Publisher) PrimaryKey() []string {
 	return []string{
 		"ID",
 	}
@@ -64,7 +64,7 @@ func (m *Publisher) IndexFieldNames() []string {
 	}
 }
 
-func (Publisher) UniqueIndexes() builder.Indexes {
+func (*Publisher) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
 		"ui_publisher_id": []string{
 			"PublisherID",
@@ -72,7 +72,7 @@ func (Publisher) UniqueIndexes() builder.Indexes {
 	}
 }
 
-func (Publisher) UniqueIndexUIPublisherID() string {
+func (*Publisher) UniqueIndexUIPublisherID() string {
 	return "ui_publisher_id"
 }
 
@@ -80,7 +80,7 @@ func (m *Publisher) ColID() *builder.Column {
 	return PublisherTable.ColByFieldName(m.FieldID())
 }
 
-func (Publisher) FieldID() string {
+func (*Publisher) FieldID() string {
 	return "ID"
 }
 
@@ -88,7 +88,7 @@ func (m *Publisher) ColProjectID() *builder.Column {
 	return PublisherTable.ColByFieldName(m.FieldProjectID())
 }
 
-func (Publisher) FieldProjectID() string {
+func (*Publisher) FieldProjectID() string {
 	return "ProjectID"
 }
 
@@ -96,7 +96,7 @@ func (m *Publisher) ColPublisherID() *builder.Column {
 	return PublisherTable.ColByFieldName(m.FieldPublisherID())
 }
 
-func (Publisher) FieldPublisherID() string {
+func (*Publisher) FieldPublisherID() string {
 	return "PublisherID"
 }
 
@@ -104,7 +104,7 @@ func (m *Publisher) ColName() *builder.Column {
 	return PublisherTable.ColByFieldName(m.FieldName())
 }
 
-func (Publisher) FieldName() string {
+func (*Publisher) FieldName() string {
 	return "Name"
 }
 
@@ -112,7 +112,7 @@ func (m *Publisher) ColCreatedAt() *builder.Column {
 	return PublisherTable.ColByFieldName(m.FieldCreatedAt())
 }
 
-func (Publisher) FieldCreatedAt() string {
+func (*Publisher) FieldCreatedAt() string {
 	return "CreatedAt"
 }
 
@@ -120,7 +120,7 @@ func (m *Publisher) ColUpdatedAt() *builder.Column {
 	return PublisherTable.ColByFieldName(m.FieldUpdatedAt())
 }
 
-func (Publisher) FieldUpdatedAt() string {
+func (*Publisher) FieldUpdatedAt() string {
 	return "UpdatedAt"
 }
 

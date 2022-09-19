@@ -13,21 +13,21 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/disk"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
 var reserve = int64(100 * 1024 * 1024)
 
 func Upload(ctx context.Context, f *multipart.FileHeader, id string) (root, filename string, err error) {
-	conf := global.ConfFromContext(ctx)
+	conf := types.MustUploadConfigFromContext(ctx)
 	var (
 		fr       io.ReadSeekCloser
 		fw       io.WriteCloser
 		filesize = int64(0)
 	)
 
-	root = filepath.Join(conf.ResourceRoot, id)
-	filename = filepath.Join(conf.ResourceRoot, id, f.Filename)
+	root = filepath.Join(conf.Root, id)
+	filename = filepath.Join(conf.Root, id, f.Filename)
 
 	if !IsDirExists(root) {
 		if err = os.MkdirAll(root, 0777); err != nil {
@@ -43,7 +43,7 @@ func Upload(ctx context.Context, f *multipart.FileHeader, id string) (root, file
 	if filesize, err = fr.Seek(0, io.SeekEnd); err != nil {
 		return
 	}
-	if filesize > conf.UploadLimit {
+	if filesize > conf.FileSizeLimit {
 		err = errors.Wrap(err, "filesize over limit")
 		return
 	}

@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/ethereum/go-ethereum v1.10.21
+	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/iotexproject/Bumblebee v0.0.0-20220823042443-8465a9413b0a
 	github.com/onsi/gomega v1.20.0
@@ -24,7 +25,6 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -66,6 +66,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/iotexproject/w3bstream => ./
-
-// replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee
+replace github.com/iotexproject/Bumblebee => /Users/sincos/sincos/src/github.com/iotexproject/Bumblebee

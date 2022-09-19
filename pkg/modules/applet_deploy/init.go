@@ -6,13 +6,13 @@ import (
 	"github.com/iotexproject/Bumblebee/conf/log"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
+	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
 func StartAppletVMs(ctx context.Context) error {
-	d := global.DBExecutorFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
 	l := log.Std()
 	ma := &models.Applet{}
 	md := &models.AppletDeploy{}
