@@ -22,11 +22,11 @@ const (
 func Run(events chan<- me.Event, logger log.Logger) {
 	r := gin.Default()
 
-	r.POST("/:project/*applet", func(c *gin.Context) {
-		projectID := strings.TrimSpace(c.Param("project"))
+	r.POST("/:applet/*handler", func(c *gin.Context) {
 		appletID := strings.TrimSpace(c.Param("applet"))
+		handler := strings.TrimSpace(c.Param("handler"))
 		publisherID := strings.TrimSpace(c.GetHeader("publisher"))
-		if !check(projectID, appletID, publisherID) {
+		if !check(appletID, handler, publisherID) {
 			c.Status(http.StatusBadRequest)
 			return
 		}
@@ -43,7 +43,7 @@ func Run(events chan<- me.Event, logger log.Logger) {
 
 		res := make(chan me.Result)
 		events <- &event{
-			projectID:   projectID,
+			handler:     handler,
 			appletID:    appletID,
 			publisherID: publisherID,
 			data:        data,
@@ -60,12 +60,12 @@ func Run(events chan<- me.Event, logger log.Logger) {
 	r.Run()
 }
 
-func check(project, applet, publisher string) bool {
-	if l := utf8.RuneCountInString(project); l <= 0 || l > strLenLimit {
+func check(appletID, handler, publisher string) bool {
+	if l := utf8.RuneCountInString(appletID); l <= 0 || l > strLenLimit {
 		return false
 	}
 	if l := utf8.RuneCountInString(publisher); l <= 0 || l > strLenLimit {
 		return false
 	}
-	return utf8.RuneCountInString(applet) <= strLenLimit
+	return utf8.RuneCountInString(handler) <= strLenLimit
 }

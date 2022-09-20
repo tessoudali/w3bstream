@@ -9,8 +9,8 @@ type Event interface {
 
 type MetaData struct {
 	PublisherID string
-	ProjectID   string
-	AppletID    string // optional
+	AppletID    string
+	Handler     string // optional
 }
 
 type Result struct {

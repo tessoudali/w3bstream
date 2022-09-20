@@ -3,7 +3,7 @@ package http
 import me "github.com/iotexproject/w3bstream/pkg/modules/event"
 
 type event struct {
-	projectID   string
+	handler     string
 	appletID    string
 	publisherID string
 	data        []byte
@@ -13,7 +13,7 @@ type event struct {
 func (e *event) Meta() me.MetaData {
 	return me.MetaData{
 		PublisherID: e.publisherID,
-		ProjectID:   e.projectID,
+		Handler:     e.handler,
 		AppletID:    e.appletID,
 	}
 }
