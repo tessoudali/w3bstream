@@ -7,7 +7,7 @@ require (
 	github.com/ethereum/go-ethereum v1.10.21
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
-	github.com/iotexproject/Bumblebee v0.0.0-20220823042443-8465a9413b0a
+	github.com/iotexproject/Bumblebee v0.0.0-20220920023732-b90d0dd8c137
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
 	github.com/saitofun/qlib v0.0.0-20220822220243-9fdd3992fe4b

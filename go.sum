@@ -55,6 +55,8 @@ github.com/inconshreveable/mousetrap v1.0.1 h1:U3uMjPSQEBMNp1lFxmllqCPM6P5u/Xq7P
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/iotexproject/Bumblebee v0.0.0-20220823042443-8465a9413b0a h1:SlfD1MF4p50vMN9NQQ96SkIYCH+Cs34qYrxwF2Nx6kc=
 github.com/iotexproject/Bumblebee v0.0.0-20220823042443-8465a9413b0a/go.mod h1:fi0xlGqZ3h9UAsKzr2CPqcdOzMnC7oA70ZueozFyAxw=
+github.com/iotexproject/Bumblebee v0.0.0-20220920023732-b90d0dd8c137 h1:D61Iel/wK3sqU0n0LyE6hGmDztQ/lRHwC0vdzIK4eE0=
+github.com/iotexproject/Bumblebee v0.0.0-20220920023732-b90d0dd8c137/go.mod h1:fi0xlGqZ3h9UAsKzr2CPqcdOzMnC7oA70ZueozFyAxw=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/julienschmidt/httprouter v1.3.0 h1:U0609e9tgbseu3rBINet9P48AI/D3oJs4dN7jwJOQ1U=
