@@ -24,7 +24,7 @@ build_server:
 	@cd cmd/srv-applet-mgr && go build
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
-	@cp cmd/srv-applet-mgr/config build/config -r
+	@cp -r cmd/srv-applet-mgr/config build/config
 	@echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
 	@echo 'succeed! config =>build/config/'
 	@echo 'modify config/local.yaml to use your server config'
