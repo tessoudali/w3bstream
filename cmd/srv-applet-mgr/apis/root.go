@@ -31,4 +31,5 @@ func init() {
 		RouterAuth.Register(project.Root)
 		RouterAuth.Register(applet.Root)
 	}
+	// RouterV0.Register(nil /* TODO event push route*/)
 }

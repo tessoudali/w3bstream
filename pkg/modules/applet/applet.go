@@ -49,12 +49,22 @@ func CreateAndDeployApplet(ctx context.Context, r *CreateAndDeployReq) (*models.
 		RelApplet:  models.RelApplet{AppletID: appletID},
 		AppletInfo: models.AppletInfo{Name: r.AppletName, AssetLoc: filename},
 	}
+
 	if err := m.Create(d); err != nil {
 		defer os.RemoveAll(filename)
 		return nil, err
 	}
 
-	_, err = v1.NewInstance(ctx, m.AssetLoc, prj.Name+"@"+m.Name)
+	instanceID, err := v1.NewInstance(m.AssetLoc,
+		v1.InstanceOptionWithChannel(prj.Name+"@"+m.Name),
+		v1.InstanceOptionWithLogger(types.MustLoggerFromContext(ctx)),
+		v1.InstanceOptionWithMqttBroker(types.MustMqttBrokerFromContext(ctx)),
+	)
+	if err != nil {
+		defer os.RemoveAll(filename)
+		return nil, err
+	}
+	err = v1.RunInstance(instanceID)
 	if err != nil {
 		defer os.RemoveAll(filename)
 		return nil, err
@@ -62,6 +72,12 @@ func CreateAndDeployApplet(ctx context.Context, r *CreateAndDeployReq) (*models.
 
 	return m, nil
 }
+
+// CreateApplet (prjID ,apple info)
+// QueryInsByAppletID()...
+// CreateIns... (apple + version)
+// StopIns (insID)
+// QueryInsByInsId(insID)
 
 type CreateAppletByNameReq struct {
 	Name string `json:"name"`
