@@ -19,7 +19,7 @@ func init() {
 
 	var err error
 	c, err = schema.LoadConfigFrom(
-		file, "demo", "0.0.0",
+		file, "demo", "demo", "0.0.0",
 	)
 	if err != nil {
 		panic(err)
@@ -27,7 +27,7 @@ func init() {
 }
 
 func TestConfig_Schema(t *testing.T) {
-	NewWithT(t).Expect(c.SchemaName()).To(Equal("demo_0.0.1"))
+	NewWithT(t).Expect(c.SchemaName()).To(Equal("demo_0.0.0"))
 }
 
 // func ExampleConfig_SnippetDefs() {

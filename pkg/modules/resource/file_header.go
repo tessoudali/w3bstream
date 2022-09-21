@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/v3/disk"
 
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
