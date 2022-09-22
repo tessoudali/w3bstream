@@ -1,4 +1,4 @@
-package http
+package event
 
 import me "github.com/iotexproject/w3bstream/pkg/modules/event"
 

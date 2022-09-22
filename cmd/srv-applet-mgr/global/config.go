@@ -16,6 +16,8 @@ import (
 	"github.com/iotexproject/Bumblebee/x/contextx"
 
 	"github.com/iotexproject/w3bstream/pkg/models"
+	"github.com/iotexproject/w3bstream/pkg/modules/event"
+	"github.com/iotexproject/w3bstream/pkg/modules/event/proxy"
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
@@ -57,6 +59,7 @@ func init() {
 		types.WithLoggerContext(conflog.Std()),
 		types.WithMqttBrokerContext(mqtt),
 		types.WithUploadConfigContext(uploadConf),
+		types.WithEventChanContext(make(chan event.Event, 512)),
 		confjwt.WithConfContext(jwt),
 	)
 }
@@ -73,4 +76,8 @@ func Migrate() {
 	if err := migration.Migrate(postgres.WithContext(ctx), nil); err != nil {
 		log.Panic(err)
 	}
+}
+
+func EventProxy() {
+	proxy.Proxy(WithContext(context.Background()))
 }

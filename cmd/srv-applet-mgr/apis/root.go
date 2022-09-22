@@ -7,6 +7,7 @@ import (
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/account"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/applet"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/event"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/login"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/project"
@@ -31,5 +32,7 @@ func init() {
 		RouterAuth.Register(project.Root)
 		RouterAuth.Register(applet.Root)
 	}
-	// RouterV0.Register(nil /* TODO event push route*/)
+	{
+		Root.Register(event.Root)
+	}
 }
