@@ -21,7 +21,7 @@ func Proxy(ctx context.Context, e event.Event) {
 			}
 		}()
 
-		res, err := dispatch(e)
+		res, err := dispatch(ctx, e)
 		if err != nil {
 			logger.Error(err)
 			return
