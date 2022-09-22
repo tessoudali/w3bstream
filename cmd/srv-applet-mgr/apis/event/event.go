@@ -1,9 +1,12 @@
 package event
 
-import me "github.com/iotexproject/w3bstream/pkg/modules/event"
+import (
+	me "github.com/iotexproject/w3bstream/pkg/modules/event"
+)
 
 type event struct {
 	handler     string
+	projectID   string
 	appletID    string
 	publisherID string
 	data        []byte
@@ -15,6 +18,7 @@ func (e *event) Meta() me.MetaData {
 		PublisherID: e.publisherID,
 		Handler:     e.handler,
 		AppletID:    e.appletID,
+		ProjectID:   e.projectID,
 	}
 }
 
