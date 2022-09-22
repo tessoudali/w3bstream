@@ -28,14 +28,12 @@ func init() {
 	RouterServer.Register(RouterV0)
 
 	RouterV0.Register(login.Root)
+	RouterV0.Register(event.Root)
 	RouterV0.Register(RouterAuth)
 	{
 		RouterAuth.Register(account.Root)
 		RouterAuth.Register(project.Root)
 		RouterAuth.Register(applet.Root)
 		RouterAuth.Register(deploy.Root)
-	}
-	{
-		Root.Register(event.Root)
 	}
 }

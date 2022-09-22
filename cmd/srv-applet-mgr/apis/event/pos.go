@@ -25,7 +25,7 @@ type RecvEvent struct {
 	AppletID  string `in:"path" name:"applet"`
 	Handler   string `in:"path" name:"handler"`
 	Publisher string `in:"header" name:"publisher"`
-	Data      string `in:"body" name:"data"`
+	Data      []byte `in:"body" name:"data"`
 }
 
 func (r *RecvEvent) Path() string {
@@ -40,13 +40,13 @@ func (r *RecvEvent) Output(ctx context.Context) (interface{}, error) {
 		return nil, status.BadRequest
 	}
 
-	res := make(chan me.Result)
+	res := make(chan me.Result, 1)
 	proxy.Proxy(ctx, &event{
 		projectID:   r.ProjectID,
 		handler:     r.Handler,
 		appletID:    r.AppletID,
 		publisherID: r.Publisher,
-		data:        []byte(r.Data),
+		data:        r.Data,
 		result:      res,
 	})
 	// TODO timeout

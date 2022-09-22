@@ -11,7 +11,6 @@ import (
 
 func Proxy(ctx context.Context, e event.Event) {
 	logger := types.MustLoggerFromContext(ctx)
-	d := &dispatcher{}
 	func() {
 		success := false
 		var data []byte
@@ -22,7 +21,7 @@ func Proxy(ctx context.Context, e event.Event) {
 			}
 		}()
 
-		res, err := d.dispatch(e)
+		res, err := dispatch(e)
 		if err != nil {
 			logger.Error(err)
 			return
