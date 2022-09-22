@@ -2,12 +2,15 @@ package models
 
 import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-// Event database model demo
+// EventLog database model event
 // @def primary                     ID
 // @def unique_index UI_event_id    EventID
+// @def index        I_project_id   ProjectID
+// @def index        I_applet_id    ProjectID
+// @def index        I_publisher_id PublisherID
 //
-//go:generate toolkit gen model Event --database DB
-type Event struct {
+//go:generate toolkit gen model EventLog --database DB
+type EventLog struct {
 	datatypes.PrimaryID
 	RefEventID
 	EventInfo
@@ -21,5 +24,5 @@ type RefEventID struct {
 type EventInfo struct {
 	RelProject
 	RelApplet
-	RelHandler
+	RelPublisher
 }

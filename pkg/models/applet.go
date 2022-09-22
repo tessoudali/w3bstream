@@ -1,11 +1,15 @@
 package models
 
-import "github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+import (
+	"database/sql/driver"
 
-// Applet database model demo
-// @def primary                     ID
-// @def unique_index UI_applet_name Name
-// @def unique_index UI_applet_id   AppletID
+	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+)
+
+// Applet database model applet
+// @def primary                   ID
+// @def unique_index UI_applet_id AppletID
+// @def index        I_name       Name
 //
 //go:generate toolkit gen model Applet --database DB
 type Applet struct {
@@ -21,6 +25,15 @@ type RelApplet struct {
 }
 
 type AppletInfo struct {
-	Name     string `db:"f_name"      json:"name"`
-	AssetLoc string `db:"f_asset_loc" json:"-"`
+	Name   string       `db:"f_name"              json:"name"`
+	Path   string       `db:"f_path"              json:"-"`
+	Config AppletConfig `db:"f_config,default=''" json:"config"`
 }
+
+type AppletConfig struct{}
+
+func (AppletConfig) DataType(drv string) string { return "text" }
+
+func (v AppletConfig) Value() (driver.Value, error) { return nil, nil }
+
+func (v *AppletConfig) Scan(src interface{}) error { return nil }
