@@ -1,30 +1,103 @@
 # w3bstream
-A brief introduction of w3bstream.
 
-System Architecture Diagram
+## Arch
 
-## Getting Started
+![w3bstream](__doc__/modules_and_dataflow.png)
 
-### Prerequisites
-What're the supported running environments
+## Features
 
-### Installation
-Command to build and install
+1. wasm applet management
+2. wasm runtime instance deployment
+3. interact with wasm (a word count demo)
 
-## Usage
+## How to run
 
-### Start server
-Start dependents and a w3bstream node
+### dependencies:
 
-### Deploy a project
-Deploy a project onto the w3bstream node
+- docker: to start a postgres
+- httpie: a simple curl command
 
-// follow with an example of deployment
+### init database
 
-### Interact with server
-How to interact with the server to manage project
+```sh
+make run_depends # start postgres and mqtt
+make migrate     # create or update schema
+```
 
-// follow with some example commands
+### create admin account
 
-### Send events to server from clients
-// follow with an example of sending events
+> if admin already created, skip this step
+
+```sh
+make create_admin
+> username: admin
+> password: c6a0a469cf1b506c251ccf966ce315e1
+> please remember it
+```
+
+### login(get token)
+
+command
+
+```sh
+echo '{"username":"admin","password":"{password}"}' | http put :8888/srv-applet-mgr/v0/login 
+```
+
+output like
+
+```json
+{
+  "accountID": "4d6a0bda-bfe2-4d6c-b146-a7205a7bafae",
+  "expireAt": "2022-09-23T07:20:08.099601+08:00",
+  "issuer": "srv-applet-mgr",
+  "token": "{token}"
+}
+```
+
+### create your project
+
+command
+
+```sh
+echo '{"name":"project_name","version":"0.0.1"}' | http post :8888/srv-applet-mgr/v0/project -A bearer -a {token}
+```
+
+output like
+
+```json
+{
+  "accountID": "4d6a0bda-bfe2-4d6c-b146-a7205a7bafae",
+  "createdAt": "2022-09-23T07:26:52.013626+08:00",
+  "name": "project_name",
+  "projectID": "254fd639-ae90-479c-9788-e2890c56e2c4",
+  "updatedAt": "2022-09-23T07:26:52.013626+08:00",
+  "version": "0.0.1"
+}
+```
+
+### create and deploy applet
+
+command
+
+```sh
+http --form post :8888/srv-applet-mgr/v0/applet file@{path_to_wasm_file} info='{"projectID":"254fd639-ae90-479c-9788-e2890c56e2c4","appletName":"applet_name"}' -A bearer -a {token}
+```
+
+output like
+
+```json
+{
+  "appletID": "924ac719-875a-4983-896f-5292273100b3",
+  "config": null,
+  "createdAt": "2022-09-23T07:37:08.101494+08:00",
+  "name": "applet_name",
+  "projectID": "254fd639-ae90-479c-9788-e2890c56e2c4",
+  "updatedAt": "2022-09-23T07:37:08.101494+08:00"
+}
+```
+
+// TODO word count wasm
+
+### publish event to server
+
+// TODO event api

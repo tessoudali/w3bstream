@@ -22,8 +22,7 @@ type Instance struct {
 }
 
 type RelInstance struct {
-	InstanceID   string `db:"f_instance_id"    json:"instanceID"`
-	InstanceVMID uint32 `db:"f_instance_vm_id" json:"instanceVMID"`
+	InstanceID uint32 `db:"f_instance_id"    json:"instanceID"`
 }
 
 type InstanceInfo struct {

@@ -46,6 +46,10 @@ func (v Error) Key() string {
 		return "MD5ChecksumFailed"
 	case Unauthorized:
 		return "Unauthorized"
+	case Forbidden:
+		return "Forbidden"
+	case InstanceLimit:
+		return "InstanceLimit"
 	case NotFound:
 		return "NotFound"
 	case Conflict:
@@ -70,6 +74,10 @@ func (v Error) Msg() string {
 		return ""
 	case Unauthorized:
 		return "Unauthorized unauthorized"
+	case Forbidden:
+		return ""
+	case InstanceLimit:
+		return "deployed instance limit"
 	case NotFound:
 		return "NotFound"
 	case Conflict:
@@ -93,6 +101,10 @@ func (v Error) CanBeTalk() bool {
 	case MD5ChecksumFailed:
 		return false
 	case Unauthorized:
+		return true
+	case Forbidden:
+		return false
+	case InstanceLimit:
 		return true
 	case NotFound:
 		return false

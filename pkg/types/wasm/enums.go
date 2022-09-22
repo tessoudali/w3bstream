@@ -1,5 +1,7 @@
 package wasm
 
+import "github.com/iotexproject/w3bstream/pkg/enums"
+
 var NameVersion = "w3bstream@v0.0.1"
 
 // ResultStatusCode wasm call result code
@@ -11,10 +13,4 @@ const (
 	ResultStatusCode_Failed = -1 // reserved for wasm invoke failed
 )
 
-type InstanceState int32
-
-const (
-	InstanceState_Created = iota + 1
-	InstanceState_Started
-	InstanceState_Stopped
-)
+type InstanceState = enums.InstanceState

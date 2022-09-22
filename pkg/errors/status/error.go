@@ -25,6 +25,12 @@ const (
 )
 
 const (
+	Forbidden Error = http.StatusForbidden*1e6 + iota + 1
+	// @errTalk deployed instance limit
+	InstanceLimit
+)
+
+const (
 	// Conflict conflict error
 	Conflict Error = http.StatusConflict*1e6 + iota + 1
 )

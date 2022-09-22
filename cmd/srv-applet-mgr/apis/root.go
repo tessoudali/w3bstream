@@ -9,7 +9,6 @@ import (
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/applet"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/deploy"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/event"
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/instance"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/login"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/project"
@@ -35,6 +34,5 @@ func init() {
 		RouterAuth.Register(project.Root)
 		RouterAuth.Register(applet.Root)
 		RouterAuth.Register(deploy.Root)
-		RouterAuth.Register(instance.Root)
 	}
 }

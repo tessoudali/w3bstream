@@ -3,68 +3,137 @@ package deploy
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/iotexproject/Bumblebee/kit/sqlx"
+	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+	"github.com/pkg/errors"
 
 	"github.com/iotexproject/w3bstream/pkg/enums"
+	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
+	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
-type CreateInstanceReq struct {
-	ProjectID string `in:"path" name:"projectID"`
-	AppletID  string `in:"path" name:"appletID"`
-}
-
 type CreateInstanceRsp struct {
-	ProjectID     string              `json:"projectID"`
-	AppletID      string              `json:"appletID"`
-	InstanceID    string              `json:"instanceID,omitempty"`
+	InstanceID    uint32              `json:"instanceID"`
 	InstanceState enums.InstanceState `json:"instanceState"`
 }
 
-func CreateInstance(ctx context.Context, r *CreateInstanceReq) (*CreateInstanceRsp, error) {
-	// TODO
-	return nil, nil
+func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstanceRsp, error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Instance{
+		RelApplet: models.RelApplet{AppletID: appletID},
+	}
+	count, err := m.Count(d, m.ColAppletID().Eq(appletID))
+	if err != nil {
+		return nil, err
+	}
+	if count > 0 {
+		return nil, status.InstanceLimit
+	}
+
+	m.InstanceID, err = vm.NewInstance(path, vm.DefaultInstanceOptionSetter)
+	if err != nil {
+		return nil, err
+	}
+	m.State = enums.INSTANCE_STATE__CREATED
+
+	if err = m.Create(d); err != nil {
+		_ = vm.DelInstance(m.InstanceID)
+		return nil, err
+	}
+
+	return &CreateInstanceRsp{
+		InstanceID:    m.InstanceID,
+		InstanceState: m.State,
+	}, nil
 }
 
-type ControlReq struct {
-	ProjectID  string          `in:"path"  name:"projectID"`
-	InstanceID string          `in:"path"  name:"instanceID"`
-	Cmd        enums.DeployCmd `in:"query" name:"cmd"`
-}
+func ControlInstance(ctx context.Context, instanceID uint32, cmd enums.DeployCmd) (err error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
+	m := &models.Instance{RelInstance: models.RelInstance{InstanceID: instanceID}}
 
-func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd) error {
-	// TODO
-	id, err := uuid.Parse(instanceID)
+	l.Start(ctx, "ControlInstance")
+	defer l.End()
+
+	defer func() {
+		if err != nil {
+			l.WithValues("instance", instanceID, "cmd", cmd).Error(err)
+		}
+	}()
+
+	if err = m.FetchByInstanceID(d); err != nil {
+		return err
+	}
 
 	switch cmd {
-	case enums.DEPLOY_CMD__CREATE:
 	case enums.DEPLOY_CMD__REMOVE:
-		// TODO stop instance and remove rel from database
-		err = vm.DelInstance(id.ID())
+		if err = vm.DelInstance(instanceID); err != nil {
+			return err
+		}
+		if err = m.DeleteByInstanceID(d); err != nil {
+			return err
+		}
 	case enums.DEPLOY_CMD__STOP:
-		err = vm.StopInstance(id.ID())
-		// TODO
+		if err = vm.StopInstance(instanceID); err != nil {
+			return err
+		}
+		m.State = enums.INSTANCE_STATE__STOPPED
+		if err = m.UpdateByInstanceID(d); err != nil {
+			return err
+		}
 	case enums.DEPLOY_CMD__START:
-		err = vm.StartInstance(id.ID())
-		return err
+		if err = vm.StartInstance(instanceID); err != nil {
+			return err
+		}
+		m.State = enums.INSTANCE_STATE__STARTED
+		if err = m.UpdateByInstanceID(d); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-type GetInstanceRsp struct {
-	models.Instance
-	State enums.InstanceState `json:"state"`
+func GetInstanceByInstanceID(ctx context.Context, instanceID uint32) (*models.Instance, error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
+	m := &models.Instance{RelInstance: models.RelInstance{InstanceID: instanceID}}
+
+	l.Start(ctx, "GetInstanceByInstanceID")
+
+	if err := m.FetchByInstanceID(d); err != nil {
+		if sqlx.DBErr(err).IsNotFound() {
+			return nil, status.NotFound.StatusErr().WithDesc("instance not found in db")
+		}
+		return nil, err
+	}
+	state, ok := vm.GetInstanceState(0)
+	if !ok {
+		return nil, status.NotFound.StatusErr().WithDesc("instance not found in mgr")
+	}
+	if state != m.State {
+		l.WithValues("mgr_state", state, "db_state", m.State).
+			Warn(errors.New("unmatched"))
+		m.State = state
+		if err := m.UpdateByInstanceID(d); err != nil {
+			return nil, err
+		}
+	}
+
+	return m, nil
 }
 
-func GetInstance(ctx context.Context, instanceID string) (*GetInstanceRsp, error) {
-	// TODO
-	_, _ = vm.GetInstanceState(0)
-	return nil, nil
-}
+func GetInstanceByAppletID(ctx context.Context, appletID string) (ret []models.Instance, err error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Instance{}
 
-type ListInstanceReq struct {
-	ProjectID string                `in:"path"  name:"projectID"`
-	AppletIDs string                `in:"query" name:"appletIDs"`
-	Status    []enums.InstanceState `in:"query" name:"states,omitempty"`
+	err = d.QueryAndScan(
+		builder.Select(nil).From(
+			d.T(m),
+			builder.Where(m.ColInstanceID().Eq(appletID)),
+		),
+		&ret,
+	)
+	return
 }

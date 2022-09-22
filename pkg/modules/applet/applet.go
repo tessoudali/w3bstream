@@ -9,11 +9,10 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/resource"
-	"github.com/iotexproject/w3bstream/pkg/types"
-
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
+	"github.com/iotexproject/w3bstream/pkg/modules/resource"
+	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
 type CreateAppletReq struct {
@@ -22,9 +21,9 @@ type CreateAppletReq struct {
 }
 
 type Info struct {
-	ProjectID  string              `json:"projectID"`
-	AppletName string              `json:"appletName"`
-	Config     models.AppletConfig `json:"config,omitempty"`
+	ProjectID  string               `json:"projectID"`
+	AppletName string               `json:"appletName"`
+	Config     *models.AppletConfig `json:"config,omitempty"`
 }
 
 func CreateApplet(ctx context.Context, r *CreateAppletReq) (*models.Applet, error) {
@@ -111,14 +110,15 @@ func ListApplets(ctx context.Context, r *ListAppletReq) (*ListAppletRsp, error) 
 }
 
 type RemoveAppletReq struct {
-	ProjectID  string `in:"path"  name:"projectID"`
-	AppletID   string `in:"query" name:"appletID,omitempty"`
-	AppletName string `in:"query" name:"appletName,omitempty"`
+	ProjectID string `in:"path"  name:"projectID"`
+	AppletID  string `in:"path"  name:"appletID"`
 }
 
 func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
-	// TODO
-	return nil
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Applet{RelApplet: models.RelApplet{AppletID: r.AppletID}}
+
+	return m.DeleteByAppletID(d)
 }
 
 type GetAppletReq struct {

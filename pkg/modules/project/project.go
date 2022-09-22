@@ -31,14 +31,9 @@ func CreateProject(ctx context.Context, r *CreateProjectReq) (*models.Project, e
 	return m, nil
 }
 
-func DeleteProject(ctx context.Context, prjID string) error {
-	// TODO
-	return nil
-}
-
 type ListProjectReq struct {
-	ProjectIDs []string `in:"query" name:"projectIDs"`
-	Names      []string `in:"query" name:"names"`
+	ProjectIDs []string `in:"query" name:"projectIDs,omitempty"`
+	Names      []string `in:"query" name:"names,omitempty"`
 }
 
 type ListProjectRsp struct {
@@ -47,8 +42,19 @@ type ListProjectRsp struct {
 }
 
 func ListProject(ctx context.Context, r *ListProjectReq) (*ListProjectRsp, error) {
-	// TODO
-	return nil, nil
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Project{}
+
+	// TODO request.Condition Additions
+
+	data, err := m.List(d, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &ListProjectRsp{
+		Data:  data,
+		Total: int64(len(data)),
+	}, nil
 }
 
 type GetProjectRsp struct {
@@ -59,4 +65,9 @@ type GetProjectRsp struct {
 func GetProjectByProjectID(ctx context.Context, prjID string) (*GetProjectRsp, error) {
 	// TODO
 	return nil, nil
+}
+
+func DeleteProject(ctx context.Context, prjID string) error {
+	// TODO
+	return nil
 }

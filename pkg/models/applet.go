@@ -25,9 +25,9 @@ type RelApplet struct {
 }
 
 type AppletInfo struct {
-	Name   string       `db:"f_name"              json:"name"`
-	Path   string       `db:"f_path"              json:"-"`
-	Config AppletConfig `db:"f_config,default=''" json:"config"`
+	Name   string        `db:"f_name"              json:"name"`
+	Path   string        `db:"f_path"              json:"-"`
+	Config *AppletConfig `db:"f_config,default=''" json:"config"`
 }
 
 type AppletConfig struct{}

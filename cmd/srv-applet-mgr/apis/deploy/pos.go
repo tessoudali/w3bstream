@@ -5,19 +5,32 @@ import (
 
 	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
 
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
+	"github.com/iotexproject/w3bstream/pkg/modules/applet"
+
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
 )
 
 type CreateInstance struct {
 	httpx.MethodPost
-	deploy.CreateInstanceReq
+	AppletID string `in:"path"`
 }
 
 func (r *CreateInstance) Path() string {
-	return "/:projectID/:appletID"
+	return "/applet/:appletID"
 }
 
 func (r *CreateInstance) Output(ctx context.Context) (interface{}, error) {
-	// TODO project permission
-	return deploy.CreateInstance(ctx, &r.CreateInstanceReq)
+	ca := middleware.CurrentAccountFromContext(ctx)
+
+	app, err := applet.GetAppletByID(ctx, r.AppletID)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = ca.ValidateProjectPerm(ctx, app.ProjectID); err != nil {
+		return nil, err
+	}
+
+	return deploy.CreateInstance(ctx, r.AppletID, app.Path)
 }

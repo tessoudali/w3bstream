@@ -10,6 +10,7 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+
 	"github.com/iotexproject/w3bstream/pkg/depends/util"
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"

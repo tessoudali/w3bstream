@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 
+	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
@@ -17,7 +18,7 @@ func AddInstance(i wasm.Instance) uint32 {
 
 func DelInstance(id uint32) error {
 	i, _ := instances.LoadAndRemove(id)
-	if i != nil && i.State() == wasm.InstanceState_Started {
+	if i != nil && i.State() == enums.INSTANCE_STATE__STARTED {
 		i.Stop()
 	}
 	return nil
@@ -31,8 +32,8 @@ func StopInstance(id uint32) error {
 	return nil
 }
 
-func GetInstanceState(id uint32) (wasm.InstanceState, bool) {
-	return wasm.InstanceState_Stopped, true
+func GetInstanceState(id uint32) (enums.InstanceState, bool) {
+	return enums.INSTANCE_STATE__STOPPED, true
 }
 
 func GetConsumer(id uint32) wasm.EventConsumer {

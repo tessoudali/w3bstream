@@ -8,9 +8,10 @@ import (
 )
 
 type InstanceOption struct {
-	RuntimeConfig wazero.RuntimeConfig
-	Logger        conflog.Logger
-	Tasks         TaskReader
+	RuntimeConfig   wazero.RuntimeConfig
+	Logger          conflog.Logger
+	Tasks           TaskReader
+	OnStatusChanged func() // should call this when instance runtime interrupted
 }
 
 type InstanceOptionSetter func(o *InstanceOption)
@@ -29,7 +30,10 @@ var (
 				WithFeatureNonTrappingFloatToIntConversion(true).
 				WithFeatureSignExtensionOps(true).
 				WithFeatureMultiValue(true)
-	DefaultLogger = conflog.Std()
+	DefaultLogger               = conflog.Std()
+	DefaultInstanceOptionSetter = func(o *InstanceOption) {
+		o.Logger, o.RuntimeConfig = DefaultLogger, DefaultRuntimeConfig
+	}
 )
 
 type TaskReader interface {
