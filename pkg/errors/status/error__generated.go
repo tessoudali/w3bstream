@@ -69,7 +69,7 @@ func (v Error) Msg() string {
 	case MD5ChecksumFailed:
 		return ""
 	case Unauthorized:
-		return "Unauthorized"
+		return "Unauthorized unauthorized"
 	case NotFound:
 		return "NotFound"
 	case Conflict:

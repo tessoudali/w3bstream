@@ -8,5 +8,7 @@ import (
 var Root = kit.NewRouter(httptransport.Group("/applet"))
 
 func init() {
-	Root.Register(kit.NewRouter(&CreateAndDeployApplet{}))
+	Root.Register(kit.NewRouter(&CreateApplet{}))
+	Root.Register(kit.NewRouter(&GetApplet{}))
+	Root.Register(kit.NewRouter(&ListApplet{}))
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+package eventpb;
+option go_package = ".;eventpb";
+
+message Header {
+  string project = 1;
+  string applet = 2;
+  string appletVersion = 3;
+  string handler = 4;
+}
+
+message Event {
+  Header header = 1;
+  bytes payload = 2;
+}

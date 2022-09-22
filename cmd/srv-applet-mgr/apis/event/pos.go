@@ -16,6 +16,8 @@ const (
 	dataSizeLimit = 2 * unit.KiB
 )
 
+// TODO should define to pkg/depends/protocol/eventpb/event
+
 type RecvEvent struct {
 	httpx.MethodPost
 	AppletID  string `in:"path" name:"applet"`

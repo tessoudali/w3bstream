@@ -4,6 +4,7 @@ import (
 	"github.com/iotexproject/Bumblebee/conf/jwt"
 	"github.com/iotexproject/Bumblebee/kit/httptransport"
 	"github.com/iotexproject/Bumblebee/kit/kit"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/deploy"
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/account"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/applet"
@@ -31,6 +32,7 @@ func init() {
 		RouterAuth.Register(account.Root)
 		RouterAuth.Register(project.Root)
 		RouterAuth.Register(applet.Root)
+		RouterAuth.Register(deploy.Root)
 	}
 	{
 		Root.Register(event.Root)

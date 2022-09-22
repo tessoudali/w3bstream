@@ -1,15 +1,13 @@
-package v1
+package vm
 
 import (
 	"context"
 	"fmt"
 	"os"
 
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
-	"github.com/pkg/errors"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
@@ -29,15 +27,6 @@ func NewInstance(path string, opts ...InstanceOptionSetter) (uint32, error) {
 
 	for _, set := range opts {
 		set(opt)
-	}
-
-	if opt.Broker != nil && opt.Channel != "" {
-		opt.Client, err = opt.Broker.Client(opt.Channel)
-		if err != nil {
-			return 0, err
-		}
-	} else {
-		return 0, errors.New("no transporter")
 	}
 
 	i := &Instance{
@@ -78,6 +67,11 @@ func NewInstance(path string, opts ...InstanceOptionSetter) (uint32, error) {
 	return AddInstance(i), nil
 }
 
+type EventHook struct {
+	Response []byte
+	Code     wasm.ResultStatusCode
+}
+
 type Instance struct {
 	opt    *InstanceOption
 	ctx    context.Context
@@ -86,7 +80,6 @@ type Instance struct {
 	rt     wazero.Runtime
 	mod    api.Module
 	res    *mapx.Map[uint32, []byte]
-
 	malloc api.Function
 	free   api.Function
 	start  api.Function
@@ -102,17 +95,14 @@ func (i *Instance) Start() error {
 		select {
 		case <-i.ctx.Done(): // @todo log
 			return i.ctx.Err()
-		default:
-			err := i.opt.Client.WithTopic(i.opt.Channel).Subscribe(
-				func(c mqtt.Client, msg mqtt.Message) {
-					code := i.HandleEvent(msg.Payload())
-					if code != wasm.ResultStatusCode_OK {
-						// @todo log
-					}
-				},
-			)
-			if err != nil {
-				return err
+		case task := <-i.opt.Tasks.Wait():
+			code := i.HandleEvent(task.Payload)
+			task.Res <- EventHandleResult{
+				Response: nil,
+				Code:     code,
+			}
+			if code != wasm.ResultStatusCode_OK {
+				// @todo log
 			}
 		}
 	}

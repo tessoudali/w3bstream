@@ -20,7 +20,7 @@ const (
 )
 
 const (
-	// @errTalk Unauthorized
+	// @errTalk Unauthorized unauthorized
 	Unauthorized Error = http.StatusUnauthorized*1e6 + iota + 1
 )
 

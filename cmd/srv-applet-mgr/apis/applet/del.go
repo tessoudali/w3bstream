@@ -8,15 +8,13 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/modules/applet"
 )
 
-type RemoveAppletByAppletID struct {
+type RemoveApplet struct {
 	httpx.MethodDelete
-	AppletID string `in:"path" name:"appletID"`
+	applet.RemoveAppletReq
 }
 
-func (r *RemoveAppletByAppletID) Path() string {
-	return "/:appletID"
-}
+func (r *RemoveApplet) Path() string { return "/:projectID" }
 
-func (r *RemoveAppletByAppletID) Output(ctx context.Context) (interface{}, error) {
-	return nil, applet.RemoveApplet(ctx, r.AppletID)
+func (r *RemoveApplet) Output(ctx context.Context) (interface{}, error) {
+	return nil, applet.RemoveApplet(ctx, &r.RemoveAppletReq)
 }

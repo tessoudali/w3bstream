@@ -6,10 +6,7 @@ import (
 
 	base "github.com/iotexproject/Bumblebee/base/types"
 	"github.com/iotexproject/Bumblebee/conf/jwt"
-	"github.com/iotexproject/Bumblebee/kit/httptransport"
 	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
-	"github.com/iotexproject/Bumblebee/kit/kit"
-
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/modules/account"
 )
@@ -51,10 +48,4 @@ func (r *Login) Output(ctx context.Context) (interface{}, error) {
 		ExpireAt:  base.Timestamp{Time: time.Now().Add(j.ExpIn.Duration())},
 		Issuer:    j.Issuer,
 	}, nil
-}
-
-var Root = kit.NewRouter(httptransport.Group("/"))
-
-func init() {
-	Root.Register(kit.NewRouter(&Login{}))
 }

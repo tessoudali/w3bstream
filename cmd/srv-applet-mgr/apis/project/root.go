@@ -9,4 +9,6 @@ var Root = kit.NewRouter(httptransport.Group("/project"))
 
 func init() {
 	Root.Register(kit.NewRouter(&CreateProject{}))
+	Root.Register(kit.NewRouter(&GetProjectByProjectID{}))
+	Root.Register(kit.NewRouter(&ListProject{}))
 }

@@ -20,5 +20,4 @@ type Instance interface {
 	GetResource(uint32) ([]byte, bool)
 	RmvResource(uint32)
 	HandleEvent([]byte) ResultStatusCode
-	OnEvent(eventData []byte) ([]byte, error)
 }

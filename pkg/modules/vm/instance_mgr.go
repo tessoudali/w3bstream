@@ -1,4 +1,4 @@
-package v1
+package vm
 
 import (
 	"github.com/google/uuid"
@@ -14,26 +14,22 @@ func AddInstance(i wasm.Instance) uint32 {
 	return id
 }
 
-func DelInstance(id uint32) {
+func DelInstance(id uint32) error {
 	i, _ := instances.LoadAndRemove(id)
 	if i != nil && i.State() == wasm.InstanceState_Started {
 		i.Stop()
 	}
-}
-
-func GetInstance(id uint32) wasm.Instance {
-	i, _ := instances.Load(id)
-	return i
-}
-
-func RunInstance(id uint32) (err error) {
-	i := GetInstance(id)
-	if i == nil {
-		return nil // return not found error
-	}
-	go func() {
-		i.Start()
-		i.Stop()
-	}()
 	return nil
+}
+
+func StartInstance(id uint32) error {
+	return nil
+}
+
+func StopInstance(id uint32) error {
+	return nil
+}
+
+func GetInstanceState(id uint32) (wasm.InstanceState, bool) {
+	return wasm.InstanceState_Stopped, true
 }

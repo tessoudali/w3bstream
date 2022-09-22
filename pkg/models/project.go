@@ -17,7 +17,6 @@ type Project struct {
 	RelProject
 	RelAccount
 	ProjectInfo
-	ProjectSchema
 	datatypes.OperationTimesWithDeleted
 }
 
@@ -26,11 +25,7 @@ type RelProject struct {
 }
 
 type ProjectInfo struct {
-	Name     string         `db:"f_name"                 json:"name"`               // Name project name
-	Version  string         `db:"f_version"              json:"version"`            // Version project version
-	Protocol enums.Protocol `db:"f_protocol,default='0'" json:"protocol,omitempty"` // Protocol project protocol for event publisher
-}
-
-type ProjectSchema struct {
-	Schema string `db:"f_schema,default=''" json:"-"`
+	Name    string         `db:"f_name"              json:"name"`               // Name project name
+	Version string         `db:"f_version"           json:"version"`            // Version project version
+	Proto   enums.Protocol `db:"f_proto,default='0'" json:"protocol,omitempty"` // Proto project protocol for event publisher
 }

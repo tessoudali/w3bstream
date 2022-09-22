@@ -1,24 +1,18 @@
-package v1
+package vm
 
 import (
 	conflog "github.com/iotexproject/Bumblebee/conf/log"
-	confmqtt "github.com/iotexproject/Bumblebee/conf/mqtt"
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 	"github.com/tetratelabs/wazero"
 )
 
 type InstanceOption struct {
-	Channel       string
 	RuntimeConfig wazero.RuntimeConfig
 	Logger        conflog.Logger
-	Broker        *confmqtt.Broker
-	Client        *confmqtt.Client
+	Tasks         TaskReader
 }
 
 type InstanceOptionSetter func(o *InstanceOption)
-
-func InstanceOptionWithChannel(ch string) InstanceOptionSetter {
-	return func(o *InstanceOption) { o.Channel = ch }
-}
 
 func InstanceOptionWithRuntimeConfig(rc wazero.RuntimeConfig) InstanceOptionSetter {
 	return func(o *InstanceOption) { o.RuntimeConfig = rc }
@@ -28,8 +22,8 @@ func InstanceOptionWithLogger(l conflog.Logger) InstanceOptionSetter {
 	return func(o *InstanceOption) { o.Logger = l }
 }
 
-func InstanceOptionWithMqttBroker(b *confmqtt.Broker) InstanceOptionSetter {
-	return func(o *InstanceOption) { o.Broker = b }
+func InstanceOptionWithTaskReader(t TaskReader) InstanceOptionSetter {
+	return func(o *InstanceOption) { o.Tasks = t }
 }
 
 var (
@@ -40,3 +34,17 @@ var (
 				WithFeatureMultiValue(true)
 	DefaultLogger = conflog.Std()
 )
+
+type TaskReader interface {
+	Wait() <-chan Task
+}
+
+type Task struct {
+	Payload []byte
+	Res     chan<- EventHandleResult
+}
+
+type EventHandleResult struct {
+	Response []byte
+	Code     wasm.ResultStatusCode
+}
