@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/iotexproject/Bumblebee/kit/kit"
+	"github.com/iotexproject/w3bstream/pkg/modules/account"
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
@@ -15,6 +18,20 @@ var app = global.App
 func main() {
 	app.AddCommand("migrate", func(args ...string) {
 		global.Migrate()
+	})
+
+	app.AddCommand("init_admin", func(args ...string) {
+		ctx := global.WithContext(context.Background())
+		passwd, err := account.CreateAdminIfNotExist(ctx)
+		if err != nil {
+			fmt.Printf("create admin faild: %s\n", err.Error())
+			return
+		}
+		if passwd == "" {
+			fmt.Printf("admin already created\n")
+			return
+		}
+		fmt.Printf("username: admin\npassword: %s\nplease remember it", passwd)
 	})
 
 	app.Execute(func(args ...string) {

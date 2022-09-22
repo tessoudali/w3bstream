@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
+	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
-
 	"github.com/iotexproject/w3bstream/pkg/depends/util"
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
@@ -90,4 +90,52 @@ func GetAccountByAccountID(ctx context.Context, accountID string) (*models.Accou
 	m := &models.Account{RelAccount: models.RelAccount{AccountID: accountID}}
 	err := m.FetchByAccountID(d)
 	return m, err
+}
+
+func CreateAdminIfNotExist(ctx context.Context) (string, error) {
+	d := types.MustDBExecutorFromContext(ctx)
+
+	accountID := uuid.New().String()
+	m := &models.Account{
+		RelAccount: models.RelAccount{AccountID: accountID},
+		AccountInfo: models.AccountInfo{
+			Username:     "admin",
+			IdentityType: enums.ACCOUNT_IDENTITY_TYPE__BUILTIN,
+			State:        enums.ACCOUNT_STATE__ENABLED,
+			Password: models.AccountPassword{
+				Type: enums.PASSWORD_TYPE__LOGIN,
+				Password: hashOfAccountPassword(
+					accountID,
+					string(util.GenRandomPassword(8, 3)),
+				),
+				Scope: "admin",
+				Desc:  "builtin password",
+			},
+		},
+	}
+
+	results := make([]models.Account, 0)
+	err := d.QueryAndScan(builder.Select(nil).
+		From(
+			d.T(m),
+			builder.Where(
+				builder.And(
+					m.ColUsername().Eq("admin"),
+					m.ColIdentityType().Eq(enums.ACCOUNT_IDENTITY_TYPE__BUILTIN),
+				),
+			),
+		), &results)
+	if err != nil {
+		return "", err
+	}
+	if len(results) > 0 {
+		return "", nil
+	}
+	if err = m.Create(d); err != nil {
+		if sqlx.DBErr(err).IsConflict() {
+			return "", nil // already created
+		}
+		return "", err
+	}
+	return m.Password.Password, nil
 }
