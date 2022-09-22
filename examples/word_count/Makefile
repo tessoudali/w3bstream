@@ -3,4 +3,4 @@ build_wasm:
 	@echo built to testdata/word_count.wasm
 
 word_count: build_wasm
-	go run word_count.go "a ab abc def def abc ab a"
+	go run word_count.go "a ab abc def def abc ab a xxxx dddd ffff"

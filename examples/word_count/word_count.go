@@ -72,13 +72,14 @@ func main() {
 				ptr, strlen, mod.Memory().Size(ctx)))
 		}
 
-		_, err = counter.Call(ctx, ptr, strlen)
+		results, err = counter.Call(ctx, ptr, strlen)
 		if err != nil {
 			panic(err)
 		}
 
 		msg, _ := json.Marshal(words)
 		fmt.Println("host >> " + string(msg))
+		fmt.Println(results)
 	}
 }
 

@@ -48,7 +48,7 @@ func start(ptr, size uint32) int32 {
 	}
 
 	log("\n")
-	return 0
+	return int32(len(records))
 }
 
 // inc add word count
