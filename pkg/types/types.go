@@ -13,13 +13,3 @@ func (c *UploadConfig) SetDefault() {
 		c.FileSizeLimit = 100 * 1024 * 1024
 	}
 }
-
-type EventChanConfig struct {
-	Limit int `env:""`
-}
-
-func (v *EventChanConfig) SetDefault() {
-	if v.Limit == 0 {
-		v.Limit = 500
-	}
-}

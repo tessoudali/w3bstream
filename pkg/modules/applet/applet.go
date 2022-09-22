@@ -132,6 +132,10 @@ type GetAppletRsp struct {
 }
 
 func GetAppletByID(ctx context.Context, appletID string) (*GetAppletRsp, error) {
-	// TODO
-	return nil, nil
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
+	err := m.FetchByAppletID(d)
+	return &GetAppletRsp{
+		Applet: *m,
+	}, err
 }

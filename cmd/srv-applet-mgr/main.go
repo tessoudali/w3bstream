@@ -39,7 +39,6 @@ func main() {
 			func() {
 				kit.Run(apis.Root, global.Server())
 			},
-			global.EventProxy,
 			// func() {
 			// 	if err := applet_deploy.StartAppletVMs(
 			// 		global.WithContext(context.Background()),

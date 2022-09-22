@@ -16,8 +16,6 @@ import (
 	"github.com/iotexproject/Bumblebee/x/contextx"
 
 	"github.com/iotexproject/w3bstream/pkg/models"
-	"github.com/iotexproject/w3bstream/pkg/modules/event"
-	"github.com/iotexproject/w3bstream/pkg/modules/event/proxy"
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
@@ -31,7 +29,6 @@ var (
 	logger     = &conflog.Log{Name: "srv-demo"}
 	std        = conflog.Std()
 	uploadConf = &types.UploadConfig{}
-	mqConf     = &types.EventChanConfig{}
 
 	App *confapp.Ctx
 )
@@ -49,7 +46,7 @@ func init() {
 		confapp.WithVersion("0.0.1"),
 		confapp.WithLogger(conflog.Std()),
 	)
-	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf, mqConf)
+	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf)
 
 	confhttp.RegisterCheckerBy(postgres, mqtt, server)
 	std.(conflog.LevelSetter).SetLevel(conflog.InfoLevel)
@@ -60,7 +57,6 @@ func init() {
 		types.WithLoggerContext(conflog.Std()),
 		types.WithMqttBrokerContext(mqtt),
 		types.WithUploadConfigContext(uploadConf),
-		types.WithEventChanContext(make(chan event.Event, mqConf.Limit)),
 		confjwt.WithConfContext(jwt),
 	)
 }
@@ -77,8 +73,4 @@ func Migrate() {
 	if err := migration.Migrate(postgres.WithContext(ctx), nil); err != nil {
 		log.Panic(err)
 	}
-}
-
-func EventProxy() {
-	proxy.Proxy(WithContext(context.Background()))
 }
