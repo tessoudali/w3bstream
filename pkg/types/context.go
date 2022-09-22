@@ -9,6 +9,8 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/x/contextx"
 	"github.com/iotexproject/Bumblebee/x/misc/must"
+
+	"github.com/iotexproject/w3bstream/pkg/modules/event"
 )
 
 type Context uint8
@@ -19,6 +21,7 @@ type (
 	CtxLogger       struct{} // CtxLogger log.Logger
 	CtxMqttBroker   struct{} // CtxMqttBroker mqtt.Broker
 	CtxUploadConfig struct{} // CtxUploadConfig UploadConfig
+	CtxEventChan    struct{} // CtxEventChan EventChannel
 )
 
 func WithDBExecutor(ctx context.Context, v sqlx.DBExecutor) context.Context {
@@ -92,6 +95,23 @@ func WithMqttBrokerContext(v *mqtt.Broker) contextx.WithContext {
 	return func(ctx context.Context) context.Context {
 		return contextx.WithValue(ctx, CtxMqttBroker{}, v)
 	}
+}
+
+func WithEventChanContext(events chan event.Event) contextx.WithContext {
+	return func(ctx context.Context) context.Context {
+		return contextx.WithValue(ctx, CtxEventChan{}, events)
+	}
+}
+
+func EventChanFromContext(ctx context.Context) (chan event.Event, bool) {
+	v, ok := ctx.Value(CtxEventChan{}).(chan event.Event)
+	return v, ok
+}
+
+func MustEventChanFromContext(ctx context.Context) chan event.Event {
+	v, ok := EventChanFromContext(ctx)
+	must.BeTrue(ok)
+	return v
 }
 
 func MqttBrokerFromContext(ctx context.Context) (*mqtt.Broker, bool) {
