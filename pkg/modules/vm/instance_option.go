@@ -2,8 +2,9 @@ package vm
 
 import (
 	conflog "github.com/iotexproject/Bumblebee/conf/log"
-	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 	"github.com/tetratelabs/wazero"
+
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
 type InstanceOption struct {
@@ -20,10 +21,6 @@ func InstanceOptionWithRuntimeConfig(rc wazero.RuntimeConfig) InstanceOptionSett
 
 func InstanceOptionWithLogger(l conflog.Logger) InstanceOptionSetter {
 	return func(o *InstanceOption) { o.Logger = l }
-}
-
-func InstanceOptionWithTaskReader(t TaskReader) InstanceOptionSetter {
-	return func(o *InstanceOption) { o.Tasks = t }
 }
 
 var (

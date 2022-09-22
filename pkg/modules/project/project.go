@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/types"

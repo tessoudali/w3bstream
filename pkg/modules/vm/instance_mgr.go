@@ -3,6 +3,7 @@ package vm
 import (
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
+
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
@@ -32,4 +33,8 @@ func StopInstance(id uint32) error {
 
 func GetInstanceState(id uint32) (wasm.InstanceState, bool) {
 	return wasm.InstanceState_Stopped, true
+}
+
+func GetConsumer(id uint32) wasm.EventConsumer {
+	return nil
 }

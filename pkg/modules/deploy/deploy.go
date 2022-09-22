@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
@@ -37,6 +38,7 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 	id, err := uuid.Parse(instanceID)
 
 	switch cmd {
+	case enums.DEPLOY_CMD__CREATE:
 	case enums.DEPLOY_CMD__REMOVE:
 		// TODO stop instance and remove rel from database
 		err = vm.DelInstance(id.ID())

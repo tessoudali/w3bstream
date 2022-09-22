@@ -19,6 +19,8 @@ func ParseDeployCmdFromString(s string) (DeployCmd, error) {
 		return DEPLOY_CMD_UNKNOWN, InvalidDeployCmd
 	case "":
 		return DEPLOY_CMD_UNKNOWN, nil
+	case "CREATE":
+		return DEPLOY_CMD__CREATE, nil
 	case "START":
 		return DEPLOY_CMD__START, nil
 	case "STOP":
@@ -34,6 +36,8 @@ func ParseDeployCmdFromLabel(s string) (DeployCmd, error) {
 		return DEPLOY_CMD_UNKNOWN, InvalidDeployCmd
 	case "":
 		return DEPLOY_CMD_UNKNOWN, nil
+	case "CREATE":
+		return DEPLOY_CMD__CREATE, nil
 	case "START":
 		return DEPLOY_CMD__START, nil
 	case "STOP":
@@ -53,6 +57,8 @@ func (v DeployCmd) String() string {
 		return "UNKNOWN"
 	case DEPLOY_CMD_UNKNOWN:
 		return ""
+	case DEPLOY_CMD__CREATE:
+		return "CREATE"
 	case DEPLOY_CMD__START:
 		return "START"
 	case DEPLOY_CMD__STOP:
@@ -68,6 +74,8 @@ func (v DeployCmd) Label() string {
 		return "UNKNOWN"
 	case DEPLOY_CMD_UNKNOWN:
 		return ""
+	case DEPLOY_CMD__CREATE:
+		return "CREATE"
 	case DEPLOY_CMD__START:
 		return "START"
 	case DEPLOY_CMD__STOP:
@@ -82,7 +90,7 @@ func (v DeployCmd) TypeName() string {
 }
 
 func (v DeployCmd) ConstValues() []enum.IntStringerEnum {
-	return []enum.IntStringerEnum{DEPLOY_CMD__START, DEPLOY_CMD__STOP, DEPLOY_CMD__REMOVE}
+	return []enum.IntStringerEnum{DEPLOY_CMD__CREATE, DEPLOY_CMD__START, DEPLOY_CMD__STOP, DEPLOY_CMD__REMOVE}
 }
 
 func (v DeployCmd) MarshalText() ([]byte, error) {

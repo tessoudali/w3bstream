@@ -7,10 +7,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
-	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
 func NewInstance(path string, opts ...InstanceOptionSetter) (uint32, error) {
@@ -96,7 +97,7 @@ func (i *Instance) Start() error {
 		case <-i.ctx.Done(): // @todo log
 			return i.ctx.Err()
 		case task := <-i.opt.Tasks.Wait():
-			code := i.HandleEvent(task.Payload)
+			_, code := i.HandleEvent(task.Payload)
 			task.Res <- EventHandleResult{
 				Response: nil,
 				Code:     code,
@@ -115,15 +116,15 @@ func (i *Instance) Stop() {
 
 func (i *Instance) State() wasm.InstanceState { return i.state }
 
-func (i *Instance) HandleEvent(data []byte) wasm.ResultStatusCode {
+func (i *Instance) HandleEvent(data []byte) ([]byte, wasm.ResultStatusCode) {
 	rid := i.AddResource(data)
 	defer i.RmvResource(rid)
 
 	results, err := i.start.Call(i.ctx, uint64(rid))
 	if err != nil {
-		return wasm.ResultStatusCode_Failed
+		return nil, wasm.ResultStatusCode_Failed
 	}
-	return wasm.ResultStatusCode(results[0])
+	return nil, wasm.ResultStatusCode(results[0])
 }
 
 func (i *Instance) AddResource(data []byte) uint32 {

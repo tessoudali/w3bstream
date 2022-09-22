@@ -31,6 +31,7 @@ var (
 	logger     = &conflog.Log{Name: "srv-demo"}
 	std        = conflog.Std()
 	uploadConf = &types.UploadConfig{}
+	mqConf     = &types.EventChanConfig{}
 
 	App *confapp.Ctx
 )
@@ -48,7 +49,7 @@ func init() {
 		confapp.WithVersion("0.0.1"),
 		confapp.WithLogger(conflog.Std()),
 	)
-	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf)
+	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf, mqConf)
 
 	confhttp.RegisterCheckerBy(postgres, mqtt, server)
 	std.(conflog.LevelSetter).SetLevel(conflog.InfoLevel)
@@ -59,7 +60,7 @@ func init() {
 		types.WithLoggerContext(conflog.Std()),
 		types.WithMqttBrokerContext(mqtt),
 		types.WithUploadConfigContext(uploadConf),
-		types.WithEventChanContext(make(chan event.Event, 512)),
+		types.WithEventChanContext(make(chan event.Event, mqConf.Limit)),
 		confjwt.WithConfContext(jwt),
 	)
 }

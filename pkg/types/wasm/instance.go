@@ -19,5 +19,8 @@ type Instance interface {
 	AddResource([]byte) uint32
 	GetResource(uint32) ([]byte, bool)
 	RmvResource(uint32)
-	HandleEvent([]byte) ResultStatusCode
+}
+
+type EventConsumer interface {
+	HandleEvent([]byte) ([]byte, ResultStatusCode)
 }

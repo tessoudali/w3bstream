@@ -6,6 +6,7 @@ import (
 
 	"github.com/iotexproject/Bumblebee/conf/jwt"
 	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
+
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/types"
 

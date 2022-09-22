@@ -22,6 +22,6 @@ type RelPublisher struct {
 }
 
 type PublisherInfo struct {
-	Name  string `db:"f_name"  json:"name"`
-	Token string `db:"f_token" json:"token"`
+	Name  string `db:"f_name"             json:"name"`
+	Token string `db:"f_token,default=''" json:"token"`
 }

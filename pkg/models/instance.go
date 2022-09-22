@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+
 	"github.com/iotexproject/w3bstream/pkg/enums"
 )
 
