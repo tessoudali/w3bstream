@@ -101,4 +101,9 @@ output like
 
 ### publish event to server
 
-// TODO event api
+```sh
+curl --location --request POST 'localhost:8888/srv-applet-mgr/v0/event/{projectID}/{appletID}/start' \
+--header 'publisher: publisherID' \
+--header 'Content-Type: text/plain' \
+--data-raw 'testdata'
+```
