@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
@@ -24,6 +25,8 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 	m := &models.Instance{
 		RelApplet: models.RelApplet{AppletID: appletID},
 	}
+
+	// TODO
 	count, err := m.Count(d, m.ColAppletID().Eq(appletID))
 	if err != nil {
 		return nil, err
@@ -37,6 +40,7 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 		return nil, err
 	}
 	m.State = enums.INSTANCE_STATE__CREATED
+	m.Path = path
 
 	if err = m.Create(d); err != nil {
 		_ = vm.DelInstance(m.InstanceID)
@@ -134,9 +138,34 @@ func GetInstanceByAppletID(ctx context.Context, appletID string) (ret []models.I
 	err = d.QueryAndScan(
 		builder.Select(nil).From(
 			d.T(m),
-			builder.Where(m.ColInstanceID().Eq(appletID)),
+			builder.Where(m.ColAppletID().Eq(appletID)),
 		),
 		&ret,
 	)
 	return
+}
+
+func StartInstances(ctx context.Context) error {
+	fmt.Println("---------------")
+
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Instance{}
+
+	list, err := m.List(d, nil)
+	if err != nil {
+		return err
+	}
+	for _, i := range list {
+		if i.State == enums.INSTANCE_STATE__CREATED || i.State == enums.INSTANCE_STATE__STARTED {
+			err = vm.NewInstanceWithID(i.Path, i.InstanceID, vm.DefaultInstanceOptionSetter)
+			if err != nil {
+				return err
+			}
+			m.State = enums.INSTANCE_STATE__CREATED
+		}
+		if i.State == enums.INSTANCE_STATE__STARTED {
+			_ = ControlInstance(ctx, i.InstanceID, enums.DEPLOY_CMD__START)
+		}
+	}
+	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/iotexproject/Bumblebee/kit/kit"
+	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
 
 	"github.com/iotexproject/w3bstream/pkg/modules/account"
 
@@ -40,13 +41,13 @@ func main() {
 			func() {
 				kit.Run(apis.Root, global.Server())
 			},
-			// func() {
-			// 	if err := applet_deploy.StartAppletVMs(
-			// 		global.WithContext(context.Background()),
-			// 	); err != nil {
-			// 		panic(err)
-			// 	}
-			// },
+			func() {
+				if err := deploy.StartInstances(
+					global.WithContext(context.Background()),
+				); err != nil {
+					panic(err)
+				}
+			},
 		)
 	})
 }

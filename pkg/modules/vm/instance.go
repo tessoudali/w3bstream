@@ -14,13 +14,21 @@ import (
 )
 
 func NewInstance(path string, opts ...InstanceOptionSetter) (uint32, error) {
-
 	code, err := os.ReadFile(path)
 	if err != nil {
 		return 0, err
 	}
 	return NewInstanceByCode(code, opts...)
+}
 
+func NewInstanceWithID(path string, by uint32, opts ...InstanceOptionSetter) error {
+	id, err := NewInstance(path, opts...)
+
+	if err != nil {
+		return err
+	}
+	changeID(id, by)
+	return nil
 }
 
 func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (uint32, error) {

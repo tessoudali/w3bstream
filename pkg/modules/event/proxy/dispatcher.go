@@ -17,12 +17,15 @@ func dispatch(ctx context.Context, e event.Event) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(ins) == 0 {
+		return nil, fmt.Errorf("applet not found")
+	}
 	consumer := vm.GetConsumer(ins[0].InstanceID)
 	if consumer == nil {
 		return nil, fmt.Errorf("instance not found")
 	}
 	res, code := consumer.HandleEvent(e.Meta().Handler, e.Raw())
-	if code == wasm.ResultStatusCode_Failed {
+	if code != wasm.ResultStatusCode_OK {
 		return nil, fmt.Errorf("wasm failed, error code %v", code)
 	}
 	return res, nil

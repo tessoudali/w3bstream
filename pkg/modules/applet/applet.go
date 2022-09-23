@@ -131,7 +131,7 @@ type GetAppletRsp struct {
 	Instances []models.Instance `json:"instances"`
 }
 
-func GetAppletByID(ctx context.Context, appletID string) (*GetAppletRsp, error) {
+func GetAppletByAppletID(ctx context.Context, appletID string) (*GetAppletRsp, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	m := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
 	err := m.FetchByAppletID(d)

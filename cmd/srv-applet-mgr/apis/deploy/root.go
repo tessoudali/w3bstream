@@ -52,7 +52,7 @@ func validateByInstance(ctx context.Context, instanceID uint32) (*models.Instanc
 			From(
 				tInstance,
 				builder.LeftJoin(tApplet).On(
-					mInstance.ColAppletID().Eq(mApplet.AppletID),
+					mInstance.ColAppletID().Eq(mApplet.ColAppletID()),
 				),
 				builder.Where(mInstance.ColInstanceID().Eq(instanceID)),
 			),

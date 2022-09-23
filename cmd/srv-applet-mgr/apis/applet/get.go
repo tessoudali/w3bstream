@@ -39,5 +39,5 @@ func (r *GetApplet) Output(ctx context.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	return applet.GetAppletByID(ctx, r.AppletID)
+	return applet.GetAppletByAppletID(ctx, r.AppletID)
 }

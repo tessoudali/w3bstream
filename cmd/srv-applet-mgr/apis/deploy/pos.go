@@ -13,7 +13,7 @@ import (
 
 type CreateInstance struct {
 	httpx.MethodPost
-	AppletID string `in:"path"`
+	AppletID string `in:"path" name:"appletID"`
 }
 
 func (r *CreateInstance) Path() string {
@@ -23,7 +23,7 @@ func (r *CreateInstance) Path() string {
 func (r *CreateInstance) Output(ctx context.Context) (interface{}, error) {
 	ca := middleware.CurrentAccountFromContext(ctx)
 
-	app, err := applet.GetAppletByID(ctx, r.AppletID)
+	app, err := applet.GetAppletByAppletID(ctx, r.AppletID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,5 +32,5 @@ func (r *CreateInstance) Output(ctx context.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	return deploy.CreateInstance(ctx, r.AppletID, app.Path)
+	return deploy.CreateInstance(ctx, app.Path, r.AppletID)
 }

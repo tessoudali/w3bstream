@@ -1,6 +1,8 @@
 package vm
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 	"github.com/pkg/errors"
@@ -18,7 +20,13 @@ var (
 func AddInstance(i wasm.Instance) uint32 {
 	id := uuid.New().ID()
 	instances.Store(id, i)
+	fmt.Printf("--- %d created", id)
 	return id
+}
+
+func changeID(oldID, newID uint32) {
+	i, _ := instances.LoadAndRemove(oldID)
+	instances.Store(newID, i)
 }
 
 func DelInstance(id uint32) error {
@@ -26,6 +34,7 @@ func DelInstance(id uint32) error {
 	if i != nil && i.State() == enums.INSTANCE_STATE__STARTED {
 		i.Stop()
 	}
+	fmt.Printf("--- %d deleted", id)
 	return nil
 }
 
@@ -38,6 +47,8 @@ func StartInstance(id uint32) error {
 		if err := i.Start(); err != nil {
 		}
 	}()
+
+	fmt.Printf("--- %d started", id)
 	return nil
 }
 
@@ -47,6 +58,7 @@ func StopInstance(id uint32) error {
 		return ErrNotFound
 	}
 	i.Stop()
+	fmt.Printf("--- %d stopped", id)
 	return nil
 }
 
