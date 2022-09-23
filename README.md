@@ -16,6 +16,7 @@
 
 - docker: to start a postgres
 - httpie: a simple curl command
+- tinygo: to build wasm code
 
 ### init database
 

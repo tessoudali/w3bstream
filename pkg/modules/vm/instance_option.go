@@ -10,7 +10,7 @@ import (
 type InstanceOption struct {
 	RuntimeConfig   wazero.RuntimeConfig
 	Logger          conflog.Logger
-	Tasks           TaskReader
+	Tasks           *TaskQueue
 	OnStatusChanged func() // should call this when instance runtime interrupted
 }
 
@@ -32,20 +32,25 @@ var (
 				WithFeatureMultiValue(true)
 	DefaultLogger               = conflog.Std()
 	DefaultInstanceOptionSetter = func(o *InstanceOption) {
-		o.Logger, o.RuntimeConfig = DefaultLogger, DefaultRuntimeConfig
+		o.Logger = DefaultLogger
+		o.RuntimeConfig = DefaultRuntimeConfig
+		o.Tasks = &TaskQueue{ch: make(chan *Task, 100)}
 	}
 )
 
-type TaskReader interface {
-	Wait() <-chan Task
-}
-
 type Task struct {
+	Handler string
 	Payload []byte
-	Res     chan<- EventHandleResult
+	Res     chan *EventHandleResult
 }
 
 type EventHandleResult struct {
 	Response []byte
 	Code     wasm.ResultStatusCode
 }
+
+type TaskQueue struct{ ch chan *Task }
+
+func (t *TaskQueue) Wait() <-chan *Task { return t.ch }
+
+func (t *TaskQueue) Push(task *Task) { t.ch <- task }

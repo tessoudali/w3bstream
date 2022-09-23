@@ -91,6 +91,8 @@ func ControlInstance(ctx context.Context, instanceID uint32, cmd enums.DeployCmd
 		if err = m.UpdateByInstanceID(d); err != nil {
 			return err
 		}
+	case enums.DEPLOY_CMD__REDEPLOY:
+		// TODO @zhiran
 	}
 	return nil
 }
@@ -108,7 +110,8 @@ func GetInstanceByInstanceID(ctx context.Context, instanceID uint32) (*models.In
 		}
 		return nil, err
 	}
-	state, ok := vm.GetInstanceState(0)
+
+	state, ok := vm.GetInstanceState(instanceID)
 	if !ok {
 		return nil, status.NotFound.StatusErr().WithDesc("instance not found in mgr")
 	}

@@ -18,7 +18,10 @@ func dispatch(ctx context.Context, e event.Event) ([]byte, error) {
 		return nil, err
 	}
 	consumer := vm.GetConsumer(ins[0].InstanceID)
-	res, code := consumer.HandleEvent(e.Raw())
+	if consumer == nil {
+		return nil, fmt.Errorf("instance not found")
+	}
+	res, code := consumer.HandleEvent(e.Meta().Handler, e.Raw())
 	if code == wasm.ResultStatusCode_Failed {
 		return nil, fmt.Errorf("wasm failed, error code %v", code)
 	}

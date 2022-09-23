@@ -27,6 +27,8 @@ func ParseDeployCmdFromString(s string) (DeployCmd, error) {
 		return DEPLOY_CMD__STOP, nil
 	case "REMOVE":
 		return DEPLOY_CMD__REMOVE, nil
+	case "REDEPLOY":
+		return DEPLOY_CMD__REDEPLOY, nil
 	}
 }
 
@@ -44,6 +46,8 @@ func ParseDeployCmdFromLabel(s string) (DeployCmd, error) {
 		return DEPLOY_CMD__STOP, nil
 	case "REMOVE":
 		return DEPLOY_CMD__REMOVE, nil
+	case "REDEPLOY":
+		return DEPLOY_CMD__REDEPLOY, nil
 	}
 }
 
@@ -65,6 +69,8 @@ func (v DeployCmd) String() string {
 		return "STOP"
 	case DEPLOY_CMD__REMOVE:
 		return "REMOVE"
+	case DEPLOY_CMD__REDEPLOY:
+		return "REDEPLOY"
 	}
 }
 
@@ -82,6 +88,8 @@ func (v DeployCmd) Label() string {
 		return "STOP"
 	case DEPLOY_CMD__REMOVE:
 		return "REMOVE"
+	case DEPLOY_CMD__REDEPLOY:
+		return "REDEPLOY"
 	}
 }
 
@@ -90,7 +98,7 @@ func (v DeployCmd) TypeName() string {
 }
 
 func (v DeployCmd) ConstValues() []enum.IntStringerEnum {
-	return []enum.IntStringerEnum{DEPLOY_CMD__CREATE, DEPLOY_CMD__START, DEPLOY_CMD__STOP, DEPLOY_CMD__REMOVE}
+	return []enum.IntStringerEnum{DEPLOY_CMD__CREATE, DEPLOY_CMD__START, DEPLOY_CMD__STOP, DEPLOY_CMD__REMOVE, DEPLOY_CMD__REDEPLOY}
 }
 
 func (v DeployCmd) MarshalText() ([]byte, error) {
