@@ -52,4 +52,8 @@ run_depends:
 	docker-compose -f testutil/docker-compose-pg.yaml up -d
 	docker-compose -f testutil/docker-compose-mqtt.yaml up -d
 
+wasm_demo:
+	@cd pkg/modules/vm/testdata && make all
+
 build: build_server build_pub_client
+

@@ -76,12 +76,23 @@ output like
 }
 ```
 
+### build wasm demo
+
+```sh
+make wasm_demo ## build to pkg/modules/vm/testdata/ use to deploy wasm applet
+``` 
+
 ### create and deploy applet
+
 
 command
 
 ```sh
-http --form post :8888/srv-applet-mgr/v0/applet file@{path_to_wasm_file} info='{"projectID":"254fd639-ae90-479c-9788-e2890c56e2c4","appletName":"applet_name"}' -A bearer -a {token}
+http --form post :8888/srv-applet-mgr/v0/applet file@{path_to_wasm_file} info='{"projectID":"{project_id}","appletName":"{applet_name}"}' -A bearer -a {token}
+
+http post :8888/srv-applet-mgr/v0/deploy/applet/{applet_id} -A bearer -a {token}
+
+http put :8888/srv-applet-mgr/v0/deploy/{instance_id}/START -A bearer -a {token}
 ```
 
 output like
@@ -96,8 +107,6 @@ output like
   "updatedAt": "2022-09-23T07:37:08.101494+08:00"
 }
 ```
-
-// TODO word count wasm
 
 ### publish event to server
 
