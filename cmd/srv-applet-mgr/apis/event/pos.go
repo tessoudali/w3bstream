@@ -29,7 +29,7 @@ type RecvEvent struct {
 }
 
 func (r *RecvEvent) Path() string {
-	return "/project/:project/applet/:applet/handler/:handler"
+	return "/:project/:applet/:handler"
 }
 
 func (r *RecvEvent) Output(ctx context.Context) (interface{}, error) {
