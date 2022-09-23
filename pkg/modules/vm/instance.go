@@ -13,15 +13,15 @@ import (
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
 
-func NewInstance(path string, opts ...InstanceOptionSetter) (uint32, error) {
+func NewInstance(path string, opts ...InstanceOptionSetter) (string, error) {
 	code, err := os.ReadFile(path)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	return NewInstanceByCode(code, opts...)
 }
 
-func NewInstanceWithID(path string, by uint32, opts ...InstanceOptionSetter) error {
+func NewInstanceWithID(path string, by string, opts ...InstanceOptionSetter) error {
 	id, err := NewInstance(path, opts...)
 
 	if err != nil {
@@ -31,7 +31,7 @@ func NewInstanceWithID(path string, by uint32, opts ...InstanceOptionSetter) err
 	return nil
 }
 
-func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (uint32, error) {
+func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (string, error) {
 	ctx := context.Background()
 	opt := &InstanceOption{
 		RuntimeConfig: DefaultRuntimeConfig,
@@ -60,18 +60,18 @@ func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (uint32, error
 			ExportFunction("log", i.Log).
 			Instantiate(ctx, i.rt)
 		if err != nil {
-			return 0, err
+			return "", err
 		}
 	}
 
 	_, err := wasi_snapshot_preview1.Instantiate(ctx, i.rt)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	i.mod, err = i.rt.InstantiateModuleFromBinary(ctx, code)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	i.malloc = i.mod.ExportedFunction("malloc")
 	i.free = i.mod.ExportedFunction("free")
@@ -160,31 +160,3 @@ func (i *Instance) GetResource(id uint32) ([]byte, bool) { return i.res.Load(id)
 func (i *Instance) RmvResource(id uint32) { i.res.Remove(id) }
 
 func (i *Instance) Get(k string) int32 { return i.db[k] }
-
-var words = make(map[string]int32)
-
-func inc(ctx context.Context, m api.Module, offset, size uint32, delta int32) (code int32) {
-	buf, ok := m.Memory().Read(ctx, offset, size)
-	if !ok {
-		return 1
-	}
-	str := string(buf)
-	if _, ok := words[str]; !ok {
-		words[str] = delta
-	} else {
-		words[str] = words[str] + delta
-	}
-	return 0
-}
-
-func get(ctx context.Context, m api.Module, offset, size uint32) (value int32) {
-	buf, ok := m.Memory().Read(ctx, offset, size)
-	if !ok {
-		return 0
-	}
-	str := string(buf)
-	if _, ok := words[str]; !ok {
-		return 0
-	}
-	return words[str]
-}

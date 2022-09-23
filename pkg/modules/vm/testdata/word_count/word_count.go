@@ -71,14 +71,14 @@ func getData(rid uint32) (string, error) {
 		return "", fmt.Errorf("get data failed: [rid:%d] [code:%d]", rid, code)
 	}
 
-	log(fmt.Sprintf("wasm >> addr=%d", addr))
-	log(fmt.Sprintf("wasm >> size=%d", size))
+	log(fmt.Sprintf("wasm.getData addr=%d", addr))
+	log(fmt.Sprintf("wasm.getData size=%d", size))
 
 	vAddr := (*uint32)(unsafe.Pointer(addr))
 	vSize := (*uint32)(unsafe.Pointer(size))
 
-	log(fmt.Sprintf("wasm >> *vaddr=%d", *vAddr))
-	log(fmt.Sprintf("wasm >> *vsize=%d", *vSize))
+	log(fmt.Sprintf("wasm.getData *vaddr=%d", *vAddr))
+	log(fmt.Sprintf("wasm.getData *vsize=%d", *vSize))
 
 	return ptrToString(*vAddr, *vSize), nil
 }

@@ -18,11 +18,12 @@ var Root = kit.NewRouter(httptransport.Group("/deploy"))
 
 func init() {
 	Root.Register(kit.NewRouter(&CreateInstance{}))
-	Root.Register(kit.NewRouter(&GetInstance{}))
+	Root.Register(kit.NewRouter(&GetInstanceByInstanceID{}))
+	Root.Register(kit.NewRouter(&GetInstanceByAppletID{}))
 	Root.Register(kit.NewRouter(&ControlInstance{}))
 }
 
-func validateByInstance(ctx context.Context, instanceID uint32) (*models.Instance, error) {
+func validateByInstance(ctx context.Context, instanceID string) (*models.Instance, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	ca := middleware.CurrentAccountFromContext(ctx)
 

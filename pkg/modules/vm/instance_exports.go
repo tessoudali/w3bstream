@@ -11,7 +11,7 @@ func (i *Instance) Log(offset, size uint32) {
 	if !ok {
 		panic(fmt.Sprintf("Memory.Read(%d,%d) out of range)", offset, size))
 	}
-	fmt.Println(string(buf))
+	i.opt.Logger.Info(string(buf))
 }
 
 func (i *Instance) GetData(rid uint32, vmAddrPtr, vmSizePtr uint32) wasm.ResultStatusCode {
@@ -58,6 +58,7 @@ func (i *Instance) SetData(rid uint32, addr, size uint32) wasm.ResultStatusCode 
 		return wasm.ResultStatusCode_TransDataFromVMFailed
 	}
 	i.res.Store(rid, buf)
+
 	return 0
 }
 
@@ -69,6 +70,11 @@ func (i *Instance) SetDB(kAddr, kSize uint32, val int32) {
 		return
 	}
 
+	i.opt.Logger.WithValues(
+		"key", string(key),
+		"val", val,
+	).Info("host.SetDB")
+
 	i.db[string(key)] = val
 }
 
@@ -79,5 +85,11 @@ func (i *Instance) GetDB(kAddr, kSize uint32) int32 {
 	}
 
 	val := i.db[string(key)]
+
+	i.opt.Logger.WithValues(
+		"key", string(key),
+		"val", val,
+	).Info("host.GetDB")
+
 	return val
 }

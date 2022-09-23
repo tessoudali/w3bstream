@@ -66,7 +66,7 @@ output like
 command
 
 ```sh
-echo '{"name":"{applet_name}","version":"0.0.1"}' | http post :8888/srv-applet-mgr/v0/project -A bearer -a {token}
+echo '{"name":"{project_name}","version":"0.0.1"}' | http post :8888/srv-applet-mgr/v0/project -A bearer -a {token}
 ```
 
 output like
@@ -75,7 +75,7 @@ output like
 {
   "accountID": "{account_id}",
   "createdAt": "2022-09-23T07:26:52.013626+08:00",
-  "name": "{applet_name}",
+  "name": "{project_name}",
   "projectID": "{project_id}",
   "updatedAt": "2022-09-23T07:26:52.013626+08:00",
   "version": "0.0.1"
@@ -104,7 +104,7 @@ output like
   "appletID": "{applet_id}",
   "config": null,
   "createdAt": "2022-09-23T07:37:08.101494+08:00",
-  "name": "{project_name}",
+  "name": "{applet_name}",
   "projectID": "{project_id}",
   "updatedAt": "2022-09-23T07:37:08.101494+08:00"
 }

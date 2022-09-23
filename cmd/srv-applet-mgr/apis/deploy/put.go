@@ -11,7 +11,7 @@ import (
 
 type ControlInstance struct {
 	httpx.MethodPut
-	InstanceID uint32          `in:"path" name:"instanceID"`
+	InstanceID string          `in:"path" name:"instanceID"`
 	Cmd        enums.DeployCmd `in:"path" name:"cmd"`
 }
 

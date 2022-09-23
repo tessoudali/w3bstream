@@ -4,22 +4,50 @@ import (
 	"context"
 
 	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
+	"github.com/iotexproject/w3bstream/pkg/modules/applet"
 
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
 )
 
-type GetInstance struct {
+type GetInstanceByInstanceID struct {
 	httpx.MethodGet
-	InstanceID uint32 `in:"path" name:"instanceID"`
+	InstanceID string `in:"path" name:"instanceID"`
 }
 
-func (r *GetInstance) Path() string { return "/:instanceID" }
+func (r *GetInstanceByInstanceID) Path() string {
+	return "/instance/:instanceID"
+}
 
-func (r *GetInstance) Output(ctx context.Context) (interface{}, error) {
+func (r *GetInstanceByInstanceID) Output(ctx context.Context) (interface{}, error) {
 	_, err := validateByInstance(ctx, r.InstanceID)
 	if err != nil {
 		return nil, err
 	}
 
 	return deploy.GetInstanceByInstanceID(ctx, r.InstanceID)
+}
+
+type GetInstanceByAppletID struct {
+	httpx.MethodGet
+	AppletID string `in:"path" name:"appletID"`
+}
+
+func (r *GetInstanceByAppletID) Path() string {
+	return "/applet/:appletID"
+}
+
+func (r *GetInstanceByAppletID) Output(ctx context.Context) (interface{}, error) {
+	ca := middleware.CurrentAccountFromContext(ctx)
+
+	app, err := applet.GetAppletByAppletID(ctx, r.AppletID)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = ca.ValidateProjectPerm(ctx, app.ProjectID); err != nil {
+		return nil, err
+	}
+
+	return deploy.GetInstanceByAppletID(ctx, r.AppletID)
 }

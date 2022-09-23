@@ -49,27 +49,24 @@ func TestInstance_WordCount(t *testing.T) {
 
 	defer vm.StopInstance(id)
 
-	// store, ok := i.(wasm.KVStore)
-	// NewWithT(t).Expect(ok).To(BeTrue())
+	store, ok := i.(wasm.KVStore)
+	NewWithT(t).Expect(ok).To(BeTrue())
 
-	_, code := i.HandleEvent("handler", []byte("qqqqq"))
+	_, code := i.HandleEvent("start", []byte("a b c d a"))
 	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
 
-	// _, code := i.HandleEvent("start", []byte("a b c d a"))
-	// NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
+	NewWithT(t).Expect(store.Get("a")).To(Equal(int32(2)))
+	NewWithT(t).Expect(store.Get("b")).To(Equal(int32(1)))
+	NewWithT(t).Expect(store.Get("c")).To(Equal(int32(1)))
+	NewWithT(t).Expect(store.Get("d")).To(Equal(int32(1)))
 
-	// NewWithT(t).Expect(store.Get("a")).To(Equal(int32(2)))
-	// NewWithT(t).Expect(store.Get("b")).To(Equal(int32(1)))
-	// NewWithT(t).Expect(store.Get("c")).To(Equal(int32(1)))
-	// NewWithT(t).Expect(store.Get("d")).To(Equal(int32(1)))
+	_, code = i.HandleEvent("start", []byte("a b c d a"))
+	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
 
-	// _, code = i.HandleEvent("start", []byte("a b c d a"))
-	// NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
-
-	// NewWithT(t).Expect(store.Get("a")).To(Equal(int32(4)))
-	// NewWithT(t).Expect(store.Get("b")).To(Equal(int32(2)))
-	// NewWithT(t).Expect(store.Get("c")).To(Equal(int32(2)))
-	// NewWithT(t).Expect(store.Get("d")).To(Equal(int32(2)))
+	NewWithT(t).Expect(store.Get("a")).To(Equal(int32(4)))
+	NewWithT(t).Expect(store.Get("b")).To(Equal(int32(2)))
+	NewWithT(t).Expect(store.Get("c")).To(Equal(int32(2)))
+	NewWithT(t).Expect(store.Get("d")).To(Equal(int32(2)))
 }
 
 func TestInstance_WordCountV2(t *testing.T) {

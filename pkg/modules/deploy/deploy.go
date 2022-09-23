@@ -16,7 +16,7 @@ import (
 )
 
 type CreateInstanceRsp struct {
-	InstanceID    uint32              `json:"instanceID"`
+	InstanceID    string              `json:"instanceID"`
 	InstanceState enums.InstanceState `json:"instanceState"`
 }
 
@@ -53,7 +53,7 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 	}, nil
 }
 
-func ControlInstance(ctx context.Context, instanceID uint32, cmd enums.DeployCmd) (err error) {
+func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd) (err error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	m := &models.Instance{RelInstance: models.RelInstance{InstanceID: instanceID}}
@@ -101,7 +101,7 @@ func ControlInstance(ctx context.Context, instanceID uint32, cmd enums.DeployCmd
 	return nil
 }
 
-func GetInstanceByInstanceID(ctx context.Context, instanceID uint32) (*models.Instance, error) {
+func GetInstanceByInstanceID(ctx context.Context, instanceID string) (*models.Instance, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	m := &models.Instance{RelInstance: models.RelInstance{InstanceID: instanceID}}
@@ -149,6 +149,7 @@ func StartInstances(ctx context.Context) error {
 	fmt.Println("---------------")
 
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := &models.Instance{}
 
 	list, err := m.List(d, nil)
@@ -159,7 +160,16 @@ func StartInstances(ctx context.Context) error {
 		if i.State == enums.INSTANCE_STATE__CREATED || i.State == enums.INSTANCE_STATE__STARTED {
 			err = vm.NewInstanceWithID(i.Path, i.InstanceID, vm.DefaultInstanceOptionSetter)
 			if err != nil {
-				return err
+				if err := i.DeleteByInstanceID(d); err != nil {
+					return err
+				}
+				if err := (&models.Applet{RelApplet: models.RelApplet{AppletID: i.AppletID}}).
+					DeleteByAppletID(d); err != nil {
+					return err
+				}
+				l.WithValues("instance", i.InstanceID, "applet", i.AppletID).
+					Warn(errors.New("start failed and removed"))
+				return nil
 			}
 			m.State = enums.INSTANCE_STATE__CREATED
 		}
