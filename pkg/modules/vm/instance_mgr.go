@@ -58,7 +58,6 @@ func StopInstance(id string) error {
 		return ErrNotFound
 	}
 	i.Stop()
-	fmt.Printf("--- %d stopped", id)
 	return nil
 }
 

@@ -96,7 +96,20 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 			return err
 		}
 	case enums.DEPLOY_CMD__REDEPLOY:
-		// TODO @zhiran
+		if err = vm.StopInstance(instanceID); err != nil && err != vm.ErrNotFound {
+			return err
+		}
+		if err = vm.DelInstance(instanceID); err != nil {
+			return err
+		}
+		err = vm.NewInstanceWithID(m.Path, instanceID, vm.DefaultInstanceOptionSetter)
+		if err != nil {
+			return err
+		}
+		m.State = enums.INSTANCE_STATE__CREATED
+		if err = m.UpdateByInstanceID(d); err != nil {
+			return err
+		}
 	}
 	return nil
 }
