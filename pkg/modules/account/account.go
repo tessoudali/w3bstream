@@ -130,12 +130,9 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 		return "", err
 	}
 	if len(results) > 0 {
-		return "", nil
+		return results[0].Password.Password, nil
 	}
 	if err = m.Create(d); err != nil {
-		if sqlx.DBErr(err).IsConflict() {
-			return "", nil // already created
-		}
 		return "", err
 	}
 	return m.Password.Password, nil
