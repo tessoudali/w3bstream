@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
-	github.com/iotexproject/Bumblebee v0.0.0-20220920023732-b90d0dd8c137
+	github.com/iotexproject/Bumblebee v0.0.0-20220926043041-10669d26479e
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
 	github.com/saitofun/qlib v0.0.0-20220822220243-9fdd3992fe4b
