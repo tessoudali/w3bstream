@@ -23,3 +23,5 @@ func (r *CreateApplet) Output(ctx context.Context) (interface{}, error) {
 
 	return applet.CreateApplet(ctx, &r.CreateAppletReq)
 }
+
+type CreateAppletAndDeploy struct{}
