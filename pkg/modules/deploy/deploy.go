@@ -97,8 +97,11 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 		if err = vm.StartInstance(instanceID); err != nil {
 			return err
 		}
+		m.State = enums.INSTANCE_STATE__CREATED
+		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
+	default:
+		return status.BadRequest.StatusErr().WithDesc("unknown deploy command")
 	}
-	return nil
 }
 
 func GetInstanceByInstanceID(ctx context.Context, instanceID string) (*models.Instance, error) {
