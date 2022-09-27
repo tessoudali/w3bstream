@@ -25,13 +25,14 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 		RelApplet: models.RelApplet{AppletID: appletID},
 	}
 
-	// TODO limit 1 instance per applet
-	count, err := m.Count(d, m.ColAppletID().Eq(appletID))
+	exists, err := GetInstanceByAppletID(ctx, appletID)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		return nil, status.InstanceLimit
+	for _, i := range exists {
+		if err := ControlInstance(ctx, i.InstanceID, enums.DEPLOY_CMD__REMOVE); err != nil {
+			return nil, err
+		}
 	}
 
 	m.InstanceID, err = vm.NewInstance(path, vm.DefaultInstanceOptionSetter)
