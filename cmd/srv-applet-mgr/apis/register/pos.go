@@ -1,4 +1,4 @@
-package account
+package register
 
 import (
 	"context"
@@ -10,9 +10,9 @@ import (
 
 type CreateAccount struct {
 	httpx.MethodPost
-	account.CreateAccountByUsernameReq `in:"body"`
+	account.CreateAccountReq `in:"body"`
 }
 
 func (r *CreateAccount) Output(ctx context.Context) (interface{}, error) {
-	return account.CreateAccountByUsername(ctx, &r.CreateAccountByUsernameReq)
+	return account.CreateAccount(ctx, &r.CreateAccountReq)
 }

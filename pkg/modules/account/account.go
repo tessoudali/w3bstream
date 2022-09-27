@@ -15,11 +15,12 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
-type CreateAccountByUsernameReq struct {
+type CreateAccountReq struct {
 	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
-func CreateAccountByUsername(ctx context.Context, r *CreateAccountByUsernameReq) (*models.Account, error) {
+func CreateAccount(ctx context.Context, r *CreateAccountReq) (*models.Account, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 
@@ -34,13 +35,13 @@ func CreateAccountByUsername(ctx context.Context, r *CreateAccountByUsernameReq)
 				Type: enums.PASSWORD_TYPE__LOGIN,
 				Password: hashOfAccountPassword(
 					accountID,
-					string(util.GenRandomPassword(8, 3)),
+					r.Password,
 				),
 			},
 		},
 	}
 
-	l.Start(ctx, "CreateAccountByUsername")
+	l.Start(ctx, "CreateAccount")
 	defer l.End()
 
 	if err := m.Create(d); err != nil {
@@ -70,7 +71,7 @@ func ValidateAccountByLogin(ctx context.Context, username, password string) (*mo
 	if err := m.FetchByUsername(d); err != nil {
 		return nil, status.CheckDatabaseError(err, "FetchByUsername")
 	}
-	if m.Password.Password == password {
+	if m.Password.Password == hashOfAccountPassword(m.AccountID, password) {
 		return m, nil
 	}
 	return nil, status.Unauthorized.StatusErr().WithDesc("invalid password")
@@ -90,6 +91,7 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 
 	accountID := uuid.New().String()
+	password := string(util.GenRandomPassword(8, 3))
 	m := &models.Account{
 		RelAccount: models.RelAccount{AccountID: accountID},
 		AccountInfo: models.AccountInfo{
@@ -100,7 +102,7 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 				Type: enums.PASSWORD_TYPE__LOGIN,
 				Password: hashOfAccountPassword(
 					accountID,
-					string(util.GenRandomPassword(8, 3)),
+					password,
 				),
 				Scope: "admin",
 				Desc:  "builtin password",
@@ -123,10 +125,11 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 		return "", status.CheckDatabaseError(err, "FetchAdminAccount")
 	}
 	if len(results) > 0 {
+		// TODO need fix exist admin password?
 		return results[0].Password.Password, nil
 	}
 	if err = m.Create(d); err != nil {
 		return "", err
 	}
-	return m.Password.Password, nil
+	return password, nil
 }
