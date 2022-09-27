@@ -91,19 +91,12 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 		m.State = enums.INSTANCE_STATE__STARTED
 		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
 	case enums.DEPLOY_CMD__RESTART:
-		if err = vm.StopInstance(instanceID); err != nil && err != vm.ErrNotFound {
-
+		if err = vm.StopInstance(instanceID); err != nil {
 			return err
 		}
-		if err = vm.DelInstance(instanceID); err != nil {
+		if err = vm.StartInstance(instanceID); err != nil {
 			return err
 		}
-		err = vm.NewInstanceWithID(m.Path, instanceID, vm.DefaultInstanceOptionSetter)
-		if err != nil {
-			return err
-		}
-		m.State = enums.INSTANCE_STATE__CREATED
-		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
 	}
 	return nil
 }
