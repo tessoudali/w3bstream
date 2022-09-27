@@ -14,6 +14,7 @@
 
 ### Dependencies:
 
+- os : macOS(11.0+)
 - docker: to start a postgres
 - httpie: a simple curl command
 - tinygo: to build wasm code
@@ -37,6 +38,10 @@ keep the terminal alive, and open a new terminal for the other commands.
 
 ```sh
 make create_admin
+```
+
+output like
+```sh
 > username: admin
 > password: {$password}
 > please remember it
