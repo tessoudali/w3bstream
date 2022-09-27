@@ -2,12 +2,15 @@ package applet
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
@@ -115,10 +118,53 @@ type RemoveAppletReq struct {
 }
 
 func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
-	d := types.MustDBExecutorFromContext(ctx)
-	m := &models.Applet{RelApplet: models.RelApplet{AppletID: r.AppletID}}
+	var (
+		d         = types.MustDBExecutorFromContext(ctx)
+		mApplet   = &models.Applet{}
+		mInstance = &models.Instance{}
+		instances []models.Instance
+		err       error
+	)
 
-	return m.DeleteByAppletID(d)
+	return sqlx.NewTasks(d).With(
+		func(d sqlx.DBExecutor) error {
+			mApplet.AppletID = r.AppletID
+			err = mApplet.FetchByAppletID(d)
+			if err != nil {
+				return status.CheckDatabaseError(err, "fetch by applet id")
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
+			mInstance.AppletID = r.AppletID
+			instances, err = mInstance.List(d, mInstance.ColAppletID().Eq(r.AppletID))
+			if err != nil {
+				return status.CheckDatabaseError(err, "ListByAppletID")
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
+			for _, i := range instances {
+				if err = vm.DelInstance(i.InstanceID); err != nil {
+					return status.InternalServerError.StatusErr().WithDesc(
+						fmt.Sprintf("delete instance %s failed: %s",
+							i.InstanceID, err.Error(),
+						),
+					)
+				}
+				if err = i.DeleteByInstanceID(d); err != nil {
+					return status.CheckDatabaseError(err, "DeleteByInstanceID")
+				}
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
+			return status.CheckDatabaseError(
+				mApplet.DeleteByAppletID(d),
+				"delete applet by applet id",
+			)
+		},
+	).Do()
 }
 
 type GetAppletReq struct {
@@ -135,6 +181,9 @@ func GetAppletByAppletID(ctx context.Context, appletID string) (*GetAppletRsp, e
 	d := types.MustDBExecutorFromContext(ctx)
 	m := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
 	err := m.FetchByAppletID(d)
+	if err != nil {
+		return nil, status.CheckDatabaseError(err, "FetchByAppletID")
+	}
 	return &GetAppletRsp{
 		Applet: *m,
 	}, err

@@ -7,10 +7,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
-
 	"github.com/iotexproject/w3bstream/pkg/depends/util"
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
@@ -41,7 +38,6 @@ func CreateAccountByUsername(ctx context.Context, r *CreateAccountByUsernameReq)
 				),
 			},
 		},
-		OperationTimesWithDeleted: datatypes.OperationTimesWithDeleted{},
 	}
 
 	l.Start(ctx, "CreateAccountByUsername")
@@ -49,10 +45,7 @@ func CreateAccountByUsername(ctx context.Context, r *CreateAccountByUsernameReq)
 
 	if err := m.Create(d); err != nil {
 		l.Error(err)
-		if sqlx.DBErr(err).IsConflict() {
-			return nil, status.Conflict.StatusErr().WithMsg("create account conflict")
-		}
-		return nil, err
+		return nil, status.CheckDatabaseError(err, "CreateAccount")
 	}
 	return m, nil
 }
@@ -75,10 +68,7 @@ func ValidateAccountByLogin(ctx context.Context, username, password string) (*mo
 	m.Username = username
 
 	if err := m.FetchByUsername(d); err != nil {
-		if sqlx.DBErr(err).IsNotFound() {
-			return nil, status.Unauthorized.StatusErr().WithDesc("account dose not exist")
-		}
-		return nil, status.InternalServerError.StatusErr().WithDesc(err.Error())
+		return nil, status.CheckDatabaseError(err, "FetchByUsername")
 	}
 	if m.Password.Password == password {
 		return m, nil
@@ -90,6 +80,9 @@ func GetAccountByAccountID(ctx context.Context, accountID string) (*models.Accou
 	d := types.MustDBExecutorFromContext(ctx)
 	m := &models.Account{RelAccount: models.RelAccount{AccountID: accountID}}
 	err := m.FetchByAccountID(d)
+	if err != nil {
+		return nil, status.CheckDatabaseError(err, "FetchByAccountID")
+	}
 	return m, err
 }
 
@@ -127,7 +120,7 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 			),
 		), &results)
 	if err != nil {
-		return "", err
+		return "", status.CheckDatabaseError(err, "FetchAdminAccount")
 	}
 	if len(results) > 0 {
 		return results[0].Password.Password, nil

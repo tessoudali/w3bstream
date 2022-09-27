@@ -83,7 +83,7 @@ func (v Error) Msg() string {
 	case Conflict:
 		return "Conflict conflict error"
 	case InternalServerError:
-		return "InternalServerError 内部错误"
+		return "InternalServerError internal error"
 	case UploadFileFailed:
 		return ""
 	case ExtractFileFailed:

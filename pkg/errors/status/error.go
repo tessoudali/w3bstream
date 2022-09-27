@@ -2,6 +2,8 @@ package status
 
 import (
 	"net/http"
+
+	"github.com/iotexproject/Bumblebee/kit/sqlx"
 )
 
 //go:generate toolkit gen status Error
@@ -12,7 +14,7 @@ func (Error) ServiceCode() int {
 }
 
 const (
-	// InternalServerError 内部错误
+	// InternalServerError internal error
 	InternalServerError Error = http.StatusInternalServerError*1e6 + iota + 1
 	UploadFileFailed
 	ExtractFileFailed
@@ -45,3 +47,22 @@ const (
 	// NotFound
 	NotFound Error = http.StatusNotFound*1e6 + iota + 1
 )
+
+func CheckDatabaseError(err error, msg ...string) error {
+	desc := ""
+	if len(msg) > 0 {
+		desc = msg[0]
+	}
+	if err != nil {
+		e := sqlx.DBErr(err)
+		if e.IsNotFound() {
+			return NotFound.StatusErr().WithDesc(desc)
+		} else if e.IsConflict() {
+			return Conflict.StatusErr().WithDesc(desc)
+		} else {
+			desc = desc + " " + err.Error()
+			return InternalServerError.StatusErr().WithDesc(desc)
+		}
+	}
+	return nil
+}

@@ -1,9 +1,12 @@
 MODULE_NAME = $(shell cat go.mod | grep "^module" | sed -e "s/module //g")
 
-install_toolkit:
+update_go_module:
+	go mod tidy
+
+install_toolkit: update_go_module
 	@go install github.com/iotexproject/Bumblebee/gen/cmd/...
 
-install_goimports:
+install_goimports: update_go_module
 	@go install golang.org/x/tools/cmd/goimports@latest
 
 ## TODO add source format as a githook
@@ -16,11 +19,11 @@ generate: install_toolkit
 	go generate ./...
 
 ## to migrate database models, if model defines changed, make this entry
-migrate:
+migrate: update_go_module
 	go run cmd/srv-applet-mgr/main.go migrate
 
 ## build srv-applet-mgr
-build_server:
+build_server: update_go_module
 	@cd cmd/srv-applet-mgr && go build
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
@@ -38,7 +41,7 @@ create_admin: build_server
 	@cd build && ./srv-applet-mgr init_admin
 
 ## make pub_client
-build_pub_client:
+build_pub_client: update_go_module
 	@cd cmd/pub_client && go build
 	@mkdir -p build
 	@mv cmd/pub_client/pub_client build
@@ -52,7 +55,7 @@ run_depends:
 	docker-compose -f testutil/docker-compose-pg.yaml up -d
 	docker-compose -f testutil/docker-compose-mqtt.yaml up -d
 
-wasm_demo:
+wasm_demo: update_go_module
 	@cd pkg/modules/vm/testdata && make all
 
 build: build_server build_pub_client

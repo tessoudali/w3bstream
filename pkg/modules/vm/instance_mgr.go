@@ -23,6 +23,11 @@ func AddInstance(i wasm.Instance) string {
 	fmt.Printf("--- %s created\n", id)
 	return id
 }
+func AddInstanceByID(id string, i wasm.Instance) string {
+	instances.Store(id, i)
+	fmt.Printf("--- %s created\n", id)
+	return id
+}
 
 func changeID(oldID, newID string) {
 	i, _ := instances.LoadAndRemove(oldID)
@@ -31,7 +36,10 @@ func changeID(oldID, newID string) {
 
 func DelInstance(id string) error {
 	i, _ := instances.LoadAndRemove(id)
-	if i != nil && i.State() == enums.INSTANCE_STATE__STARTED {
+	if i == nil {
+		return ErrNotFound
+	}
+	if i.State() == enums.INSTANCE_STATE__STARTED {
 		i.Stop()
 	}
 	fmt.Printf("--- %s deleted\n", id)

@@ -18,20 +18,28 @@ func NewInstance(path string, opts ...InstanceOptionSetter) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return NewInstanceByCode(code, opts...)
+	i, err := newInstanceByCode(code, opts...)
+	if err != nil {
+		return "", err
+	}
+	return AddInstance(i), nil
 }
 
 func NewInstanceWithID(path string, by string, opts ...InstanceOptionSetter) error {
-	id, err := NewInstance(path, opts...)
-
+	code, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	changeID(id, by)
+	i, err := newInstanceByCode(code, opts...)
+	if err != nil {
+		return err
+	}
+
+	AddInstanceByID(by, i)
 	return nil
 }
 
-func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (string, error) {
+func newInstanceByCode(code []byte, opts ...InstanceOptionSetter) (*Instance, error) {
 	ctx := context.Background()
 	opt := &InstanceOption{
 		RuntimeConfig: DefaultRuntimeConfig,
@@ -60,18 +68,18 @@ func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (string, error
 			ExportFunction("log", i.Log).
 			Instantiate(ctx, i.rt)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
 	_, err := wasi_snapshot_preview1.Instantiate(ctx, i.rt)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	i.mod, err = i.rt.InstantiateModuleFromBinary(ctx, code)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	i.malloc = i.mod.ExportedFunction("malloc")
 	i.free = i.mod.ExportedFunction("free")
@@ -79,7 +87,7 @@ func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (string, error
 	i.res = mapx.New[uint32, []byte]()
 	i.ctx, i.cancel = context.WithCancel(ctx)
 
-	return AddInstance(i), nil
+	return i, nil
 }
 
 type Instance struct {

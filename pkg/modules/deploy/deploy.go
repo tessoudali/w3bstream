@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/pkg/errors"
 
@@ -26,7 +25,7 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 		RelApplet: models.RelApplet{AppletID: appletID},
 	}
 
-	// TODO
+	// TODO limit 1 instance per applet
 	count, err := m.Count(d, m.ColAppletID().Eq(appletID))
 	if err != nil {
 		return nil, err
@@ -54,9 +53,11 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 }
 
 func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd) (err error) {
-	d := types.MustDBExecutorFromContext(ctx)
-	l := types.MustLoggerFromContext(ctx)
-	m := &models.Instance{RelInstance: models.RelInstance{InstanceID: instanceID}}
+	var (
+		d = types.MustDBExecutorFromContext(ctx)
+		l = types.MustLoggerFromContext(ctx)
+		m *models.Instance
+	)
 
 	l.Start(ctx, "ControlInstance")
 	defer l.End()
@@ -67,7 +68,7 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 		}
 	}()
 
-	if err = m.FetchByInstanceID(d); err != nil {
+	if m, err = GetInstanceByInstanceID(ctx, instanceID); err != nil {
 		return err
 	}
 
@@ -76,27 +77,22 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 		if err = vm.DelInstance(instanceID); err != nil {
 			return err
 		}
-		if err = m.DeleteByInstanceID(d); err != nil {
-			return err
-		}
+		return status.CheckDatabaseError(m.DeleteByInstanceID(d), "DeleteInstanceByInstanceID")
 	case enums.DEPLOY_CMD__STOP:
 		if err = vm.StopInstance(instanceID); err != nil {
 			return err
 		}
 		m.State = enums.INSTANCE_STATE__STOPPED
-		if err = m.UpdateByInstanceID(d); err != nil {
-			return err
-		}
+		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
 	case enums.DEPLOY_CMD__START:
 		if err = vm.StartInstance(instanceID); err != nil {
 			return err
 		}
 		m.State = enums.INSTANCE_STATE__STARTED
-		if err = m.UpdateByInstanceID(d); err != nil {
-			return err
-		}
+		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
 	case enums.DEPLOY_CMD__RESTART:
 		if err = vm.StopInstance(instanceID); err != nil && err != vm.ErrNotFound {
+
 			return err
 		}
 		if err = vm.DelInstance(instanceID); err != nil {
@@ -107,9 +103,7 @@ func ControlInstance(ctx context.Context, instanceID string, cmd enums.DeployCmd
 			return err
 		}
 		m.State = enums.INSTANCE_STATE__CREATED
-		if err = m.UpdateByInstanceID(d); err != nil {
-			return err
-		}
+		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
 	}
 	return nil
 }
@@ -122,10 +116,7 @@ func GetInstanceByInstanceID(ctx context.Context, instanceID string) (*models.In
 	l.Start(ctx, "GetInstanceByInstanceID")
 
 	if err := m.FetchByInstanceID(d); err != nil {
-		if sqlx.DBErr(err).IsNotFound() {
-			return nil, status.NotFound.StatusErr().WithDesc("instance not found in db")
-		}
-		return nil, err
+		return nil, status.CheckDatabaseError(err, "FetchInstanceByInstanceID")
 	}
 
 	state, ok := vm.GetInstanceState(instanceID)

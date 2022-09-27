@@ -25,7 +25,7 @@ func (r *ContextAccountAuth) ContextKey() string { return contextAccountAuthKey 
 func (r *ContextAccountAuth) Output(ctx context.Context) (interface{}, error) {
 	v, ok := jwt.AuthFromContext(ctx).(string)
 	if !ok {
-		panic("not an account id")
+		return nil, status.Unauthorized.StatusErr().WithDesc("not an account id")
 	}
 	ca, err := account.GetAccountByAccountID(ctx, v)
 	if err != nil {
@@ -48,7 +48,7 @@ func (v *CurrentAccount) ValidateProjectPerm(ctx context.Context, prjID string) 
 	m := &models.Project{RelProject: models.RelProject{ProjectID: prjID}}
 
 	if err := m.FetchByProjectID(d); err != nil {
-		return nil, status.NotFound.StatusErr().WithDesc("project not found")
+		return nil, status.CheckDatabaseError(err, "get project by project id")
 	}
 	if a.AccountID != m.AccountID {
 		return nil, status.Unauthorized.StatusErr().WithDesc("no project permission")
