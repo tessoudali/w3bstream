@@ -14,5 +14,5 @@ type CreateAccount struct {
 }
 
 func (r *CreateAccount) Output(ctx context.Context) (interface{}, error) {
-	return account.CreateAccount(ctx, &r.CreateAccountByUsernameReq)
+	return account.CreateAccountByUsername(ctx, &r.CreateAccountByUsernameReq)
 }

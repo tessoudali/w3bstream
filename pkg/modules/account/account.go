@@ -19,7 +19,7 @@ type CreateAccountByUsernameReq struct {
 	Username string `json:"username"`
 }
 
-func CreateAccount(ctx context.Context, r *CreateAccountByUsernameReq) (*models.Account, error) {
+func CreateAccountByUsername(ctx context.Context, r *CreateAccountByUsernameReq) (*models.Account, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 
