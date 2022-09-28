@@ -27,7 +27,7 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 
 	exists, err := GetInstanceByAppletID(ctx, appletID)
 	if err != nil {
-		return nil, err
+		return nil, status.CheckDatabaseError(err, "GetInstanceByAppletID")
 	}
 	for _, i := range exists {
 		if err := ControlInstance(ctx, i.InstanceID, enums.DEPLOY_CMD__REMOVE); err != nil {
