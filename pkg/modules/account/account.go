@@ -15,12 +15,11 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
-type CreateAccountReq struct {
+type CreateAccountByUsernameReq struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
 }
 
-func CreateAccount(ctx context.Context, r *CreateAccountReq) (*models.Account, error) {
+func CreateAccount(ctx context.Context, r *CreateAccountByUsernameReq) (*models.Account, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 
@@ -35,13 +34,13 @@ func CreateAccount(ctx context.Context, r *CreateAccountReq) (*models.Account, e
 				Type: enums.PASSWORD_TYPE__LOGIN,
 				Password: hashOfAccountPassword(
 					accountID,
-					r.Password,
+					string(util.GenRandomPassword(8, 3)),
 				),
 			},
 		},
 	}
 
-	l.Start(ctx, "CreateAccount")
+	l.Start(ctx, "CreateAccountByUsername")
 	defer l.End()
 
 	if err := m.Create(d); err != nil {
@@ -125,7 +124,6 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 		return "", status.CheckDatabaseError(err, "FetchAdminAccount")
 	}
 	if len(results) > 0 {
-		// TODO need fix exist admin password?
 		return results[0].Password.Password, nil
 	}
 	if err = m.Create(d); err != nil {
