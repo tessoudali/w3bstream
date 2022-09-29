@@ -32,6 +32,18 @@ build_server: update_go_module
 	@echo 'succeed! config =>build/config/'
 	@echo 'modify config/local.yaml to use your server config'
 
+vendor: update_go_module
+	@go mod vendor
+
+build_server_vendor: vendor
+	@cd cmd/srv-applet-mgr && go build -mod vendor
+	@mkdir -p build
+	@mv cmd/srv-applet-mgr/srv-applet-mgr build
+	@cp -r cmd/srv-applet-mgr/config build/config
+	@echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
+	@echo 'succeed! config =>build/config/'
+	@echo 'modify config/local.yaml to use your server config'
+
 ## migrate first
 run_server: build_server
 	@cd build && ./srv-applet-mgr
