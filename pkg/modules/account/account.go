@@ -70,7 +70,7 @@ func ValidateAccountByLogin(ctx context.Context, username, password string) (*mo
 	if err := m.FetchByUsername(d); err != nil {
 		return nil, status.CheckDatabaseError(err, "FetchByUsername")
 	}
-	if m.Password.Password == password {
+	if m.Password.Password == hashOfAccountPassword(m.AccountID, password) {
 		return m, nil
 	}
 	return nil, status.Unauthorized.StatusErr().WithDesc("invalid password")
@@ -90,6 +90,7 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 
 	accountID := uuid.New().String()
+	password := string(util.GenRandomPassword(8, 3))
 	m := &models.Account{
 		RelAccount: models.RelAccount{AccountID: accountID},
 		AccountInfo: models.AccountInfo{
@@ -100,7 +101,7 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 				Type: enums.PASSWORD_TYPE__LOGIN,
 				Password: hashOfAccountPassword(
 					accountID,
-					string(util.GenRandomPassword(8, 3)),
+					password,
 				),
 				Scope: "admin",
 				Desc:  "builtin password",
@@ -128,5 +129,5 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 	if err = m.Create(d); err != nil {
 		return "", err
 	}
-	return m.Password.Password, nil
+	return password, nil
 }
