@@ -52,6 +52,30 @@ func CreateApplet(ctx context.Context, r *CreateAppletReq) (*models.Applet, erro
 	return m, nil
 }
 
+type UpdateAppletReq struct {
+	File *multipart.FileHeader `name:"file"`
+}
+
+func UpdateApplet(ctx context.Context, appletID string, r *UpdateAppletReq) error {
+	_, filename, err := resource.Upload(ctx, r.File, appletID)
+	if err != nil {
+		return status.UploadFileFailed.StatusErr().WithDesc(err.Error())
+	}
+
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
+
+	if err := m.FetchByAppletID(d); err != nil {
+		return status.CheckDatabaseError(err, "FetchAppletByAppletID")
+	}
+	m.Path = filename
+	if err := m.UpdateByAppletID(d); err != nil {
+		defer os.RemoveAll(filename)
+		return status.CheckDatabaseError(err, "UpdateAppletByAppletID")
+	}
+	return nil
+}
+
 type ListAppletReq struct {
 	ProjectID string   `in:"path"  name:"projectID"`
 	IDs       []string `in:"query" name:"id,omitempty"`
