@@ -1,120 +1,120 @@
 package main
 
 import (
-	"context"
-	_ "embed"
-	"encoding/json"
+	"bytes"
+	"encoding/binary"
 	"fmt"
-	"os"
+	"reflect"
+	"strings"
+	"unsafe"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	"github.com/pkg/errors"
 )
 
-//go:embed testdata/word_count.wasm
-var code []byte
+func main() {}
 
-func main() {
-	ctx := context.Background()
+//go:wasm-module env
+//export log
+func _log(ptr uint32, size uint32)
 
-	// new wasm runtime.
-	r := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().
-		WithFeatureBulkMemoryOperations(true).
-		WithFeatureNonTrappingFloatToIntConversion(true).
-		WithFeatureSignExtensionOps(true).WithFeatureMultiValue(true))
-	defer r.Close(ctx)
+//go:wasm-module env
+//export get_data
+func _get_data(rid uint32, ptr uint32, size uint32) int32
 
-	// exports
-	{
-		_, err := r.NewModuleBuilder("env").
-			ExportFunction("log", log).
-			ExportFunction("inc", inc).
-			ExportFunction("get", get).
-			Instantiate(ctx, r)
-		if err != nil {
-			panic(err)
-		}
-	}
+//go:wasm-module env
+//export get_db
+func _get_db(kaddr, ksize uint32) (v int32)
 
-	if _, err := wasi_snapshot_preview1.Instantiate(ctx, r); err != nil {
-		panic(err)
-	}
+//go:wasm-module env
+//export set_db
+func _set_db(kaddr, ksize uint32, v int32)
 
-	mod, err := r.InstantiateModuleFromBinary(ctx, code)
+//export start
+func _start(rid uint32) int32 {
+	log(fmt.Sprintf("wasm >> received: %d", rid))
+	str, err := getData(rid)
 	if err != nil {
-		panic(err)
+		log("wasm >> error" + err.Error())
+		return -1
 	}
 
-	// fns
-	var (
-		counter = mod.ExportedFunction("start")
-		_       = mod.ExportedFunction("greet")
-		malloc  = mod.ExportedFunction("malloc")
-		free    = mod.ExportedFunction("free")
-	)
-
-	// event handle
-	{
-		str := os.Args[1]
-		strlen := uint64(len(str))
-
-		results, err := malloc.Call(ctx, strlen)
-		if err != nil {
-			panic(err)
+	words := strings.Split(str, " ")
+	records := make(map[string]int32)
+	for _, w := range words {
+		if _, ok := records[w]; !ok {
+			kaddr, ksize := stringToPtr(w)
+			records[w] = _get_db(kaddr, ksize) + 1
+		} else {
+			records[w]++
 		}
-		ptr := results[0]
-		defer free.Call(ctx, ptr)
-		// free.Call(ctx, ptr2)
-
-		if !mod.Memory().Write(ctx, uint32(ptr), []byte(str)) {
-			panic(fmt.Sprintf("Memory.Write(%d, %d) out of range of memory size %d",
-				ptr, strlen, mod.Memory().Size(ctx)))
-		}
-
-		results, err = counter.Call(ctx, ptr, strlen)
-		if err != nil {
-			panic(err)
-		}
-
-		msg, _ := json.Marshal(words)
-		fmt.Println("host >> " + string(msg))
-		fmt.Println(results)
 	}
-}
 
-func log(ctx context.Context, m api.Module, offset, size uint32) {
-	buf, ok := m.Memory().Read(ctx, offset, size)
-	if !ok {
-		panic(fmt.Sprintf("Memory.Read(%d,%d) out of range)", offset, size))
-	}
-	fmt.Println(string(buf))
-}
-
-var words = make(map[string]int32)
-
-func inc(ctx context.Context, m api.Module, offset, size uint32, delta int32) (code int32) {
-	buf, ok := m.Memory().Read(ctx, offset, size)
-	if !ok {
-		return 1
-	}
-	str := string(buf)
-	if _, ok := words[str]; !ok {
-		words[str] = delta
-	} else {
-		words[str] = words[str] + delta
+	for k, cnt := range records {
+		kaddr, ksize := stringToPtr(k)
+		_set_db(kaddr, ksize, cnt)
 	}
 	return 0
 }
 
-func get(ctx context.Context, m api.Module, offset, size uint32) (count int32) {
-	buf, ok := m.Memory().Read(ctx, offset, size)
-	if !ok {
-		return 1
+// log a message to the console using _log.
+func log(message string) {
+	ptr, size := stringToPtr(message)
+	_log(ptr, size)
+}
+
+func getData(rid uint32) (string, error) {
+	addr := uintptr(unsafe.Pointer(new(uint32)))
+	size := uintptr(unsafe.Pointer(new(uint32)))
+
+	code := _get_data(rid, uint32(addr), uint32(size))
+	if code != 0 {
+		return "", fmt.Errorf("get data failed: [rid:%d] [code:%d]", rid, code)
 	}
-	str := string(buf)
-	if _, ok := words[str]; !ok {
-		return 0
+
+	log(fmt.Sprintf("wasm.getData addr=%d", addr))
+	log(fmt.Sprintf("wasm.getData size=%d", size))
+
+	vAddr := (*uint32)(unsafe.Pointer(addr))
+	vSize := (*uint32)(unsafe.Pointer(size))
+
+	log(fmt.Sprintf("wasm.getData *vaddr=%d", *vAddr))
+	log(fmt.Sprintf("wasm.getData *vsize=%d", *vSize))
+
+	return ptrToString(*vAddr, *vSize), nil
+}
+
+func ptrToString(ptr uint32, size uint32) string {
+	return *(*string)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  uintptr(size),
+		Cap:  uintptr(size),
+	}))
+}
+
+func ptrToBytes(ptr uint32, size uint32) []byte {
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  uintptr(size),
+		Cap:  uintptr(size),
+	}))
+}
+
+func ptrToInt32(ptr uint32, size uint32) (v int32, err error) {
+	if size != 4 {
+		return 0, errors.New("invalid data size")
 	}
-	return words[str]
+	buf := ptrToBytes(ptr, size)
+	err = binary.Read(bytes.NewReader(buf), binary.LittleEndian, &v)
+	return
+}
+
+func stringToPtr(s string) (uint32, uint32) {
+	buf := []byte(s)
+	ptr := &buf[0]
+	unsafePtr := uintptr(unsafe.Pointer(ptr))
+	return uint32(unsafePtr), uint32(len(buf))
+}
+
+func int32ToPtr(v int32) (uint32, uint32) {
+	return uint32(uintptr(unsafe.Pointer(&v))), 4
 }

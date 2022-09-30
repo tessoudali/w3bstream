@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+
 	"github.com/iotexproject/w3bstream/pkg/depends/util"
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"

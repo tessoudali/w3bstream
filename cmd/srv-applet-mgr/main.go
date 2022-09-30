@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/iotexproject/Bumblebee/kit/kit"
+
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
 
 	"github.com/iotexproject/w3bstream/pkg/modules/account"

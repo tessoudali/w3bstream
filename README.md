@@ -90,13 +90,15 @@ output like
 ### build demo wasm scripts
 
 ```sh
-make wasm_demo ## build to pkg/modules/vm/testdata/ use to deploy wasm applet
+make wasm_demo ## build to `examples` use to deploy wasm applet
 ``` 
 
 ### create and deploy applet
 
 
 upload wasm script
+
+> use examples/word_count/word_count.wasm
 
 ```sh
 http --form post :8888/srv-applet-mgr/v0/applet file@{path_to_wasm_file} info='{"projectID":"{project_id}","appletName":"{applet_name}"}' -A bearer -a {token}

@@ -68,7 +68,7 @@ run_depends:
 	docker-compose -f testutil/docker-compose-mqtt.yaml up -d
 
 wasm_demo: update_go_module
-	@cd pkg/modules/vm/testdata && make all
+	@cd examples && make all
 
 build: build_server build_pub_client
 

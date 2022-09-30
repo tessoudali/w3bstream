@@ -6,11 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
-	"github.com/iotexproject/w3bstream/pkg/enums"
-	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+
+	"github.com/iotexproject/w3bstream/pkg/enums"
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
 func NewInstance(path string, opts ...InstanceOptionSetter) (string, error) {
@@ -18,7 +19,7 @@ func NewInstance(path string, opts ...InstanceOptionSetter) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	i, err := newInstanceByCode(code, opts...)
+	i, err := NewInstanceByCode(code, opts...)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +31,7 @@ func NewInstanceWithID(path string, by string, opts ...InstanceOptionSetter) err
 	if err != nil {
 		return err
 	}
-	i, err := newInstanceByCode(code, opts...)
+	i, err := NewInstanceByCode(code, opts...)
 	if err != nil {
 		return err
 	}
@@ -39,7 +40,7 @@ func NewInstanceWithID(path string, by string, opts ...InstanceOptionSetter) err
 	return nil
 }
 
-func newInstanceByCode(code []byte, opts ...InstanceOptionSetter) (*Instance, error) {
+func NewInstanceByCode(code []byte, opts ...InstanceOptionSetter) (*Instance, error) {
 	ctx := context.Background()
 	opt := &InstanceOption{
 		RuntimeConfig: DefaultRuntimeConfig,
