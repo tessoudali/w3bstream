@@ -1,23 +1,24 @@
-#基于go镜像
+# Golang Image
 #FROM golang:latest
 FROM golang:1.19 AS build-env
 
-#维护人的信息
+# Maintainer Information
 MAINTAINER The Iotex Project <jeson@imoocc.com.com>
 
-#开启80端口
+# Port 8888
 EXPOSE 8888
 
-#创建代码目录
+# Create Project Directory
 RUN mkdir -p /w3bstream
 
-#复制代码文件至镜像中web站点下
+# Copy Files into Project Directory
 COPY . /w3bstream/
 
-#Nginx配置文件软链接
+# Link Nginx Config File
 #RUN ln -s /mysite/conf/test.conf /etc/nginx/conf.d/test_conf.conf
 WORKDIR /w3bstream
-#安装依赖
+
+# Install Dependencies
 
 RUN cd cmd/srv-applet-mgr && go build -mod vendor
 RUN mkdir -p build
@@ -27,14 +28,12 @@ RUN echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
 RUN echo 'succeed! config =>build/config/'
 RUN echo 'modify config/local.yaml to use your server config'
 
-#migrate
+# Run DB Migrate
 RUN go run cmd/srv-applet-mgr/main.go migrate
 
-#
-
-#复制该脚本至镜像中，并修改其权限
+# Copy Script into Image and Modify Permission
 ADD run.sh /run.sh
 RUN chmod 775 /run.sh
 
-#当启动容器时执行的脚本文件
+# Docker Container Starting Command
 CMD ["/run.sh"]
