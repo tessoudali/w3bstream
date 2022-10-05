@@ -1,24 +1,19 @@
-# Golang Image
 #FROM golang:latest
-FROM golang:1.19 AS build-env
+FROM imoocc/w3b_base:v1 AS build-env
 
-# Maintainer Information
-MAINTAINER The Iotex Project <jeson@imoocc.com.com>
+MAINTAINER The Iotex Project <jeson@iotex.io>
 
-# Port 8888
 EXPOSE 8888
+EXPOSE 3000 
+EXPOSE 5432
+EXPOSE 22
 
-# Create Project Directory
 RUN mkdir -p /w3bstream
 
-# Copy Files into Project Directory
 COPY . /w3bstream/
 
-# Link Nginx Config File
 #RUN ln -s /mysite/conf/test.conf /etc/nginx/conf.d/test_conf.conf
 WORKDIR /w3bstream
-
-# Install Dependencies
 
 RUN cd cmd/srv-applet-mgr && go build -mod vendor
 RUN mkdir -p build
@@ -28,12 +23,13 @@ RUN echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
 RUN echo 'succeed! config =>build/config/'
 RUN echo 'modify config/local.yaml to use your server config'
 
-# Run DB Migrate
-RUN go run cmd/srv-applet-mgr/main.go migrate
+#w3bstream front
+#RUN go run cmd/srv-applet-mgr/main.go migrate
+RUN cd /w3bstream/frontend && pnpm install
+RUN cp /w3bstream/frontend/.env.tmpl /w3bstream/frontend/.env
+RUN cd /w3bstream/frontend && pnpm build
 
-# Copy Script into Image and Modify Permission
-ADD run.sh /run.sh
-RUN chmod 775 /run.sh
-
-# Docker Container Starting Command
-CMD ["/run.sh"]
+#
+#init script
+ADD cmd/docker_init.sh /init.sh
+RUN chmod 775 /init.sh

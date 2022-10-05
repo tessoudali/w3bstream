@@ -35,6 +35,10 @@ build_server: update_go_module
 vendor: update_go_module
 	@go mod vendor
 
+# build docker image
+build_image: update_go_module vendor
+	@docker build -t iotex/w3bstream:v3 .
+
 build_server_vendor: vendor
 	@cd cmd/srv-applet-mgr && go build -mod vendor
 	@mkdir -p build

@@ -1,0 +1,309 @@
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
+# github.com/eclipse/paho.mqtt.golang v1.4.1
+## explicit; go 1.14
+github.com/eclipse/paho.mqtt.golang
+github.com/eclipse/paho.mqtt.golang/packets
+# github.com/fatih/color v1.13.0
+## explicit; go 1.13
+github.com/fatih/color
+# github.com/go-logr/logr v1.2.3
+## explicit; go 1.16
+github.com/go-logr/logr
+github.com/go-logr/logr/funcr
+# github.com/go-logr/stdr v1.2.2
+## explicit; go 1.16
+github.com/go-logr/stdr
+# github.com/go-ole/go-ole v1.2.6
+## explicit; go 1.12
+github.com/go-ole/go-ole
+github.com/go-ole/go-ole/oleutil
+# github.com/golang-jwt/jwt/v4 v4.4.2
+## explicit; go 1.16
+github.com/golang-jwt/jwt/v4
+# github.com/google/go-cmp v0.5.8
+## explicit; go 1.13
+github.com/google/go-cmp/cmp
+github.com/google/go-cmp/cmp/internal/diff
+github.com/google/go-cmp/cmp/internal/flags
+github.com/google/go-cmp/cmp/internal/function
+github.com/google/go-cmp/cmp/internal/value
+# github.com/google/uuid v1.3.0
+## explicit
+github.com/google/uuid
+# github.com/gorilla/websocket v1.5.0
+## explicit; go 1.12
+github.com/gorilla/websocket
+# github.com/inconshreveable/mousetrap v1.0.1
+## explicit; go 1.18
+github.com/inconshreveable/mousetrap
+# github.com/iotexproject/Bumblebee v0.0.0-20220930045222-20cf5cda980f
+## explicit; go 1.18
+github.com/iotexproject/Bumblebee/base/consts
+github.com/iotexproject/Bumblebee/base/types
+github.com/iotexproject/Bumblebee/conf/app
+github.com/iotexproject/Bumblebee/conf/deploy
+github.com/iotexproject/Bumblebee/conf/env
+github.com/iotexproject/Bumblebee/conf/http
+github.com/iotexproject/Bumblebee/conf/http/mws
+github.com/iotexproject/Bumblebee/conf/jwt
+github.com/iotexproject/Bumblebee/conf/log
+github.com/iotexproject/Bumblebee/conf/mqtt
+github.com/iotexproject/Bumblebee/conf/postgres
+github.com/iotexproject/Bumblebee/gen/codegen
+github.com/iotexproject/Bumblebee/gen/codegen/internal/format
+github.com/iotexproject/Bumblebee/kit/enum
+github.com/iotexproject/Bumblebee/kit/httptransport
+github.com/iotexproject/Bumblebee/kit/httptransport/client
+github.com/iotexproject/Bumblebee/kit/httptransport/client/roundtrippers
+github.com/iotexproject/Bumblebee/kit/httptransport/handlers
+github.com/iotexproject/Bumblebee/kit/httptransport/httpx
+github.com/iotexproject/Bumblebee/kit/httptransport/transformer
+github.com/iotexproject/Bumblebee/kit/kit
+github.com/iotexproject/Bumblebee/kit/metax
+github.com/iotexproject/Bumblebee/kit/modelgen
+github.com/iotexproject/Bumblebee/kit/sqlx
+github.com/iotexproject/Bumblebee/kit/sqlx/builder
+github.com/iotexproject/Bumblebee/kit/sqlx/datatypes
+github.com/iotexproject/Bumblebee/kit/sqlx/driver/postgres
+github.com/iotexproject/Bumblebee/kit/sqlx/migration
+github.com/iotexproject/Bumblebee/kit/sqlx/scanner
+github.com/iotexproject/Bumblebee/kit/sqlx/scanner/nullable
+github.com/iotexproject/Bumblebee/kit/statusx
+github.com/iotexproject/Bumblebee/kit/validator
+github.com/iotexproject/Bumblebee/kit/validator/errors
+github.com/iotexproject/Bumblebee/kit/validator/rules
+github.com/iotexproject/Bumblebee/x/contextx
+github.com/iotexproject/Bumblebee/x/mapx
+github.com/iotexproject/Bumblebee/x/misc/clone
+github.com/iotexproject/Bumblebee/x/misc/must
+github.com/iotexproject/Bumblebee/x/misc/retry
+github.com/iotexproject/Bumblebee/x/misc/slice
+github.com/iotexproject/Bumblebee/x/misc/timer
+github.com/iotexproject/Bumblebee/x/pkgx
+github.com/iotexproject/Bumblebee/x/ptrx
+github.com/iotexproject/Bumblebee/x/reflectx
+github.com/iotexproject/Bumblebee/x/typesx
+# github.com/julienschmidt/httprouter v1.3.0
+## explicit; go 1.7
+github.com/julienschmidt/httprouter
+# github.com/kr/text v0.2.0
+## explicit
+# github.com/lib/pq v1.10.6
+## explicit; go 1.13
+github.com/lib/pq
+github.com/lib/pq/oid
+github.com/lib/pq/scram
+# github.com/mattn/go-colorable v0.1.12
+## explicit; go 1.13
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.14
+## explicit; go 1.12
+github.com/mattn/go-isatty
+# github.com/onsi/gomega v1.20.0
+## explicit; go 1.18
+github.com/onsi/gomega
+github.com/onsi/gomega/format
+github.com/onsi/gomega/internal
+github.com/onsi/gomega/internal/gutil
+github.com/onsi/gomega/matchers
+github.com/onsi/gomega/matchers/support/goraph/bipartitegraph
+github.com/onsi/gomega/matchers/support/goraph/edge
+github.com/onsi/gomega/matchers/support/goraph/node
+github.com/onsi/gomega/matchers/support/goraph/util
+github.com/onsi/gomega/types
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+github.com/pmezard/go-difflib/difflib
+# github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c
+## explicit; go 1.14
+github.com/power-devops/perfstat
+# github.com/rogpeppe/go-internal v1.8.0
+## explicit; go 1.11
+# github.com/saitofun/qlib v0.0.0-20220822220243-9fdd3992fe4b
+## explicit; go 1.17
+github.com/saitofun/qlib/container/qptr
+github.com/saitofun/qlib/encoding/qtext
+github.com/saitofun/qlib/util/qnaming
+github.com/saitofun/qlib/util/qstrings
+# github.com/shirou/gopsutil/v3 v3.22.8
+## explicit; go 1.15
+github.com/shirou/gopsutil/v3/disk
+github.com/shirou/gopsutil/v3/internal/common
+# github.com/sirupsen/logrus v1.9.0
+## explicit; go 1.13
+github.com/sirupsen/logrus
+# github.com/spf13/cobra v1.5.0
+## explicit; go 1.15
+github.com/spf13/cobra
+# github.com/spf13/pflag v1.0.5
+## explicit; go 1.12
+github.com/spf13/pflag
+# github.com/stretchr/testify v1.8.0
+## explicit; go 1.13
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
+# github.com/tetratelabs/wazero v1.0.0-pre.1
+## explicit; go 1.18
+github.com/tetratelabs/wazero
+github.com/tetratelabs/wazero/api
+github.com/tetratelabs/wazero/experimental
+github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1
+github.com/tetratelabs/wazero/internal/asm
+github.com/tetratelabs/wazero/internal/asm/amd64
+github.com/tetratelabs/wazero/internal/asm/arm64
+github.com/tetratelabs/wazero/internal/buildoptions
+github.com/tetratelabs/wazero/internal/compilationcache
+github.com/tetratelabs/wazero/internal/engine/compiler
+github.com/tetratelabs/wazero/internal/engine/interpreter
+github.com/tetratelabs/wazero/internal/ieee754
+github.com/tetratelabs/wazero/internal/leb128
+github.com/tetratelabs/wazero/internal/moremath
+github.com/tetratelabs/wazero/internal/platform
+github.com/tetratelabs/wazero/internal/sys
+github.com/tetratelabs/wazero/internal/u32
+github.com/tetratelabs/wazero/internal/u64
+github.com/tetratelabs/wazero/internal/version
+github.com/tetratelabs/wazero/internal/wasi_snapshot_preview1
+github.com/tetratelabs/wazero/internal/wasm
+github.com/tetratelabs/wazero/internal/wasm/binary
+github.com/tetratelabs/wazero/internal/wasmdebug
+github.com/tetratelabs/wazero/internal/wasmruntime
+github.com/tetratelabs/wazero/internal/wazeroir
+github.com/tetratelabs/wazero/sys
+# github.com/wasmerio/wasmer-go v1.0.4
+## explicit; go 1.14
+github.com/wasmerio/wasmer-go/wasmer
+github.com/wasmerio/wasmer-go/wasmer/packaged/include
+github.com/wasmerio/wasmer-go/wasmer/packaged/lib
+github.com/wasmerio/wasmer-go/wasmer/packaged/lib/darwin-amd64
+github.com/wasmerio/wasmer-go/wasmer/packaged/lib/linux-aarch64
+github.com/wasmerio/wasmer-go/wasmer/packaged/lib/linux-amd64
+# github.com/yusufpapurcu/wmi v1.2.2
+## explicit; go 1.16
+github.com/yusufpapurcu/wmi
+# go.opentelemetry.io/contrib/propagators/b3 v1.9.0
+## explicit; go 1.17
+go.opentelemetry.io/contrib/propagators/b3
+# go.opentelemetry.io/otel v1.9.0
+## explicit; go 1.17
+go.opentelemetry.io/otel
+go.opentelemetry.io/otel/attribute
+go.opentelemetry.io/otel/baggage
+go.opentelemetry.io/otel/codes
+go.opentelemetry.io/otel/internal
+go.opentelemetry.io/otel/internal/baggage
+go.opentelemetry.io/otel/internal/global
+go.opentelemetry.io/otel/propagation
+go.opentelemetry.io/otel/semconv/internal
+go.opentelemetry.io/otel/semconv/v1.12.0
+# go.opentelemetry.io/otel/sdk v1.9.0
+## explicit; go 1.17
+go.opentelemetry.io/otel/sdk/instrumentation
+go.opentelemetry.io/otel/sdk/internal
+go.opentelemetry.io/otel/sdk/internal/env
+go.opentelemetry.io/otel/sdk/resource
+go.opentelemetry.io/otel/sdk/trace
+# go.opentelemetry.io/otel/trace v1.9.0
+## explicit; go 1.17
+go.opentelemetry.io/otel/trace
+# golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
+## explicit; go 1.17
+golang.org/x/mod/semver
+# golang.org/x/net v0.0.0-20220722155237-a158d28d115b
+## explicit; go 1.17
+golang.org/x/net/html
+golang.org/x/net/html/atom
+golang.org/x/net/html/charset
+golang.org/x/net/http/httpguts
+golang.org/x/net/http2
+golang.org/x/net/http2/hpack
+golang.org/x/net/idna
+golang.org/x/net/internal/socks
+golang.org/x/net/proxy
+# golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+## explicit
+golang.org/x/sync/semaphore
+# golang.org/x/sys v0.0.0-20220818161305-2296e01440c6
+## explicit; go 1.17
+golang.org/x/sys/execabs
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+golang.org/x/sys/windows/registry
+# golang.org/x/text v0.3.7
+## explicit; go 1.17
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/language
+golang.org/x/text/runes
+golang.org/x/text/secure/bidirule
+golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+# golang.org/x/tools v0.1.12
+## explicit; go 1.18
+golang.org/x/tools/go/gcexportdata
+golang.org/x/tools/go/internal/gcimporter
+golang.org/x/tools/go/internal/packagesdriver
+golang.org/x/tools/go/internal/pkgbits
+golang.org/x/tools/go/packages
+golang.org/x/tools/internal/event
+golang.org/x/tools/internal/event/core
+golang.org/x/tools/internal/event/keys
+golang.org/x/tools/internal/event/label
+golang.org/x/tools/internal/gocommand
+golang.org/x/tools/internal/packagesinternal
+golang.org/x/tools/internal/typeparams
+golang.org/x/tools/internal/typesinternal
+# google.golang.org/protobuf v1.28.0
+## explicit; go 1.11
+google.golang.org/protobuf/encoding/prototext
+google.golang.org/protobuf/encoding/protowire
+google.golang.org/protobuf/internal/descfmt
+google.golang.org/protobuf/internal/descopts
+google.golang.org/protobuf/internal/detrand
+google.golang.org/protobuf/internal/encoding/defval
+google.golang.org/protobuf/internal/encoding/messageset
+google.golang.org/protobuf/internal/encoding/tag
+google.golang.org/protobuf/internal/encoding/text
+google.golang.org/protobuf/internal/errors
+google.golang.org/protobuf/internal/filedesc
+google.golang.org/protobuf/internal/filetype
+google.golang.org/protobuf/internal/flags
+google.golang.org/protobuf/internal/genid
+google.golang.org/protobuf/internal/impl
+google.golang.org/protobuf/internal/order
+google.golang.org/protobuf/internal/pragma
+google.golang.org/protobuf/internal/set
+google.golang.org/protobuf/internal/strs
+google.golang.org/protobuf/internal/version
+google.golang.org/protobuf/proto
+google.golang.org/protobuf/reflect/protoreflect
+google.golang.org/protobuf/reflect/protoregistry
+google.golang.org/protobuf/runtime/protoiface
+google.golang.org/protobuf/runtime/protoimpl
+# gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
+## explicit; go 1.11
+# gopkg.in/yaml.v2 v2.4.0
+## explicit; go 1.15
+gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.1
+## explicit
+gopkg.in/yaml.v3
