@@ -37,6 +37,7 @@ vendor: update_go_module
 
 # build docker image
 build_image: update_go_module vendor
+	git submodule update --init
 	@docker build -t iotex/w3bstream:v3 .
 
 build_server_vendor: vendor
