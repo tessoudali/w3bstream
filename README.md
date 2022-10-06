@@ -10,8 +10,27 @@
 2. wasm runtime instance deployment
 3. interact with wasm (a word count demo)
 
-## How to run
+## Run with docker
 
+### build docker image
+
+```bash
+make build_image
+```
+
+### Run docker container
+
+```bash
+ docker-compose -f ./docker-compose.yaml up -d
+ ```
+
+### Access Admin Panel
+
+Visit http://localhost:3000 to get started.
+
+The default admin password in located in docker log.
+
+## Run with binary
 ### Dependencies:
 
 - os : macOS(11.0+)
@@ -52,7 +71,7 @@ output like
 command
 
 ```sh
-echo '{"username":"admin","password":"{password}"}' | http put :8888/srv-applet-mgr/v0/login 
+echo '{"username":"admin","password":"{password}"}' | http put :8888/srv-applet-mgr/v0/login
 ```
 
 output like
@@ -91,7 +110,7 @@ output like
 
 ```sh
 make wasm_demo ## build to `examples` use to deploy wasm applet
-``` 
+```
 
 ### create and deploy applet
 
