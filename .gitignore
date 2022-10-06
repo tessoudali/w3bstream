@@ -4,3 +4,4 @@ build
 .undodir
 .vscode
 asserts
+vendor
