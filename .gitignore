@@ -1,4 +1,5 @@
 go.work
+go.work.sum
 build
 .session.vim
 .undodir
