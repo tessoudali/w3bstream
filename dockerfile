@@ -24,7 +24,7 @@ RUN apt install postgis postgresql-13-postgis-3 -y
 #Create app directory and upload w3bstream app
 RUN mkdir -p /w3bstream
 COPY . /w3bstream/
-RUN rm -rf /w3bstream/build/pgdata
+RUN rm -rf /w3bstream/build_image/pgdata
 WORKDIR /w3bstream
 
 #RUN /etc/init.d/postgresql start
@@ -49,9 +49,9 @@ RUN /etc/init.d/mosquitto start
 RUN apt-get install nginx -y
 
 #Install Nodejs and pnpm
-RUN /bin/bash /w3bstream/build/packages/setup_14.x
+RUN /bin/bash /w3bstream/build_image/packages/setup_14.x
 RUN apt install nodejs -y
-RUN /bin/bash /w3bstream/build/packages/install.sh
+RUN /bin/bash /w3bstream/build_image/packages/install.sh
 RUN ln -s /root/.local/share/pnpm/pnpm /usr/bin/pnpm
 
 #Build vendor
@@ -71,5 +71,5 @@ RUN cd /w3bstream/frontend && pnpm build
 
 #
 #Upload init script
-ADD build/cmd/docker_init.sh /init.sh
+ADD build_image/cmd/docker_init.sh /init.sh
 RUN chmod 775 /init.sh
