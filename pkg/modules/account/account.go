@@ -103,7 +103,8 @@ func CreateAdminIfNotExist(ctx context.Context) (string, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 
 	accountID := uuid.New().String()
-	password := string(util.GenRandomPassword(8, 3))
+	// password := string(util.GenRandomPassword(8, 3))
+	password := "iotex.W3B.admin"
 	m := &models.Account{
 		RelAccount: models.RelAccount{AccountID: accountID},
 		AccountInfo: models.AccountInfo{
