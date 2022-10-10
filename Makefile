@@ -15,8 +15,9 @@ format: install_goimports
 	goimports -w -l -local "${MODULE_NAME}" ./
 
 ## gen code
-generate: install_toolkit
+generate: install_toolkit install_goimports
 	go generate ./...
+	goimports -w -l -local "${MODULE_NAME}" ./
 
 ## to migrate database models, if model defines changed, make this entry
 migrate: update_go_module
