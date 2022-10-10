@@ -3,6 +3,7 @@ module github.com/iotexproject/w3bstream
 go 1.18
 
 require (
+	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/google/uuid v1.3.0
 	github.com/iotexproject/Bumblebee v0.0.0-20220930045222-20cf5cda980f
 	github.com/onsi/gomega v1.20.0
@@ -17,7 +18,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/eclipse/paho.mqtt.golang v1.4.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

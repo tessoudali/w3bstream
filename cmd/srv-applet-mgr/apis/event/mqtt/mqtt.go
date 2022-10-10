@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+
 	"github.com/iotexproject/w3bstream/pkg/modules/event/proxy"
 	"github.com/iotexproject/w3bstream/pkg/types"
 )

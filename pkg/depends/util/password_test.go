@@ -3,8 +3,9 @@ package util_test
 import (
 	"testing"
 
-	"github.com/iotexproject/w3bstream/pkg/depends/util"
 	. "github.com/onsi/gomega"
+
+	"github.com/iotexproject/w3bstream/pkg/depends/util"
 )
 
 var (
