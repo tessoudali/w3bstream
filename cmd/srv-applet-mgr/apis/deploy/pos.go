@@ -7,7 +7,6 @@ import (
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
 	"github.com/iotexproject/w3bstream/pkg/modules/applet"
-
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
 )
 

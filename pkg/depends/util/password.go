@@ -1,6 +1,9 @@
 package util
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -17,4 +20,19 @@ func GenRandomPassword(size int, kind int) []byte {
 		result[i] = uint8(base + rand.Intn(scope))
 	}
 	return result
+}
+
+func HashOfAccountPassword(accountID string, password string) string {
+	return string(toMD5(toMD5([]byte(fmt.Sprintf("%s-%s", accountID, password)))))
+}
+
+func toMD5(src []byte) []byte {
+	m := md5.New()
+	_, _ = m.Write(src)
+	cipherStr := m.Sum(nil)
+	return []byte(hex.EncodeToString(cipherStr))
+}
+
+func ExtractRawPasswordByAccountAndPassword(accountID, passwordMD5 string) (string, error) {
+	return "", nil // TODO
 }

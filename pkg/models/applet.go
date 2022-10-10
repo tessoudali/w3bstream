@@ -9,7 +9,7 @@ import (
 // Applet database model applet
 // @def primary                   ID
 // @def unique_index UI_applet_id AppletID
-// @def index        I_name       Name
+// @def unique_index UI_name      Name
 //
 //go:generate toolkit gen model Applet --database DB
 type Applet struct {
