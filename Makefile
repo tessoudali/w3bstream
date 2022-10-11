@@ -20,7 +20,7 @@ generate: install_toolkit install_goimports
 	goimports -w -l -local "${MODULE_NAME}" ./
 
 ## to migrate database models, if model defines changed, make this entry
-migrate: update_go_module
+migrate: install_toolkit install_goimports
 	go run cmd/srv-applet-mgr/main.go migrate
 
 ## build srv-applet-mgr

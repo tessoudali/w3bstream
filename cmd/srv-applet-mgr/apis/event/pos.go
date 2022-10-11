@@ -52,7 +52,7 @@ func (r *RecvEvent) Output(ctx context.Context) (interface{}, error) {
 	// TODO timeout
 	result := <-res
 	if !result.Success {
-		return nil, status.InternalServerError.StatusErr().WithDesc("...")
+		return nil, status.InternalServerError
 	}
 	return result.Data, nil
 }
