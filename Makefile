@@ -38,6 +38,7 @@ vendor: update_go_module
 
 # build docker image
 build_image: update_go_module vendor
+	@mkdir build_image/pgdata -p
 	@git submodule update --init
 	@docker build -t iotex/w3bstream:v3 --no-cache .
 
@@ -48,7 +49,7 @@ drop_image:
 
 # run docker image
 run_image: 
-	@docker run -d -it --name iotex_w3bstream -p 5432:5432 -p 8888:8888 -p 3000:3000 -v $(pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/bash /w3bstream/build_image/cmd/docker_init.sh
+	@docker run -d -it --name iotex_w3bstream -p 5432:5432 -p 8888:8888 -p 3000:3000 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/bash /w3bstream/build_image/cmd/docker_init.sh
 
 build_server_vendor: vendor
 	@cd cmd/srv-applet-mgr && go build -mod vendor
