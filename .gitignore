@@ -6,4 +6,3 @@ build
 .vscode
 asserts
 vendor
-build_image/
