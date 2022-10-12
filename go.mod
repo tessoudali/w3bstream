@@ -3,6 +3,7 @@ module github.com/iotexproject/w3bstream
 go 1.18
 
 require (
+	github.com/bytecodealliance/wasmtime-go v1.0.0
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/ethereum/go-ethereum v1.10.25
 	github.com/google/uuid v1.3.0
