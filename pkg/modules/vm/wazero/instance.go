@@ -41,11 +41,11 @@ func NewInstanceByCode(code []byte, opts ...common.InstanceOptionSetter) (wasm.I
 
 	{
 		_, err := i.rt.NewModuleBuilder("env").
-			ExportFunction("get_data", i.GetData).
-			ExportFunction("set_data", i.SetData).
-			ExportFunction("get_db", i.GetDB).
-			ExportFunction("set_db", i.SetDB).
-			ExportFunction("log", i.Log).
+			ExportFunction("ws_get_data", i.GetData).
+			ExportFunction("ws_set_data", i.SetData).
+			ExportFunction("ws_get_db", i.GetDB).
+			ExportFunction("ws_set_db", i.SetDB).
+			ExportFunction("ws_log", i.Log).
 			Instantiate(ctx, i.rt)
 		if err != nil {
 			return nil, err
@@ -61,7 +61,7 @@ func NewInstanceByCode(code []byte, opts ...common.InstanceOptionSetter) (wasm.I
 	if err != nil {
 		return nil, err
 	}
-	i.malloc = i.mod.ExportedFunction("malloc")
+	i.alloc = i.mod.ExportedFunction("alloc")
 	i.free = i.mod.ExportedFunction("free")
 
 	i.res = mapx.New[uint32, []byte]()
@@ -78,7 +78,7 @@ type Instance struct {
 	rt       wazero.Runtime
 	mod      api.Module
 	res      *mapx.Map[uint32, []byte]
-	malloc   api.Function
+	alloc    api.Function
 	free     api.Function
 	handlers map[string]api.Function
 	db       map[string]int32

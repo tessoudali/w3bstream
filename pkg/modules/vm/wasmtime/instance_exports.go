@@ -29,8 +29,8 @@ func (ef *ExportFuncs) Log(c *wasmtime.Caller, ptr, size int32) {
 }
 
 func (ef *ExportFuncs) GetData(c *wasmtime.Caller, rid, vmAddrPtr, vmSizePtr int32) int32 {
-	mallocFn := c.GetExport("malloc")
-	if mallocFn == nil {
+	allocFn := c.GetExport("alloc")
+	if allocFn == nil {
 		return int32(wasm.ResultStatusCode_ImportNotFound)
 	}
 	data, ok := ef.res.Load(uint32(rid))
@@ -38,7 +38,7 @@ func (ef *ExportFuncs) GetData(c *wasmtime.Caller, rid, vmAddrPtr, vmSizePtr int
 		return int32(wasm.ResultStatusCode_ResourceNotFound)
 	}
 	size := len(data)
-	result, err := mallocFn.Func().Call(ef.store, int32(size))
+	result, err := allocFn.Func().Call(ef.store, int32(size))
 	if err != nil {
 		return int32(wasm.ResultStatusCode_ImportCallFailed)
 	}

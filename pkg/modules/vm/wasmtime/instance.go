@@ -32,11 +32,11 @@ func NewInstanceByCode(code []byte, opts ...common.InstanceOptionSetter) (wasm.I
 	linker := wasmtime.NewLinker(vmEngine)
 
 	ef := ExportFuncs{vmStore, res, db, opt.Logger}
-	_ = linker.FuncWrap("env", "get_data", ef.GetData)
-	_ = linker.FuncWrap("env", "set_data", ef.GetData)
-	_ = linker.FuncWrap("env", "get_db", ef.GetDB)
-	_ = linker.FuncWrap("env", "set_db", ef.SetDB)
-	_ = linker.FuncWrap("env", "log", ef.Log)
+	_ = linker.FuncWrap("env", "ws_get_data", ef.GetData)
+	_ = linker.FuncWrap("env", "ws_set_data", ef.SetData)
+	_ = linker.FuncWrap("env", "ws_get_db", ef.GetDB)
+	_ = linker.FuncWrap("env", "ws_set_db", ef.SetDB)
+	_ = linker.FuncWrap("env", "ws_log", ef.Log)
 
 	_ = linker.DefineWasi()
 
