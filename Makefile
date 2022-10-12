@@ -64,10 +64,6 @@ build_server_vendor: vendor
 run_server: build_server
 	@cd build && ./srv-applet-mgr
 
-## create admin account
-create_admin: build_server
-	@cd build && ./srv-applet-mgr init_admin
-
 ## make pub_client
 build_pub_client: update_go_module
 	@cd cmd/pub_client && go build
