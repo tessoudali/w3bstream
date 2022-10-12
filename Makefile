@@ -40,7 +40,7 @@ vendor: update_go_module
 build_image: update_go_module vendor
 	@mkdir build_image/pgdata -p
 	@git submodule update --init
-	@docker build -t iotex/w3bstream:v3 --no-cache .
+	@docker build -t iotex/w3bstream:v3 .
 
 #drop docker image
 drop_image:
