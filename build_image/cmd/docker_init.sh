@@ -1,10 +1,10 @@
 #!/bin/sh
 #init pg
 if [ ! -d "/var/lib/postgresql_data/13" ]; then
-   echo "PG data is not exsit!"
+   echo "PG data does not exsit!"
    cp -r /var/lib/postgresql/13 /var/lib/postgresql_data/
 else
-   echo "PG data is exsit!"
+   echo "PG data exists!"
 fi
 chown -R postgres:postgres /var/lib/postgresql_data/13
 chmod -R 700 /var/lib/postgresql_data/13
