@@ -26,7 +26,7 @@ su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;
 #sleep 10
 
 cd /w3bstream/build && ./srv-applet-mgr migrate
-cd /w3bstream/build && ./srv-applet-mgr init_admin &
+#cd /w3bstream/build && ./srv-applet-mgr init_admin &
 cd /w3bstream/build && ./srv-applet-mgr &
 
 sleep 3
