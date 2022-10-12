@@ -11,6 +11,7 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
@@ -35,7 +36,7 @@ func CreateInstance(ctx context.Context, path, appletID string) (*CreateInstance
 		}
 	}
 
-	m.InstanceID, err = vm.NewInstance(path, vm.DefaultInstanceOptionSetter)
+	m.InstanceID, err = vm.NewInstance(path, common.DefaultInstanceOptionSetter)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +160,7 @@ func StartInstances(ctx context.Context) error {
 	}
 	for _, i := range list {
 		if i.State == enums.INSTANCE_STATE__CREATED || i.State == enums.INSTANCE_STATE__STARTED {
-			err = vm.NewInstanceWithID(i.Path, i.InstanceID, vm.DefaultInstanceOptionSetter)
+			err = vm.NewInstanceWithID(i.Path, i.InstanceID, common.DefaultInstanceOptionSetter)
 			if err != nil {
 				if err := i.DeleteByInstanceID(d); err != nil {
 					return err
