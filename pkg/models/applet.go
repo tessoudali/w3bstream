@@ -4,6 +4,8 @@ import (
 	"database/sql/driver"
 
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+
+	"github.com/iotexproject/w3bstream/pkg/enums"
 )
 
 // Applet database model applet
@@ -30,10 +32,21 @@ type AppletInfo struct {
 	Config *AppletConfig `db:"f_config,default=''" json:"config"`
 }
 
-type AppletConfig struct{}
+type EventHandler struct {
+	Type     enums.EventType `json:"type"`
+	Handlers []string        `json:"handlers"`
+}
+
+var DefaultEventHandler = EventHandler{enums.EVENT_TYPE_UNKNOWN, []string{"start"}}
+
+type AppletConfig []EventHandler
 
 func (AppletConfig) DataType(drv string) string { return "text" }
 
-func (v AppletConfig) Value() (driver.Value, error) { return nil, nil }
+func (v AppletConfig) Value() (driver.Value, error) {
+	return datatypes.JSONValue(v)
+}
 
-func (v *AppletConfig) Scan(src interface{}) error { return nil }
+func (v *AppletConfig) Scan(src interface{}) error {
+	return datatypes.JSONScan(src, v)
+}
