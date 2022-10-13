@@ -6,8 +6,9 @@ import (
 	"github.com/bytecodealliance/wasmtime-go"
 	conflog "github.com/iotexproject/Bumblebee/conf/log"
 	"github.com/iotexproject/Bumblebee/x/mapx"
-	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 	"github.com/pkg/errors"
+
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
 type WasmtimeExportFunc interface{}
