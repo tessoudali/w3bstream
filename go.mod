@@ -7,7 +7,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/ethereum/go-ethereum v1.10.25
 	github.com/google/uuid v1.3.0
-	github.com/iotexproject/Bumblebee v0.0.0-20220930045222-20cf5cda980f
+	github.com/iotexproject/Bumblebee v0.0.0-20221013150816-07ab941edd55
 	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
 	github.com/saitofun/qlib v0.0.0-20220822220243-9fdd3992fe4b
