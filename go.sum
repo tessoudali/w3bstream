@@ -61,6 +61,8 @@ github.com/inconshreveable/mousetrap v1.0.1 h1:U3uMjPSQEBMNp1lFxmllqCPM6P5u/Xq7P
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/iotexproject/Bumblebee v0.0.0-20221013150816-07ab941edd55 h1:D6xdxPbnIhAKzxGtUhARJM2DEL8S8pY5TM0vdD/p7/M=
 github.com/iotexproject/Bumblebee v0.0.0-20221013150816-07ab941edd55/go.mod h1:fi0xlGqZ3h9UAsKzr2CPqcdOzMnC7oA70ZueozFyAxw=
+github.com/iotexproject/Bumblebee v0.0.0-20221013235442-c5e610458d80 h1:8zHYkbJ5QExj4vPCnxEKim0YJUms/0Bnd27klfUmv0c=
+github.com/iotexproject/Bumblebee v0.0.0-20221013235442-c5e610458d80/go.mod h1:fi0xlGqZ3h9UAsKzr2CPqcdOzMnC7oA70ZueozFyAxw=
 github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7BdWus=
 github.com/julienschmidt/httprouter v1.3.0 h1:U0609e9tgbseu3rBINet9P48AI/D3oJs4dN7jwJOQ1U=
 github.com/julienschmidt/httprouter v1.3.0/go.mod h1:JR6WtHb+2LUe8TCKY3cZOxFyyO8IZAc4RVcycCCAKdM=
