@@ -34,6 +34,13 @@ func (r *HandleEvent) Path() string { return "/:projectName" }
 func (r *HandleEvent) Output(ctx context.Context) (interface{}, error) {
 	// TODO validate publisher belongs to Project @ZhiweiSun
 
+	// TODO check publisher key
+	//eventProto := models.EventProto{}
+	//if err := json.Unmarshal(r.Data, &eventProto); err != nil {
+	//
+	//}
+	//eventProto.PublisherKey -> projectID -> == r.ProjectID -> next
+
 	eventType := enums.EVENT_TYPE__ANY
 	if r.Header != nil {
 		eventType = enums.EventType(r.Header.EventType)
