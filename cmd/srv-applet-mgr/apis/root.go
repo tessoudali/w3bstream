@@ -11,6 +11,7 @@ import (
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/event"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/login"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
+	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/monitor"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/project"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/publisher"
 )
@@ -29,6 +30,7 @@ func init() {
 
 	RouterV0.Register(login.Root)
 	RouterV0.Register(event.Root)
+	RouterV0.Register(monitor.Root)
 	RouterV0.Register(RouterAuth)
 	{
 		RouterAuth.Register(account.Root)

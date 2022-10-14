@@ -11,6 +11,7 @@ import (
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
 	"github.com/iotexproject/w3bstream/pkg/modules/account"
+	"github.com/iotexproject/w3bstream/pkg/modules/blockchain"
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
 )
 
@@ -46,6 +47,16 @@ func main() {
 					return
 				}
 				log.Printf("admin created, default password: iotex.W3B.admin")
+			},
+			func() {
+				ctx := global.WithContext(context.Background())
+				if err := blockchain.InitChainDB(ctx); err != nil {
+					log.Panicf("init chain db faild: %s", err.Error())
+					return
+				}
+			},
+			func() {
+				go blockchain.ListenContractlog(global.WithContext(context.Background()))
 			},
 		)
 	})
