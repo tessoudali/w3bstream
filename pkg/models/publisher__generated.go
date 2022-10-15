@@ -60,6 +60,7 @@ func (*Publisher) PrimaryKey() []string {
 func (m *Publisher) IndexFieldNames() []string {
 	return []string{
 		"ID",
+		"Key",
 		"PublisherID",
 	}
 }
@@ -69,11 +70,18 @@ func (*Publisher) UniqueIndexes() builder.Indexes {
 		"ui_publisher_id": []string{
 			"PublisherID",
 		},
+		"ui_publisher_key": []string{
+			"Key",
+		},
 	}
 }
 
 func (*Publisher) UniqueIndexUIPublisherID() string {
 	return "ui_publisher_id"
+}
+
+func (*Publisher) UniqueIndexUIPublisherKey() string {
+	return "ui_publisher_key"
 }
 
 func (m *Publisher) ColID() *builder.Column {
@@ -229,6 +237,24 @@ func (m *Publisher) FetchByPublisherID(db sqlx.DBExecutor) error {
 	return err
 }
 
+func (m *Publisher) FetchByKey(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	err := db.QueryAndScan(
+		builder.Select(nil).
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("Key").Eq(m.Key),
+					),
+				),
+				builder.Comment("Publisher.FetchByKey"),
+			),
+		m,
+	)
+	return err
+}
+
 func (m *Publisher) UpdateByIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
@@ -289,6 +315,36 @@ func (m *Publisher) UpdateByPublisherID(db sqlx.DBExecutor, zeros ...string) err
 	return m.UpdateByPublisherIDWithFVs(db, fvs)
 }
 
+func (m *Publisher) UpdateByKeyWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
+	tbl := db.T(m)
+	res, err := db.Exec(
+		builder.Update(tbl).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("Key").Eq(m.Key),
+				),
+				builder.Comment("Publisher.UpdateByKeyWithFVs"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	if err != nil {
+		return err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return m.FetchByKey(db)
+	}
+	return nil
+}
+
+func (m *Publisher) UpdateByKey(db sqlx.DBExecutor, zeros ...string) error {
+	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
+	return m.UpdateByKeyWithFVs(db, fvs)
+}
+
 func (m *Publisher) Delete(db sqlx.DBExecutor) error {
 	_, err := db.Exec(
 		builder.Delete().
@@ -330,6 +386,23 @@ func (m *Publisher) DeleteByPublisherID(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("Publisher.DeleteByPublisherID"),
+			),
+	)
+	return err
+}
+
+func (m *Publisher) DeleteByKey(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	_, err := db.Exec(
+		builder.Delete().
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("Key").Eq(m.Key),
+					),
+				),
+				builder.Comment("Publisher.DeleteByKey"),
 			),
 	)
 	return err

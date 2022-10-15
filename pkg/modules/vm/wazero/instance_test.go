@@ -78,7 +78,14 @@ func TestInstance_JsonWASM(t *testing.T) {
 	NewWithT(t).Expect(err).To(BeNil())
 	defer vm.StopInstance(id)
 
-	_, code := i.HandleEvent("start", []byte(`{"IoTeX":"W3BStream"}`))
+	_, code := i.HandleEvent("start", []byte(`{
+  "name": {"first": "Tom", "last": "Anderson", "age": 39},
+  "friends": [
+    {"first_name": "Dale", "last_name": "Murphy", "age": 44, "nets": ["ig", "fb", "tw"]},
+    {"first_name": "Roger", "last_name": "Craig", "age": 68, "nets": ["fb", "tw"]},
+    {"first_name": "Jane", "last_name": "Murphy", "age": 47, "nets": ["ig", "tw"]}
+  ]
+}`))
 	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
 }
 

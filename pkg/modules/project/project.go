@@ -226,6 +226,17 @@ func GetProjectByProjectID(ctx context.Context, prjID types.SFID) (*Detail, erro
 	return &ret.Data[0], nil
 }
 
+func GetProjectByProjectName(ctx context.Context, prjName string) (*models.Project, error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Project{ProjectInfo: models.ProjectInfo{Name: prjName}}
+
+	if err := m.FetchByName(d); err != nil {
+		return nil, status.CheckDatabaseError(err, "GetProjectByProjectName")
+	}
+
+	return m, nil
+}
+
 func DeleteProject(_ context.Context, _ string) error {
 	// TODO
 	return nil

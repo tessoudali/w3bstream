@@ -37,7 +37,10 @@ func _start(rid uint32) int32 {
 		return -1
 	}
 	log("wasm >> " + message)
-	log("wasm get IoTeX from json >> " + gjson.Get(message, "IoTeX").String())
+	log("wasm get name(json string) from json >> " + gjson.Get(message, "name").String())
+	log("wasm get name.age(int) from json >> " + gjson.Get(message, "name.age").String())
+	log("wasm get friends(array) from json >> " + gjson.Get(message, "friends").String())
+	log("wasm get friends[0].nets(array) from json >> " + gjson.Get(message, "friends.0.nets").String())
 	return 0
 }
 

@@ -3,6 +3,8 @@ package wasmtime_test
 import (
 	_ "embed"
 	"fmt"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm/wazero"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,6 +19,9 @@ import (
 
 // //go:embed ../../../../examples/log/log.wasm
 var wasmLogCode []byte
+
+// //go:embed ../../../examples/json/parse_json.wasm
+var wasmJsonCode []byte
 
 // //go:embed ../../../../examples/word_count/word_count.wasm
 var wasmWordCountCode []byte
@@ -36,6 +41,10 @@ func init() {
 		panic(err)
 	}
 
+	wasmJsonCode, err = os.ReadFile(filepath.Join(root, "json/parse_json.wasm"))
+	if err != nil {
+		panic(err)
+	}
 	wasmWordCountCode, err = os.ReadFile(filepath.Join(root, "word_count/word_count.wasm"))
 	if err != nil {
 		panic(err)
@@ -61,6 +70,26 @@ func TestInstance_LogWASM(t *testing.T) {
 
 	_, code = i.HandleEvent("not_exported", []byte("IoTeX"))
 	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_UnexportedHandler))
+}
+
+func TestInstance_JsonWASM(t *testing.T) {
+	i, err := wazero.NewInstanceByCode(wasmJsonCode, common.DefaultInstanceOptionSetter)
+	NewWithT(t).Expect(err).To(BeNil())
+	id := vm.AddInstance(i)
+
+	err = vm.StartInstance(id)
+	NewWithT(t).Expect(err).To(BeNil())
+	defer vm.StopInstance(id)
+
+	_, code := i.HandleEvent("start", []byte(`{
+  "name": {"first": "Tom", "last": "Anderson", "age": 39},
+  "friends": [
+    {"first_name": "Dale", "last_name": "Murphy", "age": 44, "nets": ["ig", "fb", "tw"]},
+    {"first_name": "Roger", "last_name": "Craig", "age": 68, "nets": ["fb", "tw"]},
+    {"first_name": "Jane", "last_name": "Murphy", "age": 47, "nets": ["ig", "tw"]}
+  ]
+}`))
+	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
 }
 
 func TestInstance_WordCount(t *testing.T) {

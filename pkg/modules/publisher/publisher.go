@@ -35,3 +35,16 @@ func CreatePublisher(ctx context.Context, projectID types.SFID, r *CreatePublish
 
 	return m, nil
 }
+
+func GetPublisherByPublisherKey(ctx context.Context, publisherKey string) (*models.Publisher, error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Publisher{
+		PublisherInfo: models.PublisherInfo{Key: publisherKey},
+	}
+
+	if err := m.FetchByPublisherID(d); err != nil {
+		return nil, status.CheckDatabaseError(err, "GetPublisherByPublisherID")
+	}
+
+	return m, nil
+}
