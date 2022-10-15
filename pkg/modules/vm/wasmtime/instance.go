@@ -4,16 +4,19 @@ import (
 	"context"
 
 	"github.com/bytecodealliance/wasmtime-go"
+	gethCommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/google/uuid"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
+	"github.com/iotexproject/w3bstream/pkg/types"
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
-func NewInstanceByCode(code []byte, opts ...common.InstanceOptionSetter) (wasm.Instance, error) {
-	ctx := context.Background()
+func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.InstanceOptionSetter) (wasm.Instance, error) {
 
 	opt := &common.InstanceOption{
 		Logger: common.DefaultLogger,
@@ -31,12 +34,23 @@ func NewInstanceByCode(code []byte, opts ...common.InstanceOptionSetter) (wasm.I
 	vmStore := wasmtime.NewStore(vmEngine)
 	linker := wasmtime.NewLinker(vmEngine)
 
-	ef := ExportFuncs{vmStore, res, db, opt.Logger}
+	ethConf := types.MustETHClientConfigFromContext(ctx)
+	chain, err := ethclient.Dial(ethConf.ChainEndpoint)
+	if err != nil {
+		return nil, err
+	}
+	cl := &ChainClient{
+		pvk:   crypto.ToECDSAUnsafe(gethCommon.FromHex(ethConf.PrivateKey)),
+		chain: chain,
+	}
+
+	ef := ExportFuncs{vmStore, res, db, opt.Logger, cl}
 	_ = linker.FuncWrap("env", "ws_get_data", ef.GetData)
 	_ = linker.FuncWrap("env", "ws_set_data", ef.SetData)
 	_ = linker.FuncWrap("env", "ws_get_db", ef.GetDB)
 	_ = linker.FuncWrap("env", "ws_set_db", ef.SetDB)
 	_ = linker.FuncWrap("env", "ws_log", ef.Log)
+	_ = linker.FuncWrap("env", "ws_sent_tx", ef.SentTX)
 
 	_ = linker.DefineWasi()
 

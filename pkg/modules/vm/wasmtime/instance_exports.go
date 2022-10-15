@@ -1,32 +1,50 @@
 package wasmtime
 
 import (
+	"context"
+	"crypto/ecdsa"
 	"encoding/binary"
+	"encoding/hex"
+	"math/big"
 
 	"github.com/bytecodealliance/wasmtime-go"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	conflog "github.com/iotexproject/Bumblebee/conf/log"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 	"github.com/pkg/errors"
 
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
+	"github.com/tidwall/gjson"
 )
 
-type WasmtimeExportFunc interface{}
+type (
+	ExportFuncs struct {
+		store  *wasmtime.Store
+		res    *mapx.Map[uint32, []byte]
+		db     map[string]int32
+		logger conflog.Logger
+		cl     *ChainClient
+	}
 
-type ExportFuncs struct {
-	store  *wasmtime.Store
-	res    *mapx.Map[uint32, []byte]
-	db     map[string]int32
-	logger conflog.Logger
-}
+	ChainClient struct {
+		pvk   *ecdsa.PrivateKey
+		chain *ethclient.Client
+	}
+)
 
 func (ef *ExportFuncs) Log(c *wasmtime.Caller, ptr, size int32) {
 	membuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
 	buf, err := read(membuf, ptr, size)
 	if err != nil {
-		return
+		panic(err)
+		// return wasm.ResultStatusCode_Failed
 	}
 	ef.logger.Info(string(buf))
+	// return int32(wasm.ResultStatusCode_OK)
 }
 
 func (ef *ExportFuncs) GetData(c *wasmtime.Caller, rid, vmAddrPtr, vmSizePtr int32) int32 {
@@ -107,6 +125,80 @@ func (ef *ExportFuncs) GetDB(c *wasmtime.Caller, kAddr, kSize int32) int32 {
 	).Info("host.GetDB")
 
 	return val
+}
+
+func (ef *ExportFuncs) SentTX(c *wasmtime.Caller, offset, size int32) int32 {
+	if ef.cl == nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	memBuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
+	buf, err := read(memBuf, offset, size)
+	if err != nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	ret := gjson.Parse(string(buf))
+	// fmt.Println(ret)
+	txHash, err := sentETHTx(ef.cl, ret.Get("to").String(), ret.Get("value").String(), ret.Get("data").String())
+	if err != nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	ef.logger.Info("tx hash: %s", txHash)
+	return int32(wasm.ResultStatusCode_OK)
+}
+
+func sentETHTx(cl *ChainClient, toStr string, valueStr string, dataStr string) (string, error) {
+	var (
+		sender = crypto.PubkeyToAddress(cl.pvk.PublicKey)
+	)
+	var (
+		to       = common.HexToAddress(toStr)
+		value, _ = new(big.Int).SetString(valueStr, 10)
+		data, _  = hex.DecodeString(dataStr)
+	)
+
+	nonce, err := cl.chain.PendingNonceAt(context.Background(), sender)
+	if err != nil {
+		return "", err
+	}
+
+	gasPrice, err := cl.chain.SuggestGasPrice(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	msg := ethereum.CallMsg{
+		From:     sender,
+		To:       &to,
+		GasPrice: gasPrice,
+		Value:    value,
+		Data:     data,
+	}
+	gasLimit, err := cl.chain.EstimateGas(context.Background(), msg)
+	if err != nil {
+		return "", err
+	}
+
+	// Create a new transaction
+	tx := types.NewTx(
+		&types.LegacyTx{
+			Nonce:    nonce,
+			GasPrice: gasPrice,
+			Gas:      gasLimit,
+			To:       &to,
+			Value:    value,
+			Data:     data,
+		})
+
+	chainid, err := cl.chain.ChainID(context.Background())
+	if err != nil {
+		return "", err
+	}
+	signedTx, _ := types.SignTx(tx, types.NewLondonSigner(chainid), cl.pvk)
+	err = cl.chain.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		return "", err
+	}
+	return signedTx.Hash().Hex(), nil
 }
 
 func putUint32Le(buf []byte, addr int32, num uint32) error {

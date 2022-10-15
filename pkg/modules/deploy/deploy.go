@@ -39,7 +39,7 @@ func CreateInstance(ctx context.Context, path string, appletID types.SFID) (*Cre
 
 	m.InstanceID = idg.MustGenSFID()
 
-	err = vm.NewInstanceWithID(path, m.InstanceID.String(), common.DefaultInstanceOptionSetter)
+	err = vm.NewInstanceWithID(ctx, path, m.InstanceID.String(), common.DefaultInstanceOptionSetter)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func StartInstances(ctx context.Context) error {
 	}
 	for _, i := range list {
 		if i.State == enums.INSTANCE_STATE__CREATED || i.State == enums.INSTANCE_STATE__STARTED {
-			err = vm.NewInstanceWithID(i.Path, i.InstanceID.String(), common.DefaultInstanceOptionSetter)
+			err = vm.NewInstanceWithID(ctx, i.Path, i.InstanceID.String(), common.DefaultInstanceOptionSetter)
 			l = l.WithValues("instance", i.InstanceID, "applet", i.AppletID)
 			if err != nil {
 				if err := i.DeleteByInstanceID(d); err != nil {
