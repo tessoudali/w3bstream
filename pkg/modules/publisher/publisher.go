@@ -11,23 +11,26 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
-type CreatePublisherReq = models.PublisherInfo
+type CreatePublisherReq struct {
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}
 
-func CreatePublisher(ctx context.Context, projectID types.SFID, r *CreatePublisherReq) (m *models.Publisher, err error) {
+func CreatePublisher(ctx context.Context, projectID types.SFID, r *CreatePublisherReq) (*models.Publisher, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	j := jwt.MustConfFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
 
 	// TODO generate token, maybe use public key
-	r.Token, err = j.GenerateTokenByPayload(projectID)
+	token, err := j.GenerateTokenByPayload(projectID)
 	if err != nil {
 		return nil, status.InternalServerError.StatusErr().WithDesc(err.Error())
 	}
 
-	m = &models.Publisher{
+	m := &models.Publisher{
 		RelProject:    models.RelProject{ProjectID: projectID},
 		RelPublisher:  models.RelPublisher{PublisherID: idg.MustGenSFID()},
-		PublisherInfo: *r,
+		PublisherInfo: models.PublisherInfo{Name: r.Name, Key: r.Key, Token: token},
 	}
 	if err = m.Create(d); err != nil {
 		return nil, err
@@ -42,8 +45,8 @@ func GetPublisherByPublisherKey(ctx context.Context, publisherKey string) (*mode
 		PublisherInfo: models.PublisherInfo{Key: publisherKey},
 	}
 
-	if err := m.FetchByPublisherID(d); err != nil {
-		return nil, status.CheckDatabaseError(err, "GetPublisherByPublisherID")
+	if err := m.FetchByKey(d); err != nil {
+		return nil, status.CheckDatabaseError(err, "GetPublisherByPublisherKey")
 	}
 
 	return m, nil
