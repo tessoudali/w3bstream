@@ -9,8 +9,6 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/depends/unit"
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
-	"github.com/iotexproject/w3bstream/pkg/modules/project"
-	"github.com/iotexproject/w3bstream/pkg/modules/publisher"
 	"github.com/iotexproject/w3bstream/pkg/modules/strategy"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 	"github.com/iotexproject/w3bstream/pkg/types"
@@ -31,19 +29,19 @@ type HandleEvent struct {
 func (r *HandleEvent) Path() string { return "/:projectName" }
 
 func (r *HandleEvent) Output(ctx context.Context) (interface{}, error) {
-	puber, err := publisher.GetPublisherByPublisherKey(ctx, r.Header.PubID)
-	if err != nil {
-		return nil, err
-	}
-
-	prj, err := project.GetProjectByProjectName(ctx, r.ProjectName)
-	if err != nil {
-		return nil, err
-	}
-
-	if puber.ProjectID != prj.ProjectID {
-		return nil, status.BadRequest
-	}
+	//puber, err := publisher.GetPublisherByPublisherKey(ctx, r.Header.PubID)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//prj, err := project.GetProjectByProjectName(ctx, r.ProjectName)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//if puber.ProjectID != prj.ProjectID {
+	//	return nil, status.BadRequest
+	//}
 
 	eventType := enums.EVENT_TYPE__ANY
 	if r.Header != nil {
