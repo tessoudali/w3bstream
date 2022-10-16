@@ -2,6 +2,8 @@ package event
 
 import (
 	"context"
+	"github.com/iotexproject/w3bstream/pkg/modules/project"
+	"github.com/iotexproject/w3bstream/pkg/modules/publisher"
 	"unicode/utf8"
 
 	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
@@ -29,19 +31,21 @@ type HandleEvent struct {
 func (r *HandleEvent) Path() string { return "/:projectName" }
 
 func (r *HandleEvent) Output(ctx context.Context) (interface{}, error) {
-	//puber, err := publisher.GetPublisherByPublisherKey(ctx, r.Header.PubID)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//prj, err := project.GetProjectByProjectName(ctx, r.ProjectName)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//if puber.ProjectID != prj.ProjectID {
-	//	return nil, status.BadRequest
-	//}
+	if r.Header != nil && len(r.Header.PubID) > 0 {
+		puber, err := publisher.GetPublisherByPublisherKey(ctx, r.Header.PubID)
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := project.GetProjectByProjectName(ctx, r.ProjectName)
+		if err != nil {
+			return nil, err
+		}
+
+		if puber.ProjectID != prj.ProjectID {
+			return nil, status.BadRequest
+		}
+	}
 
 	eventType := enums.EVENT_TYPE__ANY
 	if r.Header != nil {
