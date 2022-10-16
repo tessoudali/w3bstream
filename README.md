@@ -150,6 +150,26 @@ export INSTANCEID=${instance_id}
 http put :8888/srv-applet-mgr/v0/deploy/$INSTANCEID/START -A bearer -a $TOK
 ```
 
+### register publisher
+
+```sh
+echo '{"name":"${publisher_name}", "key":"${publisher_unique_key}"}' | http :8888/srv-applet-mgr/v0/publisher/$PROJECTID -A bearer -a $TOK
+```
+
+output like
+
+```sh
+{
+    "createdAt": "2022-10-16T12:28:49.628716+08:00",
+    "key": "0123456",
+    "name": "test_publisher_name",
+    "projectID": "935772081365103",
+    "publisherID": "940805992767599",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjoiOTM1NzcyMDgxMzY1MTAzIiwiaXNzIjoic3J2LWFwcGxldC1tZ3IiLCJleHAiOjE2NjU4OTgxMjl9.GFBUhmK-QZFw844x6n-wGI12oqzxH3m6Kx7avDsaLpQ",
+    "updatedAt": "2022-10-16T12:28:49.628716+08:00"
+}
+```
+
 ### publish event to server
 
 ```sh
