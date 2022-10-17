@@ -5,19 +5,39 @@ package proxy
 import (
 	"context"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/event"
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
-func Proxy(ctx context.Context, e event.Event) {
+type Event interface {
+	Meta() MetaData
+	Raw() []byte
+}
+
+type MetaData struct {
+	PublisherID types.SFID
+	ProjectID   types.SFID
+	AppletID    types.SFID
+	Handler     string // optional
+}
+
+type Result struct {
+	Success bool
+	Data    []byte
+}
+
+type EventResult interface {
+	ResultChan() chan<- Result
+}
+
+func Proxy(ctx context.Context, e Event) {
 	logger := types.MustLoggerFromContext(ctx)
 	func() {
 		success := false
 		var data []byte
-		result, ok := e.(event.EventResult)
+		result, ok := e.(EventResult)
 		defer func() {
 			if ok {
-				result.ResultChan() <- event.Result{Success: success, Data: data}
+				result.ResultChan() <- Result{Success: success, Data: data}
 			}
 		}()
 

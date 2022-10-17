@@ -4,22 +4,24 @@ package project
 
 import (
 	"context"
+	"fmt"
 
 	confid "github.com/iotexproject/Bumblebee/conf/id"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
-
-	"github.com/iotexproject/w3bstream/pkg/enums"
-	"github.com/iotexproject/w3bstream/pkg/errors/status"
+	"github.com/pkg/errors"
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
+	"github.com/iotexproject/w3bstream/pkg/enums"
+	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
+	"github.com/iotexproject/w3bstream/pkg/modules/mq"
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
 type CreateProjectReq = models.ProjectInfo
 
-func CreateProject(ctx context.Context, r *CreateProjectReq) (*models.Project, error) {
+func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (*models.Project, error) {
 	d := types.MustDBExecutorFromContext(ctx)
 	a := middleware.CurrentAccountFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
@@ -28,6 +30,11 @@ func CreateProject(ctx context.Context, r *CreateProjectReq) (*models.Project, e
 		RelProject:  models.RelProject{ProjectID: idg.MustGenSFID()},
 		RelAccount:  models.RelAccount{AccountID: a.AccountID},
 		ProjectInfo: *r,
+	}
+
+	if err := mq.CreateChannel(ctx, m.Name, hdl); err != nil {
+		return nil, status.InternalServerError.StatusErr().
+			WithDesc(fmt.Sprintf("create channel: [project:%s] [err:%v]", m.Name, err))
 	}
 
 	if err := m.Create(d); err != nil {
@@ -239,5 +246,32 @@ func GetProjectByProjectName(ctx context.Context, prjName string) (*models.Proje
 
 func DeleteProject(_ context.Context, _ string) error {
 	// TODO
+	return nil
+}
+
+func InitChannels(ctx context.Context, hdl mq.OnMessage) error {
+	l := types.MustLoggerFromContext(ctx)
+	d := types.MustDBExecutorFromContext(ctx)
+	m := &models.Project{}
+
+	lst, err := m.List(d, nil)
+	if err != nil {
+		l.Error(err)
+		return err
+	}
+
+	l.Start(ctx, "InitChannels")
+	defer l.End()
+
+	for i := range lst {
+		v := &lst[i]
+		err = mq.CreateChannel(ctx, v.Name, hdl)
+		if err != nil {
+			err = errors.Errorf("create channel: [project:%s] [err:%v]", v.Name, err)
+			l.Error(err)
+			return err
+		}
+		l.WithValues("project", v.Name).Info("sub started")
+	}
 	return nil
 }

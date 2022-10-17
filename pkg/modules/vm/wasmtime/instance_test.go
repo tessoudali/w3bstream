@@ -3,11 +3,12 @@ package wasmtime_test
 import (
 	_ "embed"
 	"fmt"
-	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
-	"github.com/iotexproject/w3bstream/pkg/modules/vm/wazero"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
+	"github.com/iotexproject/w3bstream/pkg/modules/vm/wazero"
 
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"

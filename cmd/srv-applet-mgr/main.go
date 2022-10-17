@@ -10,9 +10,12 @@ import (
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/iotexproject/w3bstream/pkg/depends/protocol/eventpb"
 	"github.com/iotexproject/w3bstream/pkg/modules/account"
 	"github.com/iotexproject/w3bstream/pkg/modules/blockchain"
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
+	"github.com/iotexproject/w3bstream/pkg/modules/event"
+	"github.com/iotexproject/w3bstream/pkg/modules/project"
 )
 
 var app = global.App
@@ -26,6 +29,16 @@ func main() {
 		BatchRun(
 			func() {
 				kit.Run(apis.Root, global.Server())
+			},
+			func() {
+				if err := project.InitChannels(
+					global.WithContext(context.Background()),
+					func(ctx context.Context, channel string, data *eventpb.Event) (interface{}, error) {
+						return event.OnEventReceived(ctx, channel, data)
+					},
+				); err != nil {
+					panic(err)
+				}
 			},
 			func() {
 				if err := deploy.StartInstances(

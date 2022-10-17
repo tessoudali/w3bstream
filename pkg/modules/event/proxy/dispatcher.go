@@ -7,12 +7,11 @@ import (
 	"fmt"
 
 	"github.com/iotexproject/w3bstream/pkg/modules/deploy"
-	"github.com/iotexproject/w3bstream/pkg/modules/event"
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
-func dispatch(ctx context.Context, e event.Event) ([]byte, error) {
+func dispatch(ctx context.Context, e Event) ([]byte, error) {
 	ins, err := deploy.GetInstanceByAppletID(ctx, e.Meta().AppletID)
 	if err != nil {
 		return nil, err

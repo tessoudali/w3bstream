@@ -31,6 +31,7 @@ Visit http://localhost:3000 to get started.
 The default admin password is `iotex.W3B.admin`
 
 ## Run with binary
+
 ### Dependencies:
 
 - os : macOS(11.0+)
@@ -46,9 +47,11 @@ make migrate     # create or update schema
 ```
 
 ### start a server
+
 ```sh
 make run_server
 ```
+
 keep the terminal alive, and open a new terminal for the other commands.
 
 ### login (fetch auth token)
@@ -86,13 +89,14 @@ output like
 
 ```json
 {
-    "accountID": "${account_id}",
-    "createdAt": "2022-10-14T12:50:26.890393+08:00",
-    "name": "${project_name}",
-    "projectID": "${project_id}",
-    "updatedAt": "2022-10-14T12:50:26.890407+08:00"
+  "accountID": "${account_id}",
+  "createdAt": "2022-10-14T12:50:26.890393+08:00",
+  "name": "${project_name}",
+  "projectID": "${project_id}",
+  "updatedAt": "2022-10-14T12:50:26.890407+08:00"
 }
 ```
+
 ### build demo wasm scripts
 
 ```sh
@@ -100,7 +104,6 @@ make wasm_demo ## build to `examples` use to deploy wasm applet
 ```
 
 ### create and deploy applet
-
 
 upload wasm script
 
@@ -118,11 +121,11 @@ output like
 
 ```json
 {
-    "appletID": "${apple_id}",
-    "createdAt": "2022-10-14T12:53:10.590926+08:00",
-    "name": "${applet_name}",
-    "projectID": "${project_id}",
-    "updatedAt": "2022-10-14T12:53:10.590926+08:00"
+  "appletID": "${apple_id}",
+  "createdAt": "2022-10-14T12:53:10.590926+08:00",
+  "name": "${applet_name}",
+  "projectID": "${project_id}",
+  "updatedAt": "2022-10-14T12:53:10.590926+08:00"
 }
 ```
 
@@ -137,11 +140,10 @@ output like
 
 ```json
 {
-    "instanceID": "${instance_id}",
-    "instanceState": "CREATED"
+  "instanceID": "${instance_id}",
+  "instanceState": "CREATED"
 }
 ```
-
 
 start applet
 
@@ -170,7 +172,7 @@ output like
 }
 ```
 
-### publish event to server
+### publish event to server by http
 
 ```sh
 echo '{"header":{},"payload":"xxx yyy zzz"}' | http post :8888/srv-applet-mgr/v0/event/$PROJECTNAME
@@ -180,11 +182,39 @@ output like
 
 ```json
 [
-    {
-        "instanceID": "${instance_id}",
-        "resultCode": 0
-    }
+  {
+    "instanceID": "${instance_id}",
+    "resultCode": 0
+  }
 ]
 ```
 
 that means some instance handled this event successfully
+
+### publish event to server through MQTT
+
+- make publishing client
+
+```sh
+make build_pub_client
+```
+
+- try to publish a message
+
+```sh
+cd build && ./pub_client -c '{"payload":"xxx yyy zzz"}' -t $PROJECTNAME
+```
+
+server log like
+
+```json
+{
+  "@lv": "info",
+  "@prj": "srv-applet-mgr",
+  "@ts": "20221017-092252.877+08:00",
+  "msg": "sub handled",
+  "payload": {
+    "payload": "xxx yyy zzz"
+  }
+}
+```
