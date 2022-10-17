@@ -49,7 +49,7 @@ drop_image:
 
 # run docker image
 run_image:
-	@docker run -d -it --name iotex_w3bstream -p 5432:5432 -p 8888:8888 -p 3000:3000 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/bash /w3bstream/build_image/cmd/docker_init.sh
+	@docker run -d -it --name iotex_w3bstream -p 5432:5432 -p 8888:8888 -p 3000:3000 -p 1883:1883 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/bash /w3bstream/build_image/cmd/docker_init.sh
 
 ## migrate first
 run_server: build_server

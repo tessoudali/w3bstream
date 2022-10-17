@@ -5,6 +5,7 @@ MAINTAINER The Iotex Project <jeson@iotex.io>
 
 EXPOSE 5432
 EXPOSE 8888
+EXPOSE 1883
 EXPOSE 3000 
 EXPOSE 22
 #Create user postgres
