@@ -155,7 +155,9 @@ http put :8888/srv-applet-mgr/v0/deploy/$INSTANCEID/START -A bearer -a $TOK
 ### register publisher
 
 ```sh
-echo '{"name":"${publisher_name}", "key":"${publisher_unique_key}"}' | http :8888/srv-applet-mgr/v0/publisher/$PROJECTID -A bearer -a $TOK
+export PUBNAME=${publisher_name}
+export PUBKEY=${publisher_unique_key} # global unique
+echo '{"name":"'$PUBNAME'", "key":"'$PUBKEY'"}' | http post :8888/srv-applet-mgr/v0/publisher/$PROJECTID -A bearer -a $TOK
 ```
 
 output like
@@ -163,11 +165,11 @@ output like
 ```sh
 {
     "createdAt": "2022-10-16T12:28:49.628716+08:00",
-    "key": "0123456",
-    "name": "test_publisher_name",
+    "key": "${publisher_unique_key}",
+    "name": "${publisher_name}",
     "projectID": "935772081365103",
-    "publisherID": "940805992767599",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjoiOTM1NzcyMDgxMzY1MTAzIiwiaXNzIjoic3J2LWFwcGxldC1tZ3IiLCJleHAiOjE2NjU4OTgxMjl9.GFBUhmK-QZFw844x6n-wGI12oqzxH3m6Kx7avDsaLpQ",
+    "publisherID": "${pub_id}",
+    "token": "${pub_token}",
     "updatedAt": "2022-10-16T12:28:49.628716+08:00"
 }
 ```
@@ -175,7 +177,9 @@ output like
 ### publish event to server by http
 
 ```sh
-echo '{"header":{},"payload":"xxx yyy zzz"}' | http post :8888/srv-applet-mgr/v0/event/$PROJECTNAME
+export PUBTOKEN=${pub_token}
+export EVENTTYPE=2147483647 # 0x7FFFFFFF means any type
+echo '{"header":{"event_type":'$EVENTTYPE',"pub_id":"'$PUBKEY'","pub_time":`date +%s`,"token":"'$PUBTOKEN'"},"payload":"xxx yyy zzz"}' | http post :8888/srv-applet-mgr/v0/event/$PROJECTNAME
 ```
 
 output like
@@ -201,8 +205,29 @@ make build_pub_client
 
 - try to publish a message
 
+* event json message
+
+```json
+{
+  "header": {
+    "event_type": '$EVENTTYPE',
+    "pub_id": "'$PUBKEY'",
+    "pub_time": '`date +%s`',
+    "token": "'$PUBTOKEN'"
+  },
+  "payload": "xxx yyy zzz"
+}
+```
+
+* event_type: 0x7FFFFFFF any type
+* pub_id: the unique publisher id assiged when publisher registering
+* token: empty if dont have
+* pub_time: timestamp when message published
+
 ```sh
-cd build && ./pub_client -c '{"payload":"xxx yyy zzz"}' -t $PROJECTNAME
+# -c means published content
+# -t means mqtt topic, the target project name created before
+cd build && ./pub_client -c '{"header":{"event_type":'$EVENTTYPE',"pub_id":"'$PUBKEY'","pub_time":'`date +%s`',"token":"'$PUBTOKEN'"},"payload":"xxx yyy zzz"}' -t $PROJECTNAME
 ```
 
 server log like

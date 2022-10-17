@@ -22,8 +22,8 @@ type HandleEventResult struct {
 type HandleEventRsp []HandleEventResult
 
 func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) (HandleEventRsp, error) {
-	if r.Header != nil && len(r.Header.PubID) > 0 {
-		puber, err := publisher.GetPublisherByPublisherKey(ctx, r.Header.PubID)
+	if r.Header != nil && len(r.Header.PubId) > 0 {
+		puber, err := publisher.GetPublisherByPublisherKey(ctx, r.Header.PubId)
 		if err != nil {
 			return nil, err
 		}
