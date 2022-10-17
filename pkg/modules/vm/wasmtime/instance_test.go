@@ -7,9 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
-	"github.com/iotexproject/w3bstream/pkg/modules/vm/wazero"
-
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 
@@ -74,12 +71,13 @@ func TestInstance_LogWASM(t *testing.T) {
 }
 
 func TestInstance_JsonWASM(t *testing.T) {
-	i, err := wazero.NewInstanceByCode(wasmJsonCode, common.DefaultInstanceOptionSetter)
-	NewWithT(t).Expect(err).To(BeNil())
+	require := require.New(t)
+	i, err := wasmtime.NewInstanceByCode(wasmJsonCode)
+	require.NoError(err)
 	id := vm.AddInstance(i)
 
 	err = vm.StartInstance(id)
-	NewWithT(t).Expect(err).To(BeNil())
+	require.NoError(err)
 	defer vm.StopInstance(id)
 
 	_, code := i.HandleEvent("start", []byte(`{
