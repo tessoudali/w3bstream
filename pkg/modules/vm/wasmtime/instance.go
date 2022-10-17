@@ -150,10 +150,13 @@ func (i *Instance) handleEvent(t *common.Task) *common.EventHandleResult {
 	return &common.EventHandleResult{nil, wasm.ResultStatusCode(result.(int32))}
 }
 
+const MaxUint = ^uint32(0)
+const MaxInt = int(MaxUint >> 1)
+
 func (i *Instance) AddResource(data []byte) uint32 {
-	id := uuid.New().ID()
-	i.res.Store(id, data)
-	return id
+	var id int32 = int32(uuid.New().ID() % uint32(MaxInt))
+	i.res.Store(uint32(id), data)
+	return uint32(id)
 }
 
 func (i *Instance) GetResource(id uint32) ([]byte, bool) { return i.res.Load(id) }
