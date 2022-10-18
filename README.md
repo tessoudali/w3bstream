@@ -12,6 +12,18 @@
 
 ## Run with docker
 
+### init frontend
+
+```bash
+make init_frontend
+```
+
+### update frontend to latest if needed
+
+```bash
+make update_frontend
+```
+
 ### build docker image
 
 ```bash
@@ -21,7 +33,12 @@ make build_image
 ### Run docker container
 
 ```bash
- docker-compose -f ./docker-compose.yaml up -d
+ make run_image
+ ```
+
+ ### drop docker image
+ ```bash
+ make drop_image
  ```
 
 ### Access Admin Panel

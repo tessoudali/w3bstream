@@ -36,20 +36,26 @@ build_server: update_go_module
 vendor: update_go_module
 	@go mod vendor
 
-# build docker image
-build_image: update_go_module vendor
-	@mkdir -p build_image/pgdata
+#
+update_frontend:
+	@cd frontend &&	git pull origin main
+
+init_frontend:
 	@git submodule update --init
+
+# build docker image
+build_image: update_go_module vendor init_frontend
+	@mkdir -p build_image/pgdata
 	@docker build -t iotex/w3bstream:v3 .
 
-#drop docker image
+# drop docker image
 drop_image:
 	@docker stop iotex_w3bstream
 	@docker rm iotex_w3bstream
 
 # run docker image
 run_image:
-	@docker run -d -it --name iotex_w3bstream -p 5432:5432 -p 8888:8888 -p 3000:3000 -p 1883:1883 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/bash /w3bstream/build_image/cmd/docker_init.sh
+	@docker run -d -it --name iotex_w3bstream -p 5432:5432 -p 8888:8888 -p 1883:1883  -p 3000:3000 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/bash /w3bstream/build_image/cmd/docker_init.sh
 
 ## migrate first
 run_server: build_server
