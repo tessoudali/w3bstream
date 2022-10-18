@@ -1,4 +1,4 @@
-#base image 
+#base image
 FROM golang:1.19 AS build-env
 
 MAINTAINER The Iotex Project <jeson@iotex.io>
