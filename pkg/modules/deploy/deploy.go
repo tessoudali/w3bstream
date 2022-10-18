@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"context"
-	"fmt"
 
 	confid "github.com/iotexproject/Bumblebee/conf/id"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
@@ -152,11 +151,12 @@ func GetInstanceByAppletID(ctx context.Context, appletID types.SFID) (ret []mode
 }
 
 func StartInstances(ctx context.Context) error {
-	fmt.Println("---------------")
-
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	m := &models.Instance{}
+
+	_, l = l.Start(ctx, "StartInstances")
+	defer l.End()
 
 	list, err := m.List(d, nil)
 	if err != nil {
@@ -165,6 +165,7 @@ func StartInstances(ctx context.Context) error {
 	for _, i := range list {
 		if i.State == enums.INSTANCE_STATE__CREATED || i.State == enums.INSTANCE_STATE__STARTED {
 			err = vm.NewInstanceWithID(i.Path, i.InstanceID.String(), common.DefaultInstanceOptionSetter)
+			l = l.WithValues("instance", i.InstanceID, "applet", i.AppletID)
 			if err != nil {
 				if err := i.DeleteByInstanceID(d); err != nil {
 					return err
@@ -173,14 +174,18 @@ func StartInstances(ctx context.Context) error {
 					DeleteByAppletID(d); err != nil {
 					return err
 				}
-				l.WithValues("instance", i.InstanceID, "applet", i.AppletID).
-					Warn(errors.New("start failed and removed"))
+				l.Warn(errors.New("start failed and removed"))
 				return nil
+			} else {
+				l.Info("started")
 			}
 			m.State = enums.INSTANCE_STATE__CREATED
 		}
 		if i.State == enums.INSTANCE_STATE__STARTED {
-			_ = ControlInstance(ctx, i.InstanceID, enums.DEPLOY_CMD__START)
+			err = ControlInstance(ctx, i.InstanceID, enums.DEPLOY_CMD__START)
+			if err != nil {
+				l.Warn(err)
+			}
 		}
 	}
 	return nil
