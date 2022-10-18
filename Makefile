@@ -44,11 +44,11 @@ init_frontend:
 	@git submodule update --init
 
 # build docker image
-build_image: update_go_module vendor
+build_image: update_go_module vendor init_frontend
 	@mkdir -p build_image/pgdata
 	@docker build -t iotex/w3bstream:v3 .
 
-#drop docker image
+# drop docker image
 drop_image:
 	@docker stop iotex_w3bstream
 	@docker rm iotex_w3bstream
