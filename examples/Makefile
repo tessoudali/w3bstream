@@ -2,8 +2,12 @@ build_log_wasm:
 	@cd log && tinygo build -o log.wasm -scheduler=none --no-debug -target=wasi log.go
 	@echo built to log.wasm
 
-build_json_wasm:
-	@cd json && tinygo build -o parse_json.wasm -scheduler=none --no-debug -target=wasi parse_json.go
+build_gjson_wasm:
+	@cd gjson && tinygo build -o parse_json.wasm -scheduler=none --no-debug -target=wasi parse_json.go
+	@echo built to parse_json.wasm
+
+build_easyjson_wasm:
+	@cd easyjson && tinygo build -o parse_json.wasm -scheduler=none --no-debug -target=wasi parse_json.go
 	@echo built to parse_json.wasm
 
 build_word_count_wasm:

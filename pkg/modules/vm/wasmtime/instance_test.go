@@ -18,8 +18,11 @@ import (
 // //go:embed ../../../../examples/log/log.wasm
 var wasmLogCode []byte
 
-// //go:embed ../../../examples/json/parse_json.wasm
-var wasmJsonCode []byte
+// //go:embed ../../../examples/gjson/parse_json.wasm
+var wasmGJsonCode []byte
+
+// //go:embed ../../../examples/easyjson/parse_json.wasm
+var wasmEasyJsonCode []byte
 
 // //go:embed ../../../../examples/word_count/word_count.wasm
 var wasmWordCountCode []byte
@@ -39,7 +42,11 @@ func init() {
 		panic(err)
 	}
 
-	wasmJsonCode, err = os.ReadFile(filepath.Join(root, "json/parse_json.wasm"))
+	wasmGJsonCode, err = os.ReadFile(filepath.Join(root, "gjson/parse_json.wasm"))
+	if err != nil {
+		panic(err)
+	}
+	wasmEasyJsonCode, err = os.ReadFile(filepath.Join(root, "easyjson/parse_json.wasm"))
 	if err != nil {
 		panic(err)
 	}
@@ -70,9 +77,9 @@ func TestInstance_LogWASM(t *testing.T) {
 	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_UnexportedHandler))
 }
 
-func TestInstance_JsonWASM(t *testing.T) {
+func TestInstance_GJsonWASM(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmJsonCode)
+	i, err := wasmtime.NewInstanceByCode(wasmGJsonCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
@@ -88,6 +95,22 @@ func TestInstance_JsonWASM(t *testing.T) {
     {"first_name": "Jane", "last_name": "Murphy", "age": 47, "nets": ["ig", "tw"]}
   ]
 }`))
+	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
+}
+
+func TestInstance_EasyJsonWASM(t *testing.T) {
+	require := require.New(t)
+	i, err := wasmtime.NewInstanceByCode(wasmEasyJsonCode)
+	require.NoError(err)
+	id := vm.AddInstance(i)
+
+	err = vm.StartInstance(id)
+	require.NoError(err)
+	defer vm.StopInstance(id)
+
+	_, code := i.HandleEvent("start", []byte(`{"id":11,"student_name":"Tom","student_school":
+								{"school_name":"MIT","school_addr":"xz"},
+								"birthday":"2017-08-04T20:58:07.9894603+08:00"}`))
 	NewWithT(t).Expect(code).To(Equal(wasm.ResultStatusCode_OK))
 }
 
