@@ -14,15 +14,15 @@
 
 ### init frontend
 
-  ```bash
-  make init_frontend
-  ```
+```bash
+make init_frontend
+```
 
 ### update frontend to latest if needed
 
-    ```bash
-    make update_frontend
-    ```
+```bash
+make update_frontend
+```
 
 ### build docker image
 
@@ -38,7 +38,7 @@ make build_image
 
  ### drop docker image
  ```bash
- drop_image
+ make drop_image
  ```
 
 ### Access Admin Panel
