@@ -42,7 +42,6 @@ func DelInstance(id string) error {
 	if i.State() == enums.INSTANCE_STATE__STARTED {
 		i.Stop()
 	}
-	fmt.Printf("--- %s deleted\n", id)
 	return nil
 }
 
@@ -56,7 +55,6 @@ func StartInstance(id string) error {
 		}
 	}()
 
-	fmt.Printf("--- %s started\n", id)
 	return nil
 }
 
