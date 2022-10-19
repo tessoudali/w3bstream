@@ -12,7 +12,7 @@ ln -s /w3bstream/build_image/conf/postgresql.conf /etc/postgresql/13/main/postgr
 chown -R postgres:postgres /var/lib/postgresql_data/13
 chmod -R 700 /var/lib/postgresql_data/13
 #Start postgres
-su postgres -c "/usr/lib/postgresql/13/bin/postgres -h 0.0.0.0 -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
+su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
 #su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
 su postgres sh -c "createuser test_user"
 if [ $? -ne 0 ];then
