@@ -1,36 +1,28 @@
 #!/bin/sh
 #init pg
-if [ ! -d "/var/lib/postgresql_data/13" ]; then
+if [ ! -d "/var/lib/postgresql_data/data" ]; then
    echo "PG data does not exsit!"
-   cp -r /var/lib/postgresql/13 /var/lib/postgresql_data/
-   rm -rf /var/lib/postgresql/13
+   cp -r /var/lib/postgresql/data /var/lib/postgresql_data/
+   #rm -rf /var/lib/postgresql/13
 else
    echo "PG data exists!"
 fi
-rm -f /etc/postgresql/13/main/postgresql.conf
-ln -s /w3bstream/build_image/conf/postgresql.conf /etc/postgresql/13/main/postgresql.conf 
-chown -R postgres:postgres /var/lib/postgresql_data/13
-chmod -R 700 /var/lib/postgresql_data/13
+#rm -f /etc/postgresql/13/main/postgresql.conf
+#ln -s /w3bstream/build_image/conf/postgresql.conf /etc/postgresql/13/main/postgresql.conf 
+chown -R postgres:postgres /var/lib/postgresql_data
+chmod -R 700 /var/lib/postgresql_data/data
 #Start postgres
-su postgres -c "/usr/lib/postgresql/13/bin/postgres -h 0.0.0.0 -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
-#su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
-su postgres sh -c "createuser test_user"
-if [ $? -ne 0 ];then
-   sleep 15
-   su postgres sh -c "createuser test_user"
-fi
-su postgres sh -c "psql -c \"ALTER USER test_user PASSWORD 'test_passwd'\""
-#su postgres sh -c "psql -c \"CREATE USER test_user WITH ENCRYPTED PASSWORD 'test_passwd'\""
-su postgres sh -c "psql -c \"CREATE DATABASE test\""
-su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;;\""
+#pg_ctl start -D /var/lib/postgresql_data/data -l /var/lib/postgresql/log.log
+su - postgres -c "pg_ctl start -D /var/lib/postgresql/data -l /var/lib/postgresql/log.log"
+
 
 #Start mosquitto
 /etc/init.d/mosquitto start
 #sleep 10
 
-cd /w3bstream/build && ./srv-applet-mgr migrate
+cd /w3bstream && ./srv-applet-mgr migrate
 #cd /w3bstream/build && ./srv-applet-mgr init_admin &
-cd /w3bstream/build && ./srv-applet-mgr &
+cd /w3bstream && ./srv-applet-mgr &
 
 sleep 3
 
