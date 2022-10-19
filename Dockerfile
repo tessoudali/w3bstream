@@ -6,7 +6,7 @@ MAINTAINER The Iotex Project <jeson@iotex.io>
 EXPOSE 5432
 EXPOSE 8888
 EXPOSE 1883
-EXPOSE 3000 
+EXPOSE 3000
 EXPOSE 22
 #Create user postgres
 RUN mkdir -p /home/postgres
@@ -57,7 +57,7 @@ RUN ln -s /root/.local/share/pnpm/pnpm /usr/bin/pnpm
 
 #Build vendor
 WORKDIR /w3bstream
-RUN cd cmd/srv-applet-mgr && go build -mod vendor
+RUN cd cmd/srv-applet-mgr && export GOWORK=off && go build -mod vendor
 RUN mkdir -p build
 RUN mv cmd/srv-applet-mgr/srv-applet-mgr build
 RUN cp -r cmd/srv-applet-mgr/config build/config

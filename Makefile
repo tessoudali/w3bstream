@@ -47,6 +47,7 @@ init_frontend:
 build_image: update_go_module vendor init_frontend
 	@mkdir -p build_image/pgdata
 	@docker build -t iotex/w3bstream:v3 .
+	@rm -rf vendor
 
 # drop docker image
 drop_image:
