@@ -80,7 +80,7 @@ func TestInstance_LogWASM(t *testing.T) {
 
 func TestInstance_GJsonWASM(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmGJsonCode)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmGJsonCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
@@ -101,7 +101,7 @@ func TestInstance_GJsonWASM(t *testing.T) {
 
 func TestInstance_EasyJsonWASM(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmEasyJsonCode)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmEasyJsonCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
