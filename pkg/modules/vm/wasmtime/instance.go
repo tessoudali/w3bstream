@@ -34,14 +34,17 @@ func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.Instance
 	vmStore := wasmtime.NewStore(vmEngine)
 	linker := wasmtime.NewLinker(vmEngine)
 
-	ethConf := types.MustETHClientConfigFromContext(ctx)
-	chain, err := ethclient.Dial(ethConf.ChainEndpoint)
-	if err != nil {
-		return nil, err
-	}
-	cl := &ChainClient{
-		pvk:   crypto.ToECDSAUnsafe(gethCommon.FromHex(ethConf.PrivateKey)),
-		chain: chain,
+	var cl *ChainClient
+	if ethConf, ok := types.ETHClientConfigFromContext(ctx); ok {
+
+		chain, err := ethclient.Dial(ethConf.ChainEndpoint)
+		if err != nil {
+			return nil, err
+		}
+		cl = &ChainClient{
+			pvk:   crypto.ToECDSAUnsafe(gethCommon.FromHex(ethConf.PrivateKey)),
+			chain: chain,
+		}
 	}
 
 	ef := ExportFuncs{vmStore, res, db, opt.Logger, cl}

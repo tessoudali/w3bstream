@@ -43,11 +43,11 @@ func init() {
 		panic(err)
 	}
 
-	wasmGJsonCode, err = os.ReadFile(filepath.Join(root, "gjson/parse_json.wasm"))
+	wasmGJsonCode, err = os.ReadFile(filepath.Join(root, "gjson/gjson.wasm"))
 	if err != nil {
 		panic(err)
 	}
-	wasmEasyJsonCode, err = os.ReadFile(filepath.Join(root, "easyjson/parse_json.wasm"))
+	wasmEasyJsonCode, err = os.ReadFile(filepath.Join(root, "easyjson/easyjson.wasm"))
 	if err != nil {
 		panic(err)
 	}
