@@ -262,3 +262,28 @@ server log like
   }
 }
 ```
+
+
+### post blockchain contract event log monitor 
+
+```sh
+echo '{"contractlog":{"chainID": 4690, "contractAddress": "${contractAddress}","blockStart": ${blockStart},"blockEnd": ${blockEnd},"topic0":"${topic0}"}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
+```
+
+output like
+
+```json
+{
+    "blockCurrent": ${blockCurrent},
+    "blockEnd": ${blockEnd},
+    "blockStart": ${blockStart},
+    "chainID": 4690,
+    "contractAddress": "${contractAddress}",
+    "contractlogID": "2162022028435556",
+    "createdAt": "2022-10-19T21:21:30.220198+08:00",
+    "eventType": "ANY",
+    "projectName": "${projectName}",
+    "topic0": "${topic0}",
+    "updatedAt": "2022-10-19T21:21:30.220198+08:00"
+}
+```
