@@ -18,18 +18,20 @@ import (
 
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/types"
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
 // global vars
 
 var (
-	postgres   = &confpostgres.Endpoint{Database: models.DB}
-	mqtt       = &confmqtt.Broker{}
-	server     = &confhttp.Server{}
-	jwt        = &confjwt.Jwt{}
-	logger     = &conflog.Log{Name: "srv-demo"}
-	std        = conflog.Std()
-	uploadConf = &types.UploadConfig{}
+	postgres      = &confpostgres.Endpoint{Database: models.DB}
+	mqtt          = &confmqtt.Broker{}
+	server        = &confhttp.Server{}
+	jwt           = &confjwt.Jwt{}
+	logger        = &conflog.Log{Name: "srv-demo"}
+	std           = conflog.Std()
+	uploadConf    = &types.UploadConfig{}
+	ethClientConf = &wasm.ETHClientConfig{}
 
 	App *confapp.Ctx
 )
@@ -47,7 +49,7 @@ func init() {
 		confapp.WithVersion("0.0.1"),
 		confapp.WithLogger(conflog.Std()),
 	)
-	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf)
+	App.Conf(postgres, server, jwt, logger, mqtt, uploadConf, ethClientConf)
 
 	confhttp.RegisterCheckerBy(postgres, mqtt, server)
 	std.(conflog.LevelSetter).SetLevel(conflog.InfoLevel)
@@ -60,6 +62,7 @@ func init() {
 		types.WithUploadConfigContext(uploadConf),
 		confid.WithSFIDGeneratorContext(confid.MustNewSFIDGenerator()),
 		confjwt.WithConfContext(jwt),
+		types.WithETHClientConfigContext(ethClientConf),
 	)
 }
 

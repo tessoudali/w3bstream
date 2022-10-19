@@ -1,6 +1,7 @@
 package wasmtime_test
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"os"
@@ -62,7 +63,7 @@ func init() {
 
 func TestInstance_LogWASM(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmLogCode)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmLogCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
@@ -79,7 +80,7 @@ func TestInstance_LogWASM(t *testing.T) {
 
 func TestInstance_GJsonWASM(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmGJsonCode)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmGJsonCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
@@ -100,7 +101,7 @@ func TestInstance_GJsonWASM(t *testing.T) {
 
 func TestInstance_EasyJsonWASM(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmEasyJsonCode)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmEasyJsonCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
@@ -116,7 +117,7 @@ func TestInstance_EasyJsonWASM(t *testing.T) {
 
 func TestInstance_WordCount(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmWordCountCode)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmWordCountCode)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 
@@ -143,7 +144,7 @@ func TestInstance_WordCount(t *testing.T) {
 
 func TestInstance_WordCountV2(t *testing.T) {
 	require := require.New(t)
-	i, err := wasmtime.NewInstanceByCode(wasmWordCountV2Code)
+	i, err := wasmtime.NewInstanceByCode(context.Background(), wasmWordCountV2Code)
 	require.NoError(err)
 	id := vm.AddInstance(i)
 

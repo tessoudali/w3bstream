@@ -32,3 +32,8 @@ type EventConsumer interface {
 type KVStore interface {
 	Get(string) int32
 }
+
+type ETHClientConfig struct {
+	PrivateKey    string `env:""`
+	ChainEndpoint string `env:""`
+}

@@ -9,6 +9,9 @@ SRV_APPLET_MGR__BROKER__Timeout: 3s
 SRV_APPLET_MGR__CONFIG__ResourceRoot: ./asserts
 SRV_APPLET_MGR__CONFIG__UploadLimit: "104857600"
 
+SRV_APPLET_MGR__ETHCLIENTCONFIG__ChainEndpoint: "https://babel-api.testnet.iotex.io/"
+SRV_APPLET_MGR__ETHCLIENTCONFIG__PrivateKey: ""
+
 SRV_APPLET_MGR__JWT__ExpIn: 1h
 SRV_APPLET_MGR__JWT__Issuer: "srv-applet-mgr"
 SRV_APPLET_MGR__JWT__SignKey: "xxxx"

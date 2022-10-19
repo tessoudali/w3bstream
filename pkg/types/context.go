@@ -9,6 +9,7 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/x/contextx"
 	"github.com/iotexproject/Bumblebee/x/misc/must"
+	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
 type Context uint8
@@ -19,6 +20,7 @@ type (
 	CtxLogger       struct{} // CtxLogger log.Logger
 	CtxMqttBroker   struct{} // CtxMqttBroker mqtt.Broker
 	CtxUploadConfig struct{} // CtxUploadConfig UploadConfig
+	CtxEthClient    struct{} // CtxEthClient ETHClientConfig
 )
 
 func WithDBExecutor(ctx context.Context, v sqlx.DBExecutor) context.Context {
@@ -122,6 +124,27 @@ func UploadConfigFromContext(ctx context.Context) (*UploadConfig, bool) {
 
 func MustUploadConfigFromContext(ctx context.Context) *UploadConfig {
 	v, ok := UploadConfigFromContext(ctx)
+	must.BeTrue(ok)
+	return v
+}
+
+func WithETHClientConfig(ctx context.Context, v *wasm.ETHClientConfig) context.Context {
+	return contextx.WithValue(ctx, CtxEthClient{}, v)
+}
+
+func WithETHClientConfigContext(v *wasm.ETHClientConfig) contextx.WithContext {
+	return func(ctx context.Context) context.Context {
+		return contextx.WithValue(ctx, CtxEthClient{}, v)
+	}
+}
+
+func ETHClientConfigFromContext(ctx context.Context) (*wasm.ETHClientConfig, bool) {
+	v, ok := ctx.Value(CtxEthClient{}).(*wasm.ETHClientConfig)
+	return v, ok
+}
+
+func MustETHClientConfigFromContext(ctx context.Context) *wasm.ETHClientConfig {
+	v, ok := ETHClientConfigFromContext(ctx)
 	must.BeTrue(ok)
 	return v
 }

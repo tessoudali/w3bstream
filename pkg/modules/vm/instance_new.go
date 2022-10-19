@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"context"
 	"os"
 
 	"github.com/iotexproject/w3bstream/pkg/modules/vm/common"
@@ -8,24 +9,24 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
 )
 
-func NewInstance(path string, opts ...common.InstanceOptionSetter) (string, error) {
+func NewInstance(ctx context.Context, path string, opts ...common.InstanceOptionSetter) (string, error) {
 	code, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
-	i, err := newInstanceByCode(code, opts...)
+	i, err := newInstanceByCode(ctx, code, opts...)
 	if err != nil {
 		return "", err
 	}
 	return AddInstance(i), nil
 }
 
-func NewInstanceWithID(path string, by string, opts ...common.InstanceOptionSetter) error {
+func NewInstanceWithID(ctx context.Context, path string, by string, opts ...common.InstanceOptionSetter) error {
 	code, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	i, err := newInstanceByCode(code, opts...)
+	i, err := newInstanceByCode(ctx, code, opts...)
 	if err != nil {
 		return err
 	}
@@ -34,7 +35,7 @@ func NewInstanceWithID(path string, by string, opts ...common.InstanceOptionSett
 	return nil
 }
 
-func newInstanceByCode(code []byte, opts ...common.InstanceOptionSetter) (wasm.Instance, error) {
-	return wasmtime.NewInstanceByCode(code, opts...)
+func newInstanceByCode(ctx context.Context, code []byte, opts ...common.InstanceOptionSetter) (wasm.Instance, error) {
+	return wasmtime.NewInstanceByCode(ctx, code, opts...)
 	// return wazero.NewInstanceByCode(code, opts...)
 }
