@@ -50,7 +50,7 @@ func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.Instance
 	_ = linker.FuncWrap("env", "ws_get_db", ef.GetDB)
 	_ = linker.FuncWrap("env", "ws_set_db", ef.SetDB)
 	_ = linker.FuncWrap("env", "ws_log", ef.Log)
-	_ = linker.FuncWrap("env", "ws_sent_tx", ef.SentTX)
+	_ = linker.FuncWrap("env", "ws_send_tx", ef.SendTX)
 
 	_ = linker.DefineWasi()
 

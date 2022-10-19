@@ -127,7 +127,9 @@ func (ef *ExportFuncs) GetDB(c *wasmtime.Caller, kAddr, kSize int32) int32 {
 	return val
 }
 
-func (ef *ExportFuncs) SentTX(c *wasmtime.Caller, offset, size int32) int32 {
+// TODO: add chainID in sendtx abi
+// TODO: make sendTX async, and add callback if possible
+func (ef *ExportFuncs) SendTX(c *wasmtime.Caller, offset, size int32) int32 {
 	if ef.cl == nil {
 		return wasm.ResultStatusCode_Failed
 	}
