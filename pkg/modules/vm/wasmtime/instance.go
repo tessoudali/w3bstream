@@ -69,7 +69,7 @@ func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.Instance
 		return nil, err
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Instance{
 		tasks:      opt.Tasks,
@@ -106,6 +106,7 @@ func (i *Instance) Start() error {
 	for {
 		select {
 		case <-i.ctx.Done():
+			common.DefaultLogger.Error(i.ctx.Err())
 			return i.ctx.Err()
 		case task := <-i.tasks.Wait():
 			task.Res <- i.handleEvent(task)
