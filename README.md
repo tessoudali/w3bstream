@@ -132,7 +132,7 @@ upload wasm script
 ## set env vars
 export PROJECTID=${project_id}
 export PROJECTNAME=${project_name}
-export WASMFILE=exampls/log/log.wasm
+export WASMFILE=examples/log/log.wasm
 http --form post :8888/srv-applet-mgr/v0/applet/$PROJECTID file@$WASMFILE info='{"appletName":"log","strategies":[{"eventType":"ANY","handler":"start"}]}' -A bearer -a $TOK
 ```
 
