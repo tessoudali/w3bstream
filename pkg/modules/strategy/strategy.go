@@ -3,6 +3,8 @@ package strategy
 import (
 	"context"
 
+	confid "github.com/iotexproject/Bumblebee/conf/id"
+	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 
 	"github.com/iotexproject/w3bstream/pkg/enums"
@@ -81,4 +83,56 @@ func FindStrategyInstances(ctx context.Context, prjName string, eventType enums.
 		})
 	}
 	return handlers, nil
+}
+
+type CreateStrategyBatchReq struct {
+	Strategies []CreateStrategyReq `json:"strategies"`
+}
+
+type CreateStrategyReq struct {
+	models.RelApplet
+	models.StrategyInfo
+}
+
+func CreateStrategy(ctx context.Context, projectID types.SFID, r *CreateStrategyBatchReq) (err error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
+	//m := &models.Strategy{}
+	err = sqlx.NewTasks(d).With(
+		func(db sqlx.DBExecutor) error {
+			for i := range r.Strategies {
+				if err := (&models.Strategy{
+					RelStrategy:  models.RelStrategy{StrategyID: idg.MustGenSFID()},
+					RelProject:   models.RelProject{ProjectID: projectID},
+					RelApplet:    models.RelApplet{AppletID: r.Strategies[i].AppletID},
+					StrategyInfo: models.StrategyInfo{EventType: r.Strategies[i].EventType, Handler: r.Strategies[i].Handler},
+				}).Create(db); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	).Do()
+
+	return
+}
+
+func UpdateStrategy(ctx context.Context, strategyID types.SFID, r *CreateStrategyReq) (err error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	m := models.Strategy{RelStrategy: models.RelStrategy{StrategyID: strategyID}}
+
+	err = sqlx.NewTasks(d).With(
+		func(db sqlx.DBExecutor) error {
+			return m.FetchByStrategyID(d)
+		},
+		func(db sqlx.DBExecutor) error {
+			m.RelApplet = r.RelApplet
+			m.StrategyInfo.EventType = r.EventType
+			m.StrategyInfo.Handler = r.Handler
+			return m.UpdateByStrategyID(d)
+		},
+	).Do()
+
+	return
 }
