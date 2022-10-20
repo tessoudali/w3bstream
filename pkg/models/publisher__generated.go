@@ -40,11 +40,17 @@ func (*Publisher) TableDesc() []string {
 }
 
 func (*Publisher) Comments() map[string]string {
-	return map[string]string{}
+	return map[string]string{
+		"Key": "Key the unique identifier for publisher",
+	}
 }
 
 func (*Publisher) ColDesc() map[string][]string {
-	return map[string][]string{}
+	return map[string][]string{
+		"Key": []string{
+			"Key the unique identifier for publisher",
+		},
+	}
 }
 
 func (*Publisher) ColRel() map[string][]string {

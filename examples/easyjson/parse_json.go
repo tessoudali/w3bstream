@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/mailru/easyjson"
 	"reflect"
 	"unsafe"
+
+	"github.com/mailru/easyjson"
 
 	"github.com/iotexproject/w3bstream/examples/easyjson/model"
 )

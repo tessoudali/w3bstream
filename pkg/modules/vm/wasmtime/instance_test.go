@@ -19,10 +19,10 @@ import (
 // //go:embed ../../../../examples/log/log.wasm
 var wasmLogCode []byte
 
-// //go:embed ../../../examples/gjson/parse_json.wasm
+// //go:embed ../../../examples/gjson/gjson.wasm
 var wasmGJsonCode []byte
 
-// //go:embed ../../../examples/easyjson/parse_json.wasm
+// //go:embed ../../../examples/easyjson/easyjson.wasm
 var wasmEasyJsonCode []byte
 
 // //go:embed ../../../../examples/word_count/word_count.wasm
