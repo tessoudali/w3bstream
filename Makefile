@@ -9,18 +9,21 @@ install_toolkit: update_go_module
 install_goimports: update_go_module
 	@go install golang.org/x/tools/cmd/goimports@latest
 
+install_easyjson: update_go_module
+	@go install github.com/mailru/easyjson/...@latest
+
 ## TODO add source format as a githook
 format: install_goimports
 	go mod tidy
 	goimports -w -l -local "${MODULE_NAME}" ./
 
 ## gen code
-generate: install_toolkit install_goimports
+generate: install_toolkit install_easyjson install_goimports
 	go generate ./...
 	goimports -w -l -local "${MODULE_NAME}" ./
 
 ## to migrate database models, if model defines changed, make this entry
-migrate: install_toolkit install_goimports
+migrate: install_toolkit install_easyjson install_goimports
 	go run cmd/srv-applet-mgr/main.go migrate
 
 ## build srv-applet-mgr
