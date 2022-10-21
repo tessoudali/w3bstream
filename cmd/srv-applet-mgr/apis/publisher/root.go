@@ -8,5 +8,6 @@ import (
 var Root = kit.NewRouter(httptransport.Group("/publisher"))
 
 func init() {
+	Root.Register(kit.NewRouter(&ListPublisher{}))
 	Root.Register(kit.NewRouter(&CreatePublisher{}))
 }
