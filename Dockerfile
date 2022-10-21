@@ -19,6 +19,7 @@ WORKDIR /w3bstream-nodejs
 RUN npm i -g pnpm
 COPY ./frontend .
 RUN npm i pnpm -g
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm i --frozen-lockfile;
 RUN pnpm build:standalone
 
@@ -57,9 +58,9 @@ WORKDIR /w3bstream
 
 #Initialize PostgreSQL database
 RUN /etc/init.d/postgresql start && \
- su postgres sh -c "psql -c \"CREATE USER test_user WITH ENCRYPTED PASSWORD 'test_passwd'\"" && \
- su postgres sh -c "psql -c \"CREATE DATABASE test\"" && \
- su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;;\""
+  su postgres sh -c "psql -c \"CREATE USER test_user WITH ENCRYPTED PASSWORD 'test_passwd'\"" && \
+  su postgres sh -c "psql -c \"CREATE DATABASE test\"" && \
+  su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;;\""
 RUN mkdir -p /w3bstream/build_image/conf
 COPY build_image/conf/postgresql.conf /w3bstream/build_image/conf/postgresql.conf
 
