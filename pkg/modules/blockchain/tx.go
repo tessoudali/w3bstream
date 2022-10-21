@@ -6,7 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/iotexproject/Bumblebee/conf/log"
+	"github.com/pkg/errors"
 
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/types"
@@ -24,6 +24,9 @@ func (t *tx) run(ctx context.Context) {
 	ticker := time.NewTicker(t.interval)
 	defer ticker.Stop()
 
+	_, l = l.Start(ctx, "tx.run")
+	defer l.End()
+
 	for range ticker.C {
 		cs, err := m.List(d, m.ColFinished().Eq(false))
 		if err != nil {
@@ -36,7 +39,7 @@ func (t *tx) run(ctx context.Context) {
 				l.WithValues("info", "get chain info failed", "chainID", c.ChainID).Error(err)
 				continue
 			}
-			res, err := t.checkTxAndSendEvent(l, &c, b.Address)
+			res, err := t.checkTxAndSendEvent(ctx, &c, b.Address)
 			if err != nil {
 				l.WithValues("info", "check chain tx and send event failed").Error(err)
 				continue
@@ -51,23 +54,33 @@ func (t *tx) run(ctx context.Context) {
 	}
 }
 
-func (t *tx) checkTxAndSendEvent(l log.Logger, c *models.Chaintx, address string) (bool, error) {
+func (t *tx) checkTxAndSendEvent(ctx context.Context, c *models.Chaintx, address string) (bool, error) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "tx.checkTxAndSendEvent")
+	defer l.End()
+
 	client, err := ethclient.Dial(address)
 	if err != nil {
+		l.Error(err)
 		return false, err
 	}
 	tx, p, err := client.TransactionByHash(context.Background(), common.HexToHash(c.TxAddress))
 	if err != nil {
+		l.Error(err)
 		return false, err
 	}
 	if p {
+		l.Error(errors.New("transaction pending"))
 		return false, nil
 	}
 	data, err := tx.MarshalJSON()
 	if err != nil {
+		l.Error(err)
 		return false, err
 	}
-	if err := t.sendEvent(data, c.ProjectName, c.EventType); err != nil {
+	if err := t.sendEvent(ctx, data, c.ProjectName, c.EventType); err != nil {
+		l.Error(err)
 		return false, err
 	}
 	return true, nil

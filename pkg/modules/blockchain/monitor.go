@@ -72,18 +72,25 @@ func Monitor(ctx context.Context) {
 
 type monitor struct{}
 
-func (l *monitor) sendEvent(data []byte, projectName string, et enums.EventType) error {
+func (l *monitor) sendEvent(ctx context.Context, data []byte, projectName string, et enums.EventType) error {
+	logger := types.MustLoggerFromContext(ctx)
+
+	_, logger = logger.Start(ctx, "monitor.sendEvent")
+	defer logger.End()
+
 	// TODO event type
 	e := &eventpb.Event{
 		Payload: string(data),
 	}
 	body, err := json.Marshal(e)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 	url := fmt.Sprintf("http://localhost:8888/srv-applet-mgr/v0/event/%s", projectName) // TODO move to config
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -91,6 +98,7 @@ func (l *monitor) sendEvent(data []byte, projectName string, et enums.EventType)
 	cli := &http.Client{}
 	resp, err := cli.Do(req)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 	defer resp.Body.Close()

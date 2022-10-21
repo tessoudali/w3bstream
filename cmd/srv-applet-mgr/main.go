@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/iotexproject/Bumblebee/kit/kit"
+	"github.com/iotexproject/w3bstream/pkg/types"
 
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/global"
@@ -21,12 +21,12 @@ import (
 var app = global.App
 
 func main() {
-	app.AddCommand("migrate", func(args ...string) {
-		global.Migrate()
-	})
-
+	// app.AddCommand("migrate", func(args ...string) {
+	// 	global.Migrate()
+	// })
 	app.Execute(func(args ...string) {
 		BatchRun(
+			global.Migrate,
 			func() {
 				kit.Run(apis.Root, global.Server())
 			},
@@ -49,22 +49,30 @@ func main() {
 			},
 			func() {
 				ctx := global.WithContext(context.Background())
+				l := types.MustLoggerFromContext(ctx)
+
+				_, l = l.Start(ctx, "init.CreateAdmin")
+				defer l.End()
 
 				passwd, err := account.CreateAdminIfNotExist(ctx)
 				if err != nil {
-					log.Panicf("create admin faild: %s", err.Error())
+					l.Panic(err)
 					return
 				}
 				if passwd == "" {
-					log.Printf("admin already created")
+					l.Info("admin already created")
 					return
 				}
-				log.Printf("admin created, default password: iotex.W3B.admin")
 			},
 			func() {
 				ctx := global.WithContext(context.Background())
+				l := types.MustLoggerFromContext(ctx)
+
+				_, l = l.Start(ctx, "init.InitChainDB")
+				defer l.End()
+
 				if err := blockchain.InitChainDB(ctx); err != nil {
-					log.Panicf("init chain db faild: %s", err.Error())
+					l.Panic(err)
 					return
 				}
 			},

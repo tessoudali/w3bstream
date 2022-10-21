@@ -31,11 +31,16 @@ type Info struct {
 
 func CreateApplet(ctx context.Context, projectID types.SFID, r *CreateAppletReq) (*models.Applet, error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
+	_, l = l.Start(ctx, "CreateApplet")
+	defer l.End()
 
 	appletID := idg.MustGenSFID()
 	_, filename, sum, err := resource.Upload(ctx, r.File, appletID.String())
 	if err != nil {
+		l.Error(err)
 		return nil, status.UploadFileFailed.StatusErr().WithDesc(err.Error())
 	}
 
@@ -73,6 +78,7 @@ func CreateApplet(ctx context.Context, projectID types.SFID, r *CreateAppletReq)
 
 	if err != nil {
 		defer os.RemoveAll(filename)
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "CreateApplet")
 	}
 
@@ -85,19 +91,24 @@ type UpdateAppletReq struct {
 }
 
 func UpdateApplet(ctx context.Context, appletID types.SFID, r *UpdateAppletReq) error {
-	_, filename, sum, err := resource.Upload(ctx, r.File, appletID.String())
-	if err != nil {
-		return status.UploadFileFailed.StatusErr().WithDesc(err.Error())
-	}
-
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
+	_, l = l.Start(ctx, "UpdateApplet")
+	defer l.End()
+
+	_, filename, sum, err := resource.Upload(ctx, r.File, appletID.String())
+	if err != nil {
+		l.Error(err)
+		return status.UploadFileFailed.StatusErr().WithDesc(err.Error())
+	}
 
 	oldPath := ""
 	needUpdateStrategies := r.Info != nil && len(r.Strategies) > 0
 
-	sqlx.NewTasks(d).With(
+	err = sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
 			return m.FetchByAppletID(d)
 		},
@@ -143,11 +154,13 @@ func UpdateApplet(ctx context.Context, appletID types.SFID, r *UpdateAppletReq) 
 	).Do()
 
 	if err != nil {
+		l.Error(err)
 		os.RemoveAll(filename)
 	} else {
 		os.RemoveAll(oldPath)
 	}
 
+	l.WithValues("applet", appletID, "path", filename).Info("applet uploaded")
 	return nil
 }
 
@@ -198,7 +211,7 @@ func ListApplets(ctx context.Context, r *ListAppletReq) (*ListAppletRsp, error) 
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 
-	l.Start(ctx, "ListApplets")
+	_, l = l.Start(ctx, "ListApplets")
 	defer l.End()
 
 	applets, err := applet.List(d, r.Condition(), r.Additions()...)
@@ -222,17 +235,22 @@ type RemoveAppletReq struct {
 func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
 	var (
 		d         = types.MustDBExecutorFromContext(ctx)
+		l         = types.MustLoggerFromContext(ctx)
 		mApplet   = &models.Applet{}
 		mInstance = &models.Instance{}
 		instances []models.Instance
 		err       error
 	)
 
+	_, l = l.Start(ctx, "RemoveApplet")
+	defer l.End()
+
 	return sqlx.NewTasks(d).With(
 		func(d sqlx.DBExecutor) error {
 			mApplet.AppletID = r.AppletID
 			err = mApplet.FetchByAppletID(d)
 			if err != nil {
+				l.Error(err)
 				return status.CheckDatabaseError(err, "fetch by applet id")
 			}
 			return nil
@@ -241,13 +259,15 @@ func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
 			mInstance.AppletID = r.AppletID
 			instances, err = mInstance.List(d, mInstance.ColAppletID().Eq(r.AppletID))
 			if err != nil {
+				l.Error(err)
 				return status.CheckDatabaseError(err, "ListByAppletID")
 			}
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
 			for _, i := range instances {
-				if err = vm.DelInstance(i.InstanceID.String()); err != nil {
+				if err = vm.DelInstance(ctx, i.InstanceID); err != nil {
+					l.Error(err)
 					return status.InternalServerError.StatusErr().WithDesc(
 						fmt.Sprintf("delete instance %s failed: %s",
 							i.InstanceID, err.Error(),
@@ -255,16 +275,19 @@ func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
 					)
 				}
 				if err = i.DeleteByInstanceID(d); err != nil {
+					l.Error(err)
 					return status.CheckDatabaseError(err, "DeleteByInstanceID")
 				}
 			}
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
-			return status.CheckDatabaseError(
-				mApplet.DeleteByAppletID(d),
-				"DeleteAppletByAppletID",
-			)
+			err = mApplet.DeleteByAppletID(d)
+			if err != nil {
+				l.Error(err)
+				return status.CheckDatabaseError(err, "DeleteAppletByAppletID")
+			}
+			return nil
 		},
 	).Do()
 }
@@ -281,9 +304,15 @@ type GetAppletRsp struct {
 
 func GetAppletByAppletID(ctx context.Context, appletID types.SFID) (*GetAppletRsp, error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
+
+	_, l = l.Start(ctx, "GetAppletByAppletID")
+	defer l.End()
+
 	err := m.FetchByAppletID(d)
 	if err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "FetchByAppletID")
 	}
 	return &GetAppletRsp{Applet: *m}, err

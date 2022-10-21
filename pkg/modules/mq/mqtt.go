@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	conflog "github.com/iotexproject/Bumblebee/conf/log"
 	confmqtt "github.com/iotexproject/Bumblebee/conf/mqtt"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 
@@ -20,36 +19,38 @@ var channels = mapx.New[string, *ChannelContext]()
 type ChannelContext struct {
 	ctx    context.Context
 	cancel context.CancelFunc
-	logger conflog.Logger
 	Name   string
 	cli    *confmqtt.Client
 	hdl    OnMessage
 }
 
-func (ctx *ChannelContext) Run() {
-	_, _l := ctx.logger.Start(ctx.ctx, "Channel Run")
+func (cc *ChannelContext) Run(ctx context.Context) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, _l := l.Start(ctx, "ChannelContext.Run")
 	defer _l.End()
+
 	for {
 		select {
-		case <-ctx.ctx.Done():
+		case <-cc.ctx.Done():
 			_l.Info("channel closed")
 			return
 		default:
-			_ = ctx.cli.WithTopic(ctx.Name).Subscribe(
+			_ = cc.cli.Subscribe(
 				func(cli mqtt.Client, msg mqtt.Message) {
-					_, l := ctx.logger.Start(ctx.ctx, "OnMessage:"+ctx.Name)
+					_, l := l.Start(cc.ctx, "OnMessage:"+cc.Name)
 					defer l.End()
 
 					pl := msg.Payload()
 					ev := &eventpb.Event{}
 					err := json.Unmarshal(pl, ev)
 					if err != nil {
-						ctx.logger.Error(err)
+						l.Error(err)
 						return
 					}
-					_, err = ctx.hdl(ctx.ctx, ctx.Name, ev)
+					_, err = cc.hdl(cc.ctx, cc.Name, ev)
 					if err != nil {
-						ctx.logger.Error(err)
+						l.Error(err)
 					}
 					l.WithValues("payload", ev).Info("sub handled")
 				},
@@ -58,27 +59,36 @@ func (ctx *ChannelContext) Run() {
 	}
 }
 
-func (ctx *ChannelContext) Stop() { ctx.cancel() }
+func (cc *ChannelContext) Stop() { cc.cancel() }
 
 func CreateChannel(ctx context.Context, prjName string, hdl OnMessage) error {
+	l := types.MustLoggerFromContext(ctx)
+	defer l.End()
+
+	_, l = l.Start(ctx, "CreateChannel")
+	defer l.End()
+
+	l = l.WithValues("project_name", prjName)
+
 	broker := types.MustMqttBrokerFromContext(ctx)
 
 	cli, err := broker.Client(prjName)
 	if err != nil {
+		l.Error(err)
 		return err
 	}
 
 	cctx := &ChannelContext{
-		Name:   prjName,
-		logger: types.MustLoggerFromContext(ctx),
-		cli:    cli,
-		hdl:    hdl,
+		Name: prjName,
+		cli:  cli.WithTopic(prjName),
+		hdl:  hdl,
 	}
-	cctx.ctx, cctx.cancel = context.WithCancel(ctx)
+	cctx.ctx, cctx.cancel = context.WithCancel(context.Background())
 	channels.Store(prjName, cctx)
 
-	go cctx.Run()
+	go cctx.Run(ctx)
 
+	l.Info("channel started")
 	return nil
 }
 

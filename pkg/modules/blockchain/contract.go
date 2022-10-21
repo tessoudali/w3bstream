@@ -9,7 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/iotexproject/Bumblebee/conf/log"
 
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/types"
@@ -25,8 +24,12 @@ func (t *contract) run(ctx context.Context) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	m := &models.Contractlog{}
+
 	ticker := time.NewTicker(t.listInterval)
 	defer ticker.Stop()
+
+	_, l = l.Start(ctx, "contract.run")
+	defer l.End()
 
 	for range ticker.C {
 		cs, err := m.List(d, m.ColBlockCurrent().Lt(m.ColBlockEnd()))
@@ -40,7 +43,7 @@ func (t *contract) run(ctx context.Context) {
 				l.WithValues("info", "get chain info failed", "chainID", c.ChainID).Error(err)
 				continue
 			}
-			toBlock, err := t.listChainAndSendEvent(l, &c, b.Address)
+			toBlock, err := t.listChainAndSendEvent(ctx, &c, b.Address)
 			if err != nil {
 				l.WithValues("info", "list contractlog db failed").Error(err)
 				continue
@@ -55,14 +58,21 @@ func (t *contract) run(ctx context.Context) {
 	}
 }
 
-func (t *contract) listChainAndSendEvent(l log.Logger, c *models.Contractlog, address string) (uint64, error) {
+func (t *contract) listChainAndSendEvent(ctx context.Context, c *models.Contractlog, address string) (uint64, error) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "contract.listChainAndSendEvent")
+	defer l.End()
+
 	cli, err := ethclient.Dial(address)
 	if err != nil {
+		l.Error(err)
 		return 0, err
 	}
-	ctx := context.Background()
+
 	from, to, err := t.getBlockRange(ctx, cli, c)
 	if err != nil {
+		l.Error(err)
 		return 0, err
 	}
 	if from >= to {
@@ -79,8 +89,9 @@ func (t *contract) listChainAndSendEvent(l log.Logger, c *models.Contractlog, ad
 		},
 		Topics: t.getTopic(c),
 	}
-	logs, err := cli.FilterLogs(ctx, query)
+	logs, err := cli.FilterLogs(context.Background(), query)
 	if err != nil {
+		l.Error(err)
 		return 0, err
 	}
 	for _, log := range logs {
@@ -88,7 +99,7 @@ func (t *contract) listChainAndSendEvent(l log.Logger, c *models.Contractlog, ad
 		if err != nil {
 			return 0, err
 		}
-		if err := t.sendEvent(data, c.ProjectName, c.EventType); err != nil {
+		if err := t.sendEvent(ctx, data, c.ProjectName, c.EventType); err != nil {
 			return 0, err
 		}
 	}
@@ -96,8 +107,14 @@ func (t *contract) listChainAndSendEvent(l log.Logger, c *models.Contractlog, ad
 }
 
 func (t *contract) getBlockRange(ctx context.Context, cli *ethclient.Client, c *models.Contractlog) (uint64, uint64, error) {
-	currHeight, err := cli.BlockNumber(ctx)
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "contract.getBlockRange")
+	defer l.End()
+
+	currHeight, err := cli.BlockNumber(context.Background())
 	if err != nil {
+		l.Error(err)
 		return 0, 0, err
 	}
 	from := c.BlockCurrent

@@ -1,6 +1,10 @@
 package wasm
 
-import "github.com/iotexproject/w3bstream/pkg/enums"
+import (
+	"context"
+
+	"github.com/iotexproject/w3bstream/pkg/enums"
+)
 
 type VM interface {
 	Name() string
@@ -15,18 +19,19 @@ type Module interface {
 }
 
 type Instance interface {
-	Start() error
+	Start(context.Context) error
 	Stop()
 	State() enums.InstanceState
-	AddResource([]byte) uint32
+	AddResource(context.Context, []byte) uint32
+	RmvResource(context.Context, uint32)
 	GetResource(uint32) ([]byte, bool)
-	RmvResource(uint32)
-	HandleEvent(fn string, data []byte) ([]byte, ResultStatusCode)
 	Get(k string) int32
+
+	EventConsumer
 }
 
 type EventConsumer interface {
-	HandleEvent(handler string, payload []byte) ([]byte, ResultStatusCode)
+	HandleEvent(ctx context.Context, handler string, payload []byte) ([]byte, ResultStatusCode, error)
 }
 
 type KVStore interface {

@@ -22,34 +22,42 @@ type CreateInstanceRsp struct {
 
 func CreateInstance(ctx context.Context, path string, appletID types.SFID) (*CreateInstanceRsp, error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
-	m := &models.Instance{
-		RelApplet: models.RelApplet{AppletID: appletID},
-	}
+
+	m := &models.Instance{RelApplet: models.RelApplet{AppletID: appletID}}
+
+	_, l = l.Start(ctx, "CreateInstance")
+	defer l.End()
 
 	exists, err := GetInstanceByAppletID(ctx, appletID)
 	if err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "GetInstanceByAppletID")
 	}
 	for _, i := range exists {
 		if err := ControlInstance(ctx, i.InstanceID, enums.DEPLOY_CMD__REMOVE); err != nil {
+			l.Error(err)
 			return nil, err
 		}
 	}
 
 	m.InstanceID = idg.MustGenSFID()
 
-	err = vm.NewInstanceWithID(ctx, path, m.InstanceID.String(), common.DefaultInstanceOptionSetter)
+	err = vm.NewInstanceWithID(ctx, path, m.InstanceID, common.DefaultInstanceOptionSetter)
 	if err != nil {
+		l.Error(err)
 		return nil, err
 	}
 	m.State = enums.INSTANCE_STATE__CREATED
 	m.Path = path
 
 	if err = m.Create(d); err != nil {
-		_ = vm.DelInstance(m.InstanceID.String())
+		l.Error(err)
+		_ = vm.DelInstance(ctx, m.InstanceID)
 		return nil, err
 	}
+	l.WithValues("instance", m.InstanceID).Info("created")
 
 	return &CreateInstanceRsp{
 		InstanceID:    m.InstanceID,
@@ -64,46 +72,71 @@ func ControlInstance(ctx context.Context, instanceID types.SFID, cmd enums.Deplo
 		m *models.Instance
 	)
 
-	l.Start(ctx, "ControlInstance")
+	_, l = l.Start(ctx, "ControlInstance")
 	defer l.End()
 
 	defer func() {
+		l = l.WithValues("instance", instanceID, "cmd", cmd.String())
 		if err != nil {
-			l.WithValues("instance", instanceID, "cmd", cmd).Error(err)
+			l.Error(err)
+		} else {
+			l.Info("done")
 		}
 	}()
 
 	if m, err = GetInstanceByInstanceID(ctx, instanceID); err != nil {
+		l.Error(err)
 		return err
 	}
 
 	switch cmd {
 	case enums.DEPLOY_CMD__REMOVE:
-		if err = vm.DelInstance(instanceID.String()); err != nil {
+		if err = vm.DelInstance(ctx, instanceID); err != nil {
+			l.Error(err)
 			return err
 		}
-		return status.CheckDatabaseError(m.DeleteByInstanceID(d), "DeleteInstanceByInstanceID")
+		if err = m.DeleteByInstanceID(d); err != nil {
+			l.Error(err)
+			return status.CheckDatabaseError(err, "DeleteInstanceByInstanceID")
+		}
+		return nil
 	case enums.DEPLOY_CMD__STOP:
-		if err = vm.StopInstance(instanceID.String()); err != nil {
+		if err = vm.StopInstance(ctx, instanceID); err != nil {
+			l.Error(err)
 			return err
 		}
 		m.State = enums.INSTANCE_STATE__STOPPED
-		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
+		if err = m.UpdateByInstanceID(d); err != nil {
+			l.Error(err)
+			return status.CheckDatabaseError(err, "UpdateInstanceByInstanceID")
+		}
+		return nil
 	case enums.DEPLOY_CMD__START:
-		if err = vm.StartInstance(instanceID.String()); err != nil {
+		if err = vm.StartInstance(ctx, instanceID); err != nil {
+			l.Error(err)
 			return err
 		}
 		m.State = enums.INSTANCE_STATE__STARTED
-		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
+		if err = m.UpdateByInstanceID(d); err != nil {
+			l.Error(err)
+			return status.CheckDatabaseError(err, "UpdateInstanceByInstanceID")
+		}
+		return nil
 	case enums.DEPLOY_CMD__RESTART:
-		if err = vm.StopInstance(instanceID.String()); err != nil {
+		if err = vm.StopInstance(ctx, instanceID); err != nil {
+			l.Error(err)
 			return err
 		}
-		if err = vm.StartInstance(instanceID.String()); err != nil {
+		if err = vm.StartInstance(ctx, instanceID); err != nil {
+			l.Error(err)
 			return err
 		}
 		m.State = enums.INSTANCE_STATE__CREATED
-		return status.CheckDatabaseError(m.UpdateByInstanceID(d), "UpdateInstanceByInstanceID")
+		if err = m.UpdateByInstanceID(d); err != nil {
+			l.Error(err)
+			return status.CheckDatabaseError(err, "UpdateInstanceByInstanceID")
+		}
+		return nil
 	default:
 		return status.BadRequest.StatusErr().WithDesc("unknown deploy command")
 	}
@@ -114,13 +147,14 @@ func GetInstanceByInstanceID(ctx context.Context, instanceID types.SFID) (*model
 	l := types.MustLoggerFromContext(ctx)
 	m := &models.Instance{RelInstance: models.RelInstance{InstanceID: instanceID}}
 
-	l.Start(ctx, "GetInstanceByInstanceID")
+	_, l = l.Start(ctx, "GetInstanceByInstanceID")
+	defer l.End()
 
 	if err := m.FetchByInstanceID(d); err != nil {
 		return nil, status.CheckDatabaseError(err, "FetchInstanceByInstanceID")
 	}
 
-	state, ok := vm.GetInstanceState(instanceID.String())
+	state, ok := vm.GetInstanceState(instanceID)
 	if !ok {
 		return nil, status.NotFound.StatusErr().WithDesc("instance not found in mgr")
 	}
@@ -164,14 +198,17 @@ func StartInstances(ctx context.Context) error {
 	}
 	for _, i := range list {
 		if i.State == enums.INSTANCE_STATE__CREATED || i.State == enums.INSTANCE_STATE__STARTED {
-			err = vm.NewInstanceWithID(ctx, i.Path, i.InstanceID.String(), common.DefaultInstanceOptionSetter)
+			err = vm.NewInstanceWithID(ctx, i.Path, i.InstanceID, common.DefaultInstanceOptionSetter)
 			l = l.WithValues("instance", i.InstanceID, "applet", i.AppletID)
 			if err != nil {
+				l.Error(err)
 				if err := i.DeleteByInstanceID(d); err != nil {
+					l.Error(err)
 					return err
 				}
 				if err := (&models.Applet{RelApplet: models.RelApplet{AppletID: i.AppletID}}).
 					DeleteByAppletID(d); err != nil {
+					l.Error(err)
 					return err
 				}
 				l.Warn(errors.New("start failed and removed"))

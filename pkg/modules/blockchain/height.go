@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/iotexproject/Bumblebee/conf/log"
 
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/types"
@@ -20,8 +19,12 @@ func (h *height) run(ctx context.Context) {
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	m := &models.ChainHeight{}
+
 	ticker := time.NewTicker(h.interval)
 	defer ticker.Stop()
+
+	_, l = l.Start(ctx, "height.run")
+	defer l.End()
 
 	for range ticker.C {
 		cs, err := m.List(d, m.ColFinished().Eq(false))
@@ -35,7 +38,7 @@ func (h *height) run(ctx context.Context) {
 				l.WithValues("info", "get chain info failed", "chainID", c.ChainID).Error(err)
 				continue
 			}
-			res, err := h.checkHeightAndSendEvent(l, &c, b.Address)
+			res, err := h.checkHeightAndSendEvent(ctx, &c, b.Address)
 			if err != nil {
 				l.WithValues("info", "check chain height and send event failed").Error(err)
 				continue
@@ -50,23 +53,34 @@ func (h *height) run(ctx context.Context) {
 	}
 }
 
-func (h *height) checkHeightAndSendEvent(l log.Logger, c *models.ChainHeight, address string) (bool, error) {
+func (h *height) checkHeightAndSendEvent(ctx context.Context, c *models.ChainHeight, address string) (bool, error) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "height.checkHeightAndSendEvent")
+	defer l.End()
+
 	client, err := ethclient.Dial(address)
 	if err != nil {
+		l.Error(err)
 		return false, err
 	}
 	header, err := client.HeaderByNumber(context.Background(), nil)
 	if err != nil {
+		l.Error(err)
 		return false, err
 	}
-	if header.Number.Uint64() < c.Height {
+	if headerNumber := header.Number.Uint64(); headerNumber < c.Height {
+		l.WithValues("headerNumber", headerNumber, "chainHeight", c.Height).
+			Error(err)
 		return false, nil
 	}
 	data, err := header.MarshalJSON()
 	if err != nil {
+		l.Error(err)
 		return false, err
 	}
-	if err := h.sendEvent(data, c.ProjectName, c.EventType); err != nil {
+	if err := h.sendEvent(ctx, data, c.ProjectName, c.EventType); err != nil {
+		l.Error(err)
 		return false, err
 	}
 	return true, nil

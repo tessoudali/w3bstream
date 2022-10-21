@@ -6,6 +6,7 @@ import (
 	confid "github.com/iotexproject/Bumblebee/conf/id"
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+	"github.com/pkg/errors"
 
 	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
@@ -20,11 +21,18 @@ type InstanceHandler struct {
 }
 
 func FindStrategyInstances(ctx context.Context, prjName string, eventType enums.EventType) ([]*InstanceHandler, error) {
+	l := types.MustLoggerFromContext(ctx)
 	d := types.MustDBExecutorFromContext(ctx)
+
+	_, l = l.Start(ctx, "FindStrategyInstances")
+	defer l.End()
+
+	l = l.WithValues("project", prjName, "event_type", eventType.String())
 
 	mProject := &models.Project{ProjectInfo: models.ProjectInfo{Name: prjName}}
 
 	if err := mProject.FetchByName(d); err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "FetchProjectByName")
 	}
 
@@ -40,10 +48,12 @@ func FindStrategyInstances(ctx context.Context, prjName string, eventType enums.
 		),
 	)
 	if err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "ListStrategy")
 	}
 
 	if len(strategies) == 0 {
+		l.Warn(errors.New("strategy not found"))
 		return nil, status.NotFound.StatusErr().WithDesc("not found strategy")
 	}
 	strategiesMap := make(map[types.SFID]*models.Strategy)
@@ -66,10 +76,12 @@ func FindStrategyInstances(ctx context.Context, prjName string, eventType enums.
 		),
 	)
 	if err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "ListInstances")
 	}
 
 	if len(instances) == 0 {
+		l.Warn(errors.New("instance not found"))
 		return nil, status.NotFound.StatusErr().WithDesc("not found instance")
 	}
 
@@ -96,7 +108,11 @@ type CreateStrategyReq struct {
 
 func CreateStrategy(ctx context.Context, projectID types.SFID, r *CreateStrategyBatchReq) (err error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
+	_, l = l.Start(ctx, "CreateStrategy")
+	defer l.End()
 
 	//m := &models.Strategy{}
 	err = sqlx.NewTasks(d).With(
@@ -115,12 +131,21 @@ func CreateStrategy(ctx context.Context, projectID types.SFID, r *CreateStrategy
 		},
 	).Do()
 
+	if err != nil {
+		l.Error(err)
+		return status.CheckDatabaseError(err, "CreateStrategy")
+	}
+
 	return
 }
 
 func UpdateStrategy(ctx context.Context, strategyID types.SFID, r *CreateStrategyReq) (err error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := models.Strategy{RelStrategy: models.RelStrategy{StrategyID: strategyID}}
+
+	_, l = l.Start(ctx, "UpdateStrategy")
+	defer l.End()
 
 	err = sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
@@ -133,6 +158,11 @@ func UpdateStrategy(ctx context.Context, strategyID types.SFID, r *CreateStrateg
 			return m.UpdateByStrategyID(d)
 		},
 	).Do()
+
+	if err != nil {
+		l.Error(err)
+		return status.CheckDatabaseError(err, "UpdateStrategy")
+	}
 
 	return
 }

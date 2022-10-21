@@ -23,8 +23,12 @@ type CreateProjectReq = models.ProjectInfo
 
 func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (*models.Project, error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	a := middleware.CurrentAccountFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
+	_, l = l.Start(ctx, "CreateProject")
+	defer l.End()
 
 	m := &models.Project{
 		RelProject:  models.RelProject{ProjectID: idg.MustGenSFID()},
@@ -33,11 +37,13 @@ func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (
 	}
 
 	if err := mq.CreateChannel(ctx, m.Name, hdl); err != nil {
+		l.Error(err)
 		return nil, status.InternalServerError.StatusErr().
 			WithDesc(fmt.Sprintf("create channel: [project:%s] [err:%v]", m.Name, err))
 	}
 
 	if err := m.Create(d); err != nil {
+		l.Error(err)
 		return nil, err
 	}
 
@@ -119,7 +125,9 @@ type detail struct {
 
 func ListProject(ctx context.Context, r *ListProjectReq) (*ListProjectRsp, error) {
 	var (
-		d    = types.MustDBExecutorFromContext(ctx)
+		d = types.MustDBExecutorFromContext(ctx)
+		l = types.MustLoggerFromContext(ctx)
+
 		ret  = &ListProjectRsp{}
 		err  error
 		cond = r.Condition()
@@ -128,6 +136,10 @@ func ListProject(ctx context.Context, r *ListProjectReq) (*ListProjectRsp, error
 		mApplet   = &models.Applet{}
 		mInstance = &models.Instance{}
 	)
+
+	_, l = l.Start(ctx, "ListProject")
+	defer l.End()
+
 	ret.Total, err = mProject.Count(d, cond)
 	if err != nil {
 		return nil, status.CheckDatabaseError(err, "CountProject")
@@ -164,6 +176,7 @@ func ListProject(ctx context.Context, r *ListProjectReq) (*ListProjectRsp, error
 		&details,
 	)
 	if err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "ListProject")
 	}
 
@@ -205,15 +218,21 @@ func ListProject(ctx context.Context, r *ListProjectReq) (*ListProjectRsp, error
 
 func GetProjectByProjectID(ctx context.Context, prjID types.SFID) (*Detail, error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	ca := middleware.CurrentAccountFromContext(ctx)
+
+	_, l = l.Start(ctx, "GetProjectByProjectID")
+	defer l.End()
 
 	_, err := ca.ValidateProjectPerm(ctx, prjID)
 	if err != nil {
+		l.Error(err)
 		return nil, err
 	}
 	m := &models.Project{RelProject: models.RelProject{ProjectID: prjID}}
 
-	if err := m.FetchByProjectID(d); err != nil {
+	if err = m.FetchByProjectID(d); err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "GetProjectByProjectID")
 	}
 
@@ -223,10 +242,12 @@ func GetProjectByProjectID(ctx context.Context, prjID types.SFID) (*Detail, erro
 	})
 
 	if err != nil {
+		l.Error(err)
 		return nil, err
 	}
 
 	if len(ret.Data) == 0 {
+		l.Warn(errors.New("project not found"))
 		return nil, status.NotFound
 	}
 
@@ -235,9 +256,14 @@ func GetProjectByProjectID(ctx context.Context, prjID types.SFID) (*Detail, erro
 
 func GetProjectByProjectName(ctx context.Context, prjName string) (*models.Project, error) {
 	d := types.MustDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
 	m := &models.Project{ProjectInfo: models.ProjectInfo{Name: prjName}}
 
+	_, l = l.Start(ctx, "GetProjectByProjectName")
+	defer l.End()
+
 	if err := m.FetchByName(d); err != nil {
+		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "GetProjectByProjectName")
 	}
 
@@ -254,14 +280,14 @@ func InitChannels(ctx context.Context, hdl mq.OnMessage) error {
 	d := types.MustDBExecutorFromContext(ctx)
 	m := &models.Project{}
 
+	_, l = l.Start(ctx, "InitChannels")
+	defer l.End()
+
 	lst, err := m.List(d, nil)
 	if err != nil {
 		l.Error(err)
 		return err
 	}
-
-	l.Start(ctx, "InitChannels")
-	defer l.End()
 
 	for i := range lst {
 		v := &lst[i]
@@ -271,7 +297,7 @@ func InitChannels(ctx context.Context, hdl mq.OnMessage) error {
 			l.Error(err)
 			return err
 		}
-		l.WithValues("project", v.Name).Info("sub started")
+		l.WithValues("project_name", v.Name).Info("mqtt subscribe started")
 	}
 	return nil
 }

@@ -21,6 +21,7 @@ import (
 var reserve = int64(100 * 1024 * 1024)
 
 func Upload(ctx context.Context, f *multipart.FileHeader, id string) (root, filename, sum string, err error) {
+	l := types.MustLoggerFromContext(ctx)
 	conf := types.MustUploadConfigFromContext(ctx)
 	var (
 		fr       io.ReadSeekCloser
@@ -28,11 +29,15 @@ func Upload(ctx context.Context, f *multipart.FileHeader, id string) (root, file
 		filesize = int64(0)
 	)
 
+	_, l = l.Start(ctx, "Upload")
+	defer l.End()
+
 	root = filepath.Join(conf.Root, id)
 	filename = filepath.Join(conf.Root, id, f.Filename)
 
 	if !IsDirExists(root) {
 		if err = os.MkdirAll(root, 0777); err != nil {
+			l.Error(err)
 			return
 		}
 	}
@@ -43,31 +48,40 @@ func Upload(ctx context.Context, f *multipart.FileHeader, id string) (root, file
 	defer fr.Close()
 
 	if filesize, err = fr.Seek(0, io.SeekEnd); err != nil {
+		l.Error(err)
 		return
 	}
 	if filesize > conf.FileSizeLimit {
 		err = errors.Wrap(err, "filesize over limit")
+		l.Error(err)
 		return
 	}
 
 	stat, err := disk.Usage(root)
 	if stat == nil || stat.Free < uint64(filesize+reserve) {
 		err = errors.Wrap(err, "disk limited")
+		l.Error(err)
 		return
 	}
 	_, err = fr.Seek(0, io.SeekStart)
 	if err != nil {
+		l.Error(err)
 		return
 	}
 	if fw, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666); err != nil {
+		l.Error(err)
 		return
 	}
 	defer fw.Close()
 	if _, err = io.Copy(fw, fr); err != nil {
+		l.Error(err)
 		return
 	}
 
 	sum, err = util.FileMD5(filename)
+	if err != nil {
+		l.Error(err)
+	}
 	return
 }
 
