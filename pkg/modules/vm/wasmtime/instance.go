@@ -19,6 +19,10 @@ import (
 )
 
 func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.InstanceOptionSetter) (wasm.Instance, error) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "NewInstanceByCode")
+	defer l.End()
 
 	opt := &common.InstanceOption{
 		Logger: common.DefaultLogger,
@@ -65,18 +69,20 @@ func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.Instance
 
 	vmModule, err := wasmtime.NewModule(vmEngine, code)
 	if err != nil {
+		l.Error(err)
 		return nil, err
 	}
 	vmInstance, err := linker.Instantiate(vmStore, vmModule)
 	if err != nil {
+		l.Error(err)
 		return nil, err
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	cctx, cancel := context.WithCancel(context.Background())
 
 	return &Instance{
 		tasks:      opt.Tasks,
-		ctx:        ctx,
+		ctx:        cctx,
 		cancel:     cancel,
 		state:      enums.INSTANCE_STATE__CREATED,
 		vmEngine:   vmEngine,
@@ -105,14 +111,19 @@ type Instance struct {
 
 var _ wasm.Instance = (*Instance)(nil)
 
-func (i *Instance) Start() error {
+func (i *Instance) Start(ctx context.Context) error {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "instance.Start")
+	defer l.End()
+
 	for {
 		select {
 		case <-i.ctx.Done():
-			common.DefaultLogger.Error(i.ctx.Err())
-			return i.ctx.Err()
+			l.Error(i.ctx.Err())
+			return ctx.Err()
 		case task := <-i.tasks.Wait():
-			task.Res <- i.handleEvent(task)
+			task.Res <- i.handleEvent(ctx, task)
 		}
 	}
 }
@@ -124,52 +135,79 @@ func (i *Instance) Stop() {
 
 func (i *Instance) State() wasm.InstanceState { return i.state }
 
-func (i *Instance) HandleEvent(fn string, data []byte) ([]byte, wasm.ResultStatusCode) {
-	task := &common.Task{
-		Handler: fn,
-		Payload: data,
-		Res:     make(chan *common.EventHandleResult, 1),
+func (i *Instance) HandleEvent(ctx context.Context, fn string, data []byte) ([]byte, wasm.ResultStatusCode, error) {
+	select {
+	case <-ctx.Done():
+		return nil, -1, ctx.Err()
+	default:
+		task := &common.Task{
+			Handler: fn,
+			Payload: data,
+			Res:     make(chan *common.EventHandleResult),
+		}
+		i.tasks.Push(task)
+
+		res := <-task.Res
+
+		return res.Response, res.Code, nil
 	}
-	i.tasks.Push(task)
-
-	res := <-task.Res
-
-	return res.Response, res.Code
 }
 
-func (i *Instance) handleEvent(t *common.Task) *common.EventHandleResult {
-	rid := i.AddResource(t.Payload)
-	defer i.RmvResource(rid)
+func (i *Instance) handleEvent(ctx context.Context, t *common.Task) *common.EventHandleResult {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "instance.handleEvent")
+	defer l.End()
+
+	rid := i.AddResource(ctx, t.Payload)
+	defer i.RmvResource(ctx, rid)
 
 	hdl, ok := i.handlers[t.Handler]
 	if !ok {
 		hdl = i.vmInstance.GetFunc(i.vmStore, t.Handler)
 		if hdl == nil {
-			return &common.EventHandleResult{nil, wasm.ResultStatusCode_UnexportedHandler}
+			return &common.EventHandleResult{Code: wasm.ResultStatusCode_UnexportedHandler}
 		}
 		i.handlers[t.Handler] = hdl
 	}
 
 	result, err := hdl.Call(i.vmStore, int32(rid))
 	if err != nil {
-		return &common.EventHandleResult{nil, wasm.ResultStatusCode_Failed}
+		return &common.EventHandleResult{Code: wasm.ResultStatusCode_Failed}
 	}
 
-	return &common.EventHandleResult{nil, wasm.ResultStatusCode(result.(int32))}
+	return &common.EventHandleResult{Code: wasm.ResultStatusCode(result.(int32))}
 }
 
 const MaxUint = ^uint32(0)
 const MaxInt = int(MaxUint >> 1)
 
-func (i *Instance) AddResource(data []byte) uint32 {
-	var id int32 = int32(uuid.New().ID() % uint32(MaxInt))
+func (i *Instance) AddResource(ctx context.Context, data []byte) uint32 {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "instance.AddResource")
+	defer l.End()
+
+	var id = int32(uuid.New().ID() % uint32(MaxInt))
 	i.res.Store(uint32(id), data)
+
+	l.WithValues("res_id", id, "payload", string(data)).Info("added")
+
 	return uint32(id)
 }
 
 func (i *Instance) GetResource(id uint32) ([]byte, bool) { return i.res.Load(id) }
 
-func (i *Instance) RmvResource(id uint32) { i.res.Remove(id) }
+func (i *Instance) RmvResource(ctx context.Context, id uint32) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "instance.RmvResource")
+	defer l.End()
+
+	i.res.Remove(id)
+	l.WithValues("res_id", id).Info("removed")
+
+}
 
 func (i *Instance) Get(k string) int32 {
 	data := i.db[k]

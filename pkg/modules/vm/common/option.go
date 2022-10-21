@@ -17,7 +17,7 @@ func InstanceOptionWithLogger(l conflog.Logger) InstanceOptionSetter {
 }
 
 var (
-	DefaultLogger               = conflog.Std()
+	DefaultLogger               = conflog.Std().WithValues("@src", "wasm")
 	DefaultInstanceOptionSetter = func(o *InstanceOption) {
 		o.Logger = DefaultLogger
 		o.Tasks = &TaskQueue{Ch: make(chan *Task, 100)}
