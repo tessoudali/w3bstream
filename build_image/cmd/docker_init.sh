@@ -35,6 +35,5 @@ cd /w3bstream/cmd/srv-applet-mgr && ./srv-applet-mgr &
 
 sleep 3
 
-#cd /w3bstream/frontend-build && node server.js
-cd /w3bstream/frontend && pnpm start
+cd /w3bstream/frontend-build && node server.js
 

@@ -7,27 +7,20 @@ RUN cd cmd/srv-applet-mgr && GOWORK=off GOOS=linux CGO_ENABLED=1 go build -mod v
 RUN mkdir -p build
 
 #Build noodjs
+FROM node:14.20 AS build-nodejs
 #FROM node:14.20-alpine AS build-nodejs
 #FROM node:16-alpine AS build-nodejs
-#
-#WORKDIR /w3bstream-nodejs
-#
+
+WORKDIR /w3bstream-nodejs
+
 #RUN apk add --no-cache curl
 #RUN curl -fsSL "https://github.com/pnpm/pnpm/releases/latest/download/pnpm-linuxstatic-x64" -o /bin/pnpm
 #RUN chmod +x /bin/pnpm
-#COPY ./frontend .
-#RUN npm i pnpm -g
-#RUN pnpm i --frozen-lockfile;
-#RUN pnpm build:standalone
-FROM node:14.20 AS build-nodejs
-
-WORKDIR /w3bstream
-
-COPY . /w3bstream/
 RUN npm i -g pnpm
-RUN cd /w3bstream/frontend && pnpm install
-RUN cp /w3bstream/frontend/.env.tmpl /w3bstream/frontend/.env
-RUN cd /w3bstream/frontend && pnpm build
+COPY ./frontend .
+RUN npm i pnpm -g
+RUN pnpm i --frozen-lockfile;
+RUN pnpm build:standalone
 
 
 #run
@@ -100,12 +93,12 @@ COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/srv-applet-mgr /w3bstream/cmd
 COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/config /w3bstream/cmd/srv-applet-mgr/config
 
 
-COPY --from=build-nodejs /w3bstream/frontend /w3bstream/frontend
-# COPY --from=build-nodejs /w3bstream/frontend/.env.tmpl /w3bstream/frontend/.env
-
-#COPY --from=builder-nodejs /w3bstream-nodejs/public ./frontend-build/public
-#COPY --from=builder-nodejs --chown=nextjs:nodejs /w3bstream-nodejs/.next/standalone ./frontend-build
-#COPY --from=builder-nodejs --chown=nextjs:nodejs /w3bstream-nodejs/.next/static ./frontend-build/.next/static
+#COPY --from=build-nodejs /w3bstream/frontend /w3bstream/frontend
+#
+#COPY --from=build-nodejs /w3bstream-nodejs/frontend/.env.tmpl /w3bstream/frontend-build/.env
+COPY --from=build-nodejs /w3bstream-nodejs/public ./frontend-build/public
+COPY --from=build-nodejs /w3bstream-nodejs/.next/standalone ./frontend-build
+COPY --from=build-nodejs /w3bstream-nodejs/.next/static ./frontend-build/.next/static
 
 #Upload init script
 ADD build_image/cmd/docker_init.sh /init.sh
