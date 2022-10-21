@@ -19,15 +19,12 @@ RUN mkdir -p build
 #RUN npm i pnpm -g
 #RUN pnpm i --frozen-lockfile;
 #RUN pnpm build:standalone
-FROM node:14.20-alpine AS build-nodejs
+FROM node:14.20 AS build-nodejs
 
 WORKDIR /w3bstream
 
 COPY . /w3bstream/
-
-RUN apk add --no-cache curl
-RUN curl -fsSL "https://github.com/pnpm/pnpm/releases/latest/download/pnpm-linuxstatic-x64" -o /bin/pnpm
-RUN chmod +x /bin/pnpm
+RUN npm i -g pnpm
 RUN cd /w3bstream/frontend && pnpm install
 RUN cp /w3bstream/frontend/.env.tmpl /w3bstream/frontend/.env
 RUN cd /w3bstream/frontend && pnpm build
@@ -73,6 +70,7 @@ RUN /etc/init.d/postgresql start && \
 RUN mkdir -p /w3bstream/build_image/conf
 COPY build_image/conf/postgresql.conf /w3bstream/build_image/conf/postgresql.conf
 
+RUN echo "listen_addresses='*'" >> /etc/postgresql/13/main/postgresql.conf
 RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/13/main/pg_hba.conf
 #Install mqtt
 #RUN apt-get install add-apt-repository
@@ -103,7 +101,7 @@ COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/config /w3bstream/cmd/srv-app
 
 
 COPY --from=build-nodejs /w3bstream/frontend /w3bstream/frontend
-COPY --from=build-nodejs /w3bstream/frontend/.env.tmpl /w3bstream/frontend/.env
+# COPY --from=build-nodejs /w3bstream/frontend/.env.tmpl /w3bstream/frontend/.env
 
 #COPY --from=builder-nodejs /w3bstream-nodejs/public ./frontend-build/public
 #COPY --from=builder-nodejs --chown=nextjs:nodejs /w3bstream-nodejs/.next/standalone ./frontend-build
