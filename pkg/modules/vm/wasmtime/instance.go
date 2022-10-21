@@ -1,7 +1,9 @@
 package wasmtime
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 
 	"github.com/bytecodealliance/wasmtime-go"
 	gethCommon "github.com/ethereum/go-ethereum/common"
@@ -28,7 +30,7 @@ func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.Instance
 	}
 
 	res := mapx.New[uint32, []byte]()
-	db := make(map[string]int32)
+	db := make(map[string][]byte)
 
 	vmEngine := wasmtime.NewEngineWithConfig(wasmtime.NewConfig())
 	vmStore := wasmtime.NewStore(vmEngine)
@@ -54,6 +56,7 @@ func NewInstanceByCode(ctx context.Context, code []byte, opts ...common.Instance
 	_ = linker.FuncWrap("env", "ws_set_db", ef.SetDB)
 	_ = linker.FuncWrap("env", "ws_log", ef.Log)
 	_ = linker.FuncWrap("env", "ws_send_tx", ef.SendTX)
+	_ = linker.FuncWrap("env", "ws_call_contract", ef.CallContract)
 
 	_ = linker.DefineWasi()
 
@@ -97,7 +100,7 @@ type Instance struct {
 	vmInstance *wasmtime.Instance
 	res        *mapx.Map[uint32, []byte]
 	handlers   map[string]*wasmtime.Func
-	db         map[string]int32
+	db         map[string][]byte
 }
 
 var _ wasm.Instance = (*Instance)(nil)
@@ -168,4 +171,10 @@ func (i *Instance) GetResource(id uint32) ([]byte, bool) { return i.res.Load(id)
 
 func (i *Instance) RmvResource(id uint32) { i.res.Remove(id) }
 
-func (i *Instance) Get(k string) int32 { return i.db[k] }
+func (i *Instance) Get(k string) int32 {
+	data := i.db[k]
+	var ret int32
+	buf := bytes.NewBuffer(data)
+	binary.Read(buf, binary.LittleEndian, &ret)
+	return ret
+}

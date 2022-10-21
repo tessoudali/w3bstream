@@ -16,17 +16,24 @@ import (
 	conflog "github.com/iotexproject/Bumblebee/conf/log"
 	"github.com/iotexproject/Bumblebee/x/mapx"
 	"github.com/pkg/errors"
-
 	"github.com/tidwall/gjson"
 
 	"github.com/iotexproject/w3bstream/pkg/types/wasm"
+)
+
+const (
+	logTraceLevel uint32 = iota + 1
+	logDebugLevel
+	logInfoLevel
+	logWarnLevel
+	logErrorLevel
 )
 
 type (
 	ExportFuncs struct {
 		store  *wasmtime.Store
 		res    *mapx.Map[uint32, []byte]
-		db     map[string]int32
+		db     map[string][]byte
 		logger conflog.Logger
 		cl     *ChainClient
 	}
@@ -37,36 +44,58 @@ type (
 	}
 )
 
-func (ef *ExportFuncs) Log(c *wasmtime.Caller, ptr, size int32) {
+func (ef *ExportFuncs) Log(c *wasmtime.Caller, logLevel, ptr, size int32) int32 {
 	membuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
 	buf, err := read(membuf, ptr, size)
 	if err != nil {
-		panic(err)
-		// return wasm.ResultStatusCode_Failed
+		return wasm.ResultStatusCode_Failed
 	}
-	ef.logger.Info(string(buf))
-	// return int32(wasm.ResultStatusCode_OK)
+	switch uint32(logLevel) {
+	case logTraceLevel:
+		ef.logger.Trace(string(buf))
+	case logDebugLevel:
+		ef.logger.Debug(string(buf))
+	case logInfoLevel:
+		ef.logger.Info(string(buf))
+	case logWarnLevel:
+		ef.logger.Warn(errors.New(string(buf)))
+	case logErrorLevel:
+		ef.logger.Error(errors.New(string(buf)))
+	default:
+		return wasm.ResultStatusCode_Failed
+	}
+	return int32(wasm.ResultStatusCode_OK)
 }
 
 func (ef *ExportFuncs) GetData(c *wasmtime.Caller, rid, vmAddrPtr, vmSizePtr int32) int32 {
-	allocFn := c.GetExport("alloc")
-	if allocFn == nil {
-		return int32(wasm.ResultStatusCode_ImportNotFound)
-	}
 	data, ok := ef.res.Load(uint32(rid))
 	if !ok {
 		return int32(wasm.ResultStatusCode_ResourceNotFound)
 	}
+
+	if err := ef.copyDataIntoWasm(c, data, vmAddrPtr, vmSizePtr); err != nil {
+		return int32(wasm.ResultStatusCode_TransDataToVMFailed)
+	}
+
+	return int32(wasm.ResultStatusCode_OK)
+}
+
+func (ef *ExportFuncs) copyDataIntoWasm(c *wasmtime.Caller, data []byte, vmAddrPtr, vmSizePtr int32) error {
+	allocFn := c.GetExport("alloc")
+	if allocFn == nil {
+		return errors.New("alloc is nil")
+	}
 	size := len(data)
 	result, err := allocFn.Func().Call(ef.store, int32(size))
 	if err != nil {
-		return int32(wasm.ResultStatusCode_ImportCallFailed)
+		return err
 	}
+
 	addr := result.(int32)
 
 	memBuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
 	if siz := copy(memBuf[addr:], data); siz != size {
-		return int32(wasm.ResultStatusCode_TransDataToVMFailed)
+		return errors.New("fail to copy data")
 	}
 
 	// fmt.Printf("host >> addr=%d\n", addr)
@@ -75,13 +104,13 @@ func (ef *ExportFuncs) GetData(c *wasmtime.Caller, rid, vmAddrPtr, vmSizePtr int
 	// fmt.Printf("host >> vmSizePtr=%d\n", vmSizePtr)
 
 	if err := putUint32Le(memBuf, vmAddrPtr, uint32(addr)); err != nil {
-		return int32(wasm.ResultStatusCode_TransDataToVMFailed)
+		return err
 	}
 	if err := putUint32Le(memBuf, vmSizePtr, uint32(size)); err != nil {
-		return int32(wasm.ResultStatusCode_TransDataToVMFailed)
+		return err
 	}
-	// fmt.Println("host >> get_data returned")
-	return int32(wasm.ResultStatusCode_OK)
+
+	return nil
 }
 
 // TODO SetData if rid not exist, should be assigned by wasm?
@@ -98,34 +127,49 @@ func (ef *ExportFuncs) SetData(c *wasmtime.Caller, rid, addr, size int32) int32 
 	return int32(wasm.ResultStatusCode_OK)
 }
 
-// TODO SetDB value should have type
-func (ef *ExportFuncs) SetDB(c *wasmtime.Caller, kAddr, kSize, val int32) {
+func (ef *ExportFuncs) SetDB(c *wasmtime.Caller, kAddr, kSize, vAddr, vSize int32) int32 {
 	memBuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
-	key, _ := read(memBuf, kAddr, kSize)
+	key, err := read(memBuf, kAddr, kSize)
+	if err != nil {
+		return int32(wasm.ResultStatusCode_ResourceNotFound)
+	}
+	value, err := read(memBuf, vAddr, vSize)
+	if err != nil {
+		return int32(wasm.ResultStatusCode_ResourceNotFound)
+	}
 
 	ef.logger.WithValues(
 		"key", string(key),
-		"val", val,
+		"val", string(value),
 	).Info("host.SetDB")
 
-	ef.db[string(key)] = val
+	ef.db[string(key)] = value
+	return int32(wasm.ResultStatusCode_OK)
 }
 
-func (ef *ExportFuncs) GetDB(c *wasmtime.Caller, kAddr, kSize int32) int32 {
+func (ef *ExportFuncs) GetDB(c *wasmtime.Caller,
+	kAddr, kSize int32, vmAddrPtr, vmSizePtr int32) int32 {
 	memBuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
 	key, err := read(memBuf, kAddr, kSize)
 	if err != nil {
 		return int32(wasm.ResultStatusCode_ResourceNotFound)
 	}
 
-	val := ef.db[string(key)]
+	val, exist := ef.db[string(key)]
+	if !exist || val == nil {
+		return int32(wasm.ResultStatusCode_ResourceNotFound)
+	}
 
 	ef.logger.WithValues(
 		"key", string(key),
-		"val", val,
+		"val", string(val),
 	).Info("host.GetDB")
 
-	return val
+	if err := ef.copyDataIntoWasm(c, val, vmAddrPtr, vmSizePtr); err != nil {
+		return int32(wasm.ResultStatusCode_TransDataToVMFailed)
+	}
+
+	return int32(wasm.ResultStatusCode_OK)
 }
 
 // TODO: add chainID in sendtx abi
@@ -202,6 +246,42 @@ func sentETHTx(cl *ChainClient, toStr string, valueStr string, dataStr string) (
 		return "", err
 	}
 	return signedTx.Hash().Hex(), nil
+}
+
+func (ef *ExportFuncs) CallContract(c *wasmtime.Caller,
+	offset, size int32, vmAddrPtr, vmSizePtr int32) int32 {
+	if ef.cl == nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	memBuf := c.GetExport("memory").Memory().UnsafeData(ef.store)
+	buf, err := read(memBuf, offset, size)
+	if err != nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	ret := gjson.Parse(string(buf))
+	// fmt.Println(ret)
+	data, err := callContract(ef.cl.chain, ret.Get("to").String(), ret.Get("data").String())
+	if err != nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	if err := ef.copyDataIntoWasm(c, data, vmAddrPtr, vmSizePtr); err != nil {
+		return wasm.ResultStatusCode_Failed
+	}
+	return int32(wasm.ResultStatusCode_OK)
+}
+
+func callContract(cl *ethclient.Client, toStr string, dataStr string) ([]byte, error) {
+	var (
+		to      = common.HexToAddress(toStr)
+		data, _ = hex.DecodeString(dataStr)
+	)
+
+	msg := ethereum.CallMsg{
+		To:   &to,
+		Data: data,
+	}
+
+	return cl.CallContract(context.Background(), msg, nil)
 }
 
 func putUint32Le(buf []byte, addr int32, num uint32) error {
