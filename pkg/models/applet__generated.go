@@ -227,6 +227,24 @@ func (m *Applet) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
+func (m *Applet) FetchByMd5(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	err := db.QueryAndScan(
+		builder.Select(nil).
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("Md5").Eq(m.Md5),
+					),
+				),
+				builder.Comment("Applet.FetchByMd5"),
+			),
+		m,
+	)
+	return err
+}
+
 func (m *Applet) FetchByAppletID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
@@ -263,24 +281,6 @@ func (m *Applet) FetchByName(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Applet) FetchByMd5(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	err := db.QueryAndScan(
-		builder.Select(nil).
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("Md5").Eq(m.Md5),
-					),
-				),
-				builder.Comment("Applet.FetchByMd5"),
-			),
-		m,
-	)
-	return err
-}
-
 func (m *Applet) UpdateByIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
@@ -309,6 +309,36 @@ func (m *Applet) UpdateByIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) 
 func (m *Applet) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
 	return m.UpdateByIDWithFVs(db, fvs)
+}
+
+func (m *Applet) UpdateByMd5WithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+
+	if _, ok := fvs["UpdatedAt"]; !ok {
+		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
+	}
+	tbl := db.T(m)
+	res, err := db.Exec(
+		builder.Update(tbl).
+			Where(
+				builder.And(
+					tbl.ColByFieldName("Md5").Eq(m.Md5),
+				),
+				builder.Comment("Applet.UpdateByMd5WithFVs"),
+			).
+			Set(tbl.AssignmentsByFieldValues(fvs)...),
+	)
+	if err != nil {
+		return err
+	}
+	if affected, _ := res.RowsAffected(); affected == 0 {
+		return m.FetchByMd5(db)
+	}
+	return nil
+}
+
+func (m *Applet) UpdateByMd5(db sqlx.DBExecutor, zeros ...string) error {
+	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
+	return m.UpdateByMd5WithFVs(db, fvs)
 }
 
 func (m *Applet) UpdateByAppletIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
@@ -371,36 +401,6 @@ func (m *Applet) UpdateByName(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByNameWithFVs(db, fvs)
 }
 
-func (m *Applet) UpdateByMd5WithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
-
-	if _, ok := fvs["UpdatedAt"]; !ok {
-		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
-	}
-	tbl := db.T(m)
-	res, err := db.Exec(
-		builder.Update(tbl).
-			Where(
-				builder.And(
-					tbl.ColByFieldName("Md5").Eq(m.Md5),
-				),
-				builder.Comment("Applet.UpdateByMd5WithFVs"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
-	)
-	if err != nil {
-		return err
-	}
-	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByMd5(db)
-	}
-	return nil
-}
-
-func (m *Applet) UpdateByMd5(db sqlx.DBExecutor, zeros ...string) error {
-	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByMd5WithFVs(db, fvs)
-}
-
 func (m *Applet) Delete(db sqlx.DBExecutor) error {
 	_, err := db.Exec(
 		builder.Delete().
@@ -425,6 +425,23 @@ func (m *Applet) DeleteByID(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("Applet.DeleteByID"),
+			),
+	)
+	return err
+}
+
+func (m *Applet) DeleteByMd5(db sqlx.DBExecutor) error {
+	tbl := db.T(m)
+	_, err := db.Exec(
+		builder.Delete().
+			From(
+				tbl,
+				builder.Where(
+					builder.And(
+						tbl.ColByFieldName("Md5").Eq(m.Md5),
+					),
+				),
+				builder.Comment("Applet.DeleteByMd5"),
 			),
 	)
 	return err
@@ -459,23 +476,6 @@ func (m *Applet) DeleteByName(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("Applet.DeleteByName"),
-			),
-	)
-	return err
-}
-
-func (m *Applet) DeleteByMd5(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	_, err := db.Exec(
-		builder.Delete().
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("Md5").Eq(m.Md5),
-					),
-				),
-				builder.Comment("Applet.DeleteByMd5"),
 			),
 	)
 	return err
