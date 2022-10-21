@@ -3,6 +3,8 @@ package strategy
 import (
 	"context"
 
+	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+
 	confid "github.com/iotexproject/Bumblebee/conf/id"
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
@@ -114,7 +116,6 @@ func CreateStrategy(ctx context.Context, projectID types.SFID, r *CreateStrategy
 	_, l = l.Start(ctx, "CreateStrategy")
 	defer l.End()
 
-	//m := &models.Strategy{}
 	err = sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
 			for i := range r.Strategies {
@@ -165,4 +166,195 @@ func UpdateStrategy(ctx context.Context, strategyID types.SFID, r *CreateStrateg
 	}
 
 	return
+}
+
+func GetStrategyByStrategyID(ctx context.Context, strategyID types.SFID) (*models.Strategy, error) {
+	d := types.MustDBExecutorFromContext(ctx)
+	m := models.Strategy{RelStrategy: models.RelStrategy{StrategyID: strategyID}}
+
+	err := m.FetchByStrategyID(d)
+	if err != nil {
+		return nil, status.CheckDatabaseError(err, "FetchByStrategyID")
+	}
+
+	return &m, nil
+}
+
+type ListStrategyReq struct {
+	projectID   types.SFID
+	IDs         []uint64          `in:"query" name:"id,omitempty"`
+	AppletIDs   []types.SFID      `in:"query" name:"appletID,omitempty"`
+	StrategyIDs []types.SFID      `in:"query" name:"strategyID,omitempty"`
+	EventTypes  []enums.EventType `in:"query" name:"eventType,omitempty"`
+	datatypes.Pager
+}
+
+func (r *ListStrategyReq) SetCurrentProjectID(projectID types.SFID) {
+	r.projectID = projectID
+}
+func (r *ListStrategyReq) Condition() builder.SqlCondition {
+	var (
+		m  = &models.Strategy{}
+		cs []builder.SqlCondition
+	)
+
+	cs = append(cs, m.ColProjectID().Eq(r.projectID))
+	if len(r.IDs) > 0 {
+		cs = append(cs, m.ColID().In(r.IDs))
+	}
+	if len(r.AppletIDs) > 0 {
+		cs = append(cs, m.ColAppletID().In(r.AppletIDs))
+	}
+	if len(r.StrategyIDs) > 0 {
+		cs = append(cs, m.ColStrategyID().In(r.StrategyIDs))
+	}
+	if len(r.EventTypes) > 0 {
+		cs = append(cs, m.ColEventType().In(r.EventTypes))
+	}
+
+	return builder.And(cs...)
+}
+
+func (r *ListStrategyReq) Additions() builder.Additions {
+	m := &models.Strategy{}
+	return builder.Additions{
+		builder.OrderBy(builder.DescOrder(m.ColCreatedAt())),
+		r.Pager.Addition(),
+	}
+}
+
+type ListStrategyRsp struct {
+	Data  []Detail `json:"data"`  // Data strategy data list
+	Total int64    `json:"total"` // Total strategy count under current projectID
+}
+
+type Detail struct {
+	ProjectID  types.SFID   `json:"projectID"`
+	Strategies []InfoDetail `json:"strategies,omitempty"`
+	datatypes.OperationTimes
+}
+
+type InfoDetail struct {
+	StrategyID types.SFID      `json:"strategyID"`
+	AppletID   types.SFID      `json:"appletID"`
+	AppletName string          `json:"appletName"`
+	EventType  enums.EventType `json:"eventType"`
+	Handler    string          `json:"handler"`
+}
+
+type detail struct {
+	StrategyID types.SFID      `db:"f_strategy_id"`
+	AppletID   types.SFID      `db:"f_applet_id"`
+	AppletName string          `db:"f_applet_name"`
+	EventType  enums.EventType `db:"f_event_type"`
+	Handler    string          `db:"f_handler"`
+	datatypes.OperationTimes
+}
+
+func ListStrategy(ctx context.Context, r *ListStrategyReq) (*ListStrategyRsp, error) {
+	var (
+		d    = types.MustDBExecutorFromContext(ctx)
+		ret  = &ListStrategyRsp{}
+		err  error
+		cond = r.Condition()
+
+		mApplet   = &models.Applet{}
+		mStrategy = &models.Strategy{}
+	)
+	ret.Total, err = mStrategy.Count(d, cond)
+	if err != nil {
+		return nil, status.CheckDatabaseError(err, "CountStrategy")
+	}
+
+	details := make([]detail, 0)
+
+	// TODO eventType:applet => 1:n
+	err = d.QueryAndScan(
+		builder.Select(
+			builder.MultiWith(
+				",",
+				builder.Alias(mStrategy.ColStrategyID(), "f_strategy_id"),
+				builder.Alias(mStrategy.ColAppletID(), "f_applet_id"),
+				builder.Alias(mApplet.ColName(), "f_applet_name"),
+				builder.Alias(mStrategy.ColEventType(), "f_event_type"),
+				builder.Alias(mStrategy.ColHandler(), "f_handler"),
+				builder.Alias(mStrategy.ColCreatedAt(), "f_created_at"),
+				builder.Alias(mStrategy.ColUpdatedAt(), "f_updated_at"),
+			),
+		).From(
+			d.T(mStrategy),
+			builder.LeftJoin(d.T(mApplet)).
+				On(mStrategy.ColAppletID().Eq(mApplet.ColAppletID())),
+			builder.Where(cond),
+			builder.OrderBy(
+				builder.DescOrder(mStrategy.ColCreatedAt()),
+				builder.AscOrder(mApplet.ColName()),
+			),
+			r.Pager.Addition(),
+		),
+		&details,
+	)
+	if err != nil {
+		return nil, status.CheckDatabaseError(err, "ListStrategy")
+	}
+
+	detailsMap := make(map[types.SFID][]*detail)
+	for i := range details {
+		prjID := details[i].StrategyID
+		detailsMap[prjID] = append(detailsMap[prjID], &details[i])
+	}
+
+	for _, vmap := range detailsMap {
+		infoDetails := make([]InfoDetail, 0, len(vmap))
+		for _, v := range vmap {
+			if v.AppletID == 0 {
+				continue
+			}
+			infoDetails = append(infoDetails, InfoDetail{
+				StrategyID: v.StrategyID,
+				AppletID:   v.AppletID,
+				AppletName: v.AppletName,
+				EventType:  v.EventType,
+				Handler:    v.Handler,
+			})
+		}
+		if len(infoDetails) == 0 {
+			infoDetails = nil
+		}
+		ret.Data = append(ret.Data, Detail{
+			ProjectID:  r.projectID,
+			Strategies: infoDetails,
+			OperationTimes: datatypes.OperationTimes{
+				CreatedAt: vmap[0].CreatedAt,
+				UpdatedAt: vmap[0].UpdatedAt,
+			},
+		})
+	}
+
+	return ret, nil
+}
+
+type RemoveStrategyReq struct {
+	ProjectID   types.SFID   `in:"path" name:"projectID"`
+	StrategyIDs []types.SFID `in:"query" name:"strategyID"`
+}
+
+func RemoveStrategy(ctx context.Context, r *RemoveStrategyReq) error {
+	var (
+		d         = types.MustDBExecutorFromContext(ctx)
+		mStrategy = &models.Strategy{}
+		err       error
+	)
+
+	return sqlx.NewTasks(d).With(
+		func(db sqlx.DBExecutor) error {
+			for _, id := range r.StrategyIDs {
+				mStrategy.StrategyID = id
+				if err = mStrategy.DeleteByStrategyID(d); err != nil {
+					return status.CheckDatabaseError(err, "DeleteByStrategyID")
+				}
+			}
+			return nil
+		},
+	).Do()
 }
