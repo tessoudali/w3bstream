@@ -55,8 +55,9 @@ init_frontend:
 	@git submodule update --init
 
 # build docker image
-build_image: update_go_module vendor init_frontend update_frontend
+build_image: update_go_module vendor update_frontend
 	@mkdir -p build_image/pgdata
+	@mkdir -p build_image/asserts
 	@docker build -t iotex/w3bstream:v3 .
 	@rm -rf vendor
 
@@ -67,7 +68,7 @@ drop_image:
 
 # run docker image
 run_image:
-	@docker run -d -it --name iotex_w3bstream  -e DATABASE_URL="postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management" -e NEXT_PUBLIC_API_URL="http://127.0.0.1:8888" -p 5432:5432 -p 8888:8888 -p 1883:1883  -p 3000:3000 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data iotex/w3bstream:v3 /bin/sh /init.sh
+	@docker run -d -it --name iotex_w3bstream  -e DATABASE_URL="postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management" -e NEXT_PUBLIC_API_URL="http://127.0.0.1:8888" -p 5432:5432 -p 8888:8888 -p 1883:1883  -p 3000:3000 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data -v $(shell pwd)/build_image/asserts:/w3bstream/cmd/srv-applet-mgr/asserts iotex/w3bstream:v3 /bin/sh /init.sh
 
 
 ## migrate first
