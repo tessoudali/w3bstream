@@ -22,6 +22,7 @@ RUN npm i pnpm -g
 RUN pnpm install --no-frozen-lockfile
 RUN pnpm i --frozen-lockfile;
 RUN pnpm build:standalone
+RUN sed -i 's,"http://localhost:8888",process.env.NEXT_PUBLIC_API_URL,g' .next/standalone/server.js
 
 
 #run

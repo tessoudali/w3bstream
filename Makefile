@@ -55,7 +55,7 @@ init_frontend:
 	@git submodule update --init
 
 # build docker image
-build_image: update_go_module vendor update_frontend
+build_image: update_go_module vendor init_frontend update_frontend
 	@mkdir -p build_image/pgdata
 	@mkdir -p build_image/asserts
 	@docker build -t iotex/w3bstream:v3 .
