@@ -233,6 +233,14 @@ output like
 
 that means some instance handled this event successfully
 
+### Delete project 
+
+Be careful.
+It will delete anything in the project, contains applet, publisher, strategy etc.
+```sh
+http delete :8888/srv-applet-mgr/v0/project/$PROJECTNAME -A bearer -a $TOK
+```
+
 ### Publish event to server through MQTT
 
 - make publishing client
