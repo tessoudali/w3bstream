@@ -20,9 +20,9 @@ import (
 var app = global.App
 
 func main() {
-	// app.AddCommand("migrate", func(args ...string) {
-	// 	global.Migrate()
-	// })
+	app.AddCommand("migrate", func(args ...string) {
+		global.Migrate()
+	})
 	app.Execute(func(args ...string) {
 		BatchRun(
 			func() {
