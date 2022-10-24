@@ -25,7 +25,6 @@ func main() {
 	// })
 	app.Execute(func(args ...string) {
 		BatchRun(
-			global.Migrate,
 			func() {
 				kit.Run(apis.Root, global.Server())
 			},
