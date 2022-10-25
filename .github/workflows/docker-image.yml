@@ -1,22 +1,32 @@
-name: Webstream Docker Image CI
+name: ci
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  packages: write
+
+env:
+  GO111MODULE: on
 
 jobs:
-
-  build:
-
+  ci:
+    name: ci flow
     runs-on: self-hosted
-
     steps:
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19.2
-        cache: false
-    - name: Build the Docker image
-      run: docker run -d -it --name iotex_w3bstream  -e DATABASE_URL="postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management" -e NEXT_PUBLIC_API_URL="http://127.0.0.1:8888" -p 5432:5432 -p 8888:8888 -p 1883:1883  -p 3000:3000 -v $(pwd)/build_image/pgdata:/var/lib/postgresql_data -v $(pwd)/build_image/asserts:/w3bstream/cmd/srv-applet-mgr/asserts -v /var/run/docker.sock:/var/run/docker.sock iotex/w3bstream:v3 /bin/sh /init.sh
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.2
+          cache: false
+
+      - name: Run docker
+        shell: bash
+        run: |
+              run: docker run -d -it --name iotex_w3bstream  -e DATABASE_URL="postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management" -e NEXT_PUBLIC_API_URL="http://127.0.0.1:8888" -p 5432:5432 -p 8888:8888 -p 1883:1883  -p 3000:3000 -v $(pwd)/build_image/pgdata:/var/lib/postgresql_data -v $(pwd)/build_image/asserts:/w3bstream/cmd/srv-applet-mgr/asserts -v /var/run/docker.sock:/var/run/docker.sock iotex/w3bstream:v3 /bin/sh /init.sh
