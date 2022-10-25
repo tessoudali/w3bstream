@@ -5,7 +5,9 @@ package project
 import (
 	"context"
 	"fmt"
+
 	"github.com/iotexproject/Bumblebee/kit/sqlx"
+
 	"github.com/iotexproject/w3bstream/pkg/modules/vm"
 
 	confid "github.com/iotexproject/Bumblebee/conf/id"
