@@ -17,6 +17,8 @@ jobs:
                 
     - shell: bash
       run: |
+        ls
+        pwd
         go mod tidy
         go mod vendor
         git submodule update --init
