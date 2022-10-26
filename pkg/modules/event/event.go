@@ -64,6 +64,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		l.Error(err)
 		return nil, err
 	}
+	l.Info("Event Received")
 
 	ret := make(HandleEventRsp, 0, len(instances))
 
@@ -76,6 +77,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		_, code, err := consumer.HandleEvent(cctx, v.Handler, []byte(r.Payload))
 
 		if err != nil {
+			l.Error(err)
 			ret = append(ret, HandleEventResult{
 				InstanceID: v.InstanceID,
 				Error:      err.Error(),
