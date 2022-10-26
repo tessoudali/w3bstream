@@ -171,8 +171,11 @@ func (i *Instance) handleEvent(ctx context.Context, t *common.Task) *common.Even
 		i.handlers[t.Handler] = hdl
 	}
 
+	l.Info("call hanlder:%s", t.Handler)
+
 	result, err := hdl.Call(i.vmStore, int32(rid))
 	if err != nil {
+		l.Error(err)
 		return &common.EventHandleResult{Code: wasm.ResultStatusCode_Failed}
 	}
 
