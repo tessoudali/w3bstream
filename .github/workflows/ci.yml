@@ -18,8 +18,8 @@ jobs:
                 
     - shell: bash
       run: |
-        echo "xxx"
-        pwd
+        ls
+        ls frontend/
         go mod tidy
         go mod vendor
         git submodule update --init
