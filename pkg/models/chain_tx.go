@@ -3,14 +3,12 @@ package models
 import (
 	"github.com/iotexproject/Bumblebee/base/types"
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
-
-	"github.com/iotexproject/w3bstream/pkg/enums"
 )
 
 // Chaintx database model chaintx
 // @def primary                   ID
 //
-//go:generate toolkit gen model Chaintx --database DB
+//go:generate toolkit gen model Chaintx --database MonitorDB
 type Chaintx struct {
 	datatypes.PrimaryID
 	RelChaintx
@@ -29,7 +27,7 @@ type ChaintxData struct {
 }
 
 type ChaintxInfo struct {
-	EventType enums.EventType `db:"f_event_type"                   json:"eventType,omitempty"`
-	ChainID   uint64          `db:"f_chain_id"                     json:"chainID"`
-	TxAddress string          `db:"f_tx_address"                   json:"txAddress"`
+	EventType string `db:"f_event_type"                   json:"eventType,omitempty"`
+	ChainID   uint64 `db:"f_chain_id"                     json:"chainID"`
+	TxAddress string `db:"f_tx_address"                   json:"txAddress"`
 }

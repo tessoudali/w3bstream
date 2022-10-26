@@ -11,7 +11,6 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
 
 	"github.com/iotexproject/w3bstream/pkg/depends/protocol/eventpb"
-	"github.com/iotexproject/w3bstream/pkg/enums"
 	"github.com/iotexproject/w3bstream/pkg/errors/status"
 	"github.com/iotexproject/w3bstream/pkg/models"
 	"github.com/iotexproject/w3bstream/pkg/types"
@@ -24,7 +23,7 @@ const (
 )
 
 func InitChainDB(ctx context.Context) error {
-	d := types.MustDBExecutorFromContext(ctx)
+	d := types.MustMonitorDBExecutorFromContext(ctx)
 
 	m := &models.Blockchain{
 		RelBlockchain:  models.RelBlockchain{ChainID: 4690},
@@ -72,7 +71,7 @@ func Monitor(ctx context.Context) {
 
 type monitor struct{}
 
-func (l *monitor) sendEvent(ctx context.Context, data []byte, projectName string, et enums.EventType) error {
+func (l *monitor) sendEvent(ctx context.Context, data []byte, projectName string, et string) error {
 	logger := types.MustLoggerFromContext(ctx)
 
 	_, logger = logger.Start(ctx, "monitor.sendEvent")
