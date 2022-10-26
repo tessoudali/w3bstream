@@ -83,8 +83,8 @@ func FindStrategyInstances(ctx context.Context, prjName string, eventType string
 	}
 
 	if len(instances) == 0 {
-		l.Warn(errors.New("instance not found"))
-		return nil, status.NotFound.StatusErr().WithDesc("not found instance")
+		l.Warn(errors.New("started instance not found"))
+		return nil, status.NotFound.StatusErr().WithDesc("not found started instance")
 	}
 
 	handlers := make([]*InstanceHandler, 0)
