@@ -5,29 +5,29 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
 )
 
-// ChainHeight database model chainheight
+// Chaintx database model chaintx
 // @def primary                   ID
 //
-//go:generate toolkit gen model ChainHeight --database DB
-type ChainHeight struct {
+//go:generate toolkit gen model Chaintx --database MonitorDB
+type Chaintx struct {
 	datatypes.PrimaryID
-	RelChainHeight
-	ChainHeightData
+	RelChaintx
+	ChaintxData
 	datatypes.OperationTimes
 }
 
-type RelChainHeight struct {
-	ChainHeightID types.SFID `db:"f_chain_height_id" json:"chainHeightID"`
+type RelChaintx struct {
+	ChaintxID types.SFID `db:"f_chaintx_id" json:"chaintxID"`
 }
 
-type ChainHeightData struct {
+type ChaintxData struct {
 	ProjectName string `db:"f_project_name"                 json:"projectName"`
 	Finished    bool   `db:"f_finished,default='false'"     json:"finished,omitempty"`
-	ChainHeightInfo
+	ChaintxInfo
 }
 
-type ChainHeightInfo struct {
+type ChaintxInfo struct {
 	EventType string `db:"f_event_type"                   json:"eventType,omitempty"`
 	ChainID   uint64 `db:"f_chain_id"                     json:"chainID"`
-	Height    uint64 `db:"f_height"                       json:"height"`
+	TxAddress string `db:"f_tx_address"                   json:"txAddress"`
 }
