@@ -198,7 +198,6 @@ output like
 Create a strategy of handler in applet and eventType
 
 ```sh
-## The value of eventType is one of EXAMP1, EXAMP2, EXAMP3, EXAMP4, EXAMP5, EXAMP6, ANY
 export EVENTTYPE=${event_type}
 export HANDLER=${applet_handler}
 echo '{"strategies":[{"appletID":"'$APPLETID'", "eventType":"'$EVENTTYPE'", "handler":"'$HANDLER'"}]}' | http post :8888/srv-applet-mgr/v0/strategy/$PROJECTNAME -A bearer -a $TOK
