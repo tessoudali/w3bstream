@@ -77,8 +77,11 @@ func (l *monitor) sendEvent(ctx context.Context, data []byte, projectName string
 	_, logger = logger.Start(ctx, "monitor.sendEvent")
 	defer logger.End()
 
-	// TODO event type
+	// TODO: fill event header
 	e := &eventpb.Event{
+		Header: &eventpb.Header{
+			EventType: et,
+		},
 		Payload: string(data),
 	}
 	body, err := json.Marshal(e)

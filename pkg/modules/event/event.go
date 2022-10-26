@@ -33,7 +33,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	l = l.WithValues("project_name", projectName)
 
 	eventType := types.EVENTTYPEDEFAULT
-	if r.Header != nil {
+	if r.Header != nil && len(r.Header.EventType) > 0 {
 		eventType = r.Header.EventType
 	}
 	l = l.WithValues("event_type", eventType)
@@ -64,6 +64,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		l.Error(err)
 		return nil, err
 	}
+
 	l.Info("Event Received")
 
 	ret := make(HandleEventRsp, 0, len(instances))
@@ -89,7 +90,6 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 				ResultCode: code,
 			})
 		}
-
 	}
 	return ret, nil
 }

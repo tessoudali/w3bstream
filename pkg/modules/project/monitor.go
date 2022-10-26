@@ -46,7 +46,7 @@ func createContractLog(d sqlx.DBExecutor, projectName string, r *CreateContractl
 
 	n := *r
 	n.BlockCurrent = n.BlockStart
-	n.EventType = types.EVENTTYPEDEFAULT // TODO support event type
+	// n.EventType = types.EVENTTYPEDEFAULT // TODO support event type
 	m := &models.Contractlog{
 		RelContractlog: models.RelContractlog{ContractlogID: idg.MustGenSFID()},
 		ContractlogData: models.ContractlogData{
