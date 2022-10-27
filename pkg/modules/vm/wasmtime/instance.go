@@ -3,6 +3,7 @@ package wasmtime
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
 	"encoding/binary"
 	"time"
 
@@ -33,13 +34,16 @@ func NewInstanceByCode(ctx context.Context, id types.SFID, code []byte) (*Instan
 
 	var cl *ChainClient
 	if ethConf, ok := types.ETHClientConfigFromContext(ctx); ok {
-
 		chain, err := ethclient.Dial(ethConf.ChainEndpoint)
 		if err != nil {
 			return nil, err
 		}
+		var pvk *ecdsa.PrivateKey
+		if len(ethConf.PrivateKey) > 0 {
+			pvk = crypto.ToECDSAUnsafe(gethCommon.FromHex(ethConf.PrivateKey))
+		}
 		cl = &ChainClient{
-			pvk:   crypto.ToECDSAUnsafe(gethCommon.FromHex(ethConf.PrivateKey)),
+			pvk:   pvk,
 			chain: chain,
 		}
 	}
