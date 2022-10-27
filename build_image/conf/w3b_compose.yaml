@@ -12,6 +12,7 @@ services:
     volumes:
     - $PWD/build_image/pgdata:/var/lib/postgresql_data
     - $PWD/build_image/asserts:/w3bstream/cmd/srv-applet-mgr/asserts
+    - $PWD/build_image/conf/srv-applet-mgr/config/local.yml:/w3bstream/cmd/srv-applet-mgr/config/local.yml
     environment:
       DATABASE_URL: "postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management"
       NEXT_PUBLIC_API_URL: "http://127.0.0.1:8888"
@@ -35,8 +36,4 @@ services:
       ## uncomment next line to run console offline (i.e load console assets from server instead of CDN)
       # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
       ## uncomment next line to set an admin secret
-      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-volumes:
-  pgdata:
-  asserts:
-  caddy_certs:
+      HASURA_GRAPHQL_ADMIN_SECRET: w3baAdmiNsecrEtkey
