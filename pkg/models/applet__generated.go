@@ -21,11 +21,11 @@ func init() {
 type AppletIterator struct {
 }
 
-func (AppletIterator) New() interface{} {
+func (*AppletIterator) New() interface{} {
 	return &Applet{}
 }
 
-func (AppletIterator) Resolve(v interface{}) *Applet {
+func (*AppletIterator) Resolve(v interface{}) *Applet {
 	return v.(*Applet)
 }
 
@@ -227,7 +227,7 @@ func (m *Applet) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Applet) FetchByName(db sqlx.DBExecutor) error {
+func (m *Applet) FetchByAppletID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
 		builder.Select(nil).
@@ -235,10 +235,10 @@ func (m *Applet) FetchByName(db sqlx.DBExecutor) error {
 				tbl,
 				builder.Where(
 					builder.And(
-						tbl.ColByFieldName("Name").Eq(m.Name),
+						tbl.ColByFieldName("AppletID").Eq(m.AppletID),
 					),
 				),
-				builder.Comment("Applet.FetchByName"),
+				builder.Comment("Applet.FetchByAppletID"),
 			),
 		m,
 	)
@@ -263,7 +263,7 @@ func (m *Applet) FetchByMd5(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Applet) FetchByAppletID(db sqlx.DBExecutor) error {
+func (m *Applet) FetchByName(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
 		builder.Select(nil).
@@ -271,10 +271,10 @@ func (m *Applet) FetchByAppletID(db sqlx.DBExecutor) error {
 				tbl,
 				builder.Where(
 					builder.And(
-						tbl.ColByFieldName("AppletID").Eq(m.AppletID),
+						tbl.ColByFieldName("Name").Eq(m.Name),
 					),
 				),
-				builder.Comment("Applet.FetchByAppletID"),
+				builder.Comment("Applet.FetchByName"),
 			),
 		m,
 	)
@@ -311,7 +311,7 @@ func (m *Applet) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByIDWithFVs(db, fvs)
 }
 
-func (m *Applet) UpdateByNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+func (m *Applet) UpdateByAppletIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
 		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
@@ -321,9 +321,9 @@ func (m *Applet) UpdateByNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues
 		builder.Update(tbl).
 			Where(
 				builder.And(
-					tbl.ColByFieldName("Name").Eq(m.Name),
+					tbl.ColByFieldName("AppletID").Eq(m.AppletID),
 				),
-				builder.Comment("Applet.UpdateByNameWithFVs"),
+				builder.Comment("Applet.UpdateByAppletIDWithFVs"),
 			).
 			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)
@@ -331,14 +331,14 @@ func (m *Applet) UpdateByNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues
 		return err
 	}
 	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByName(db)
+		return m.FetchByAppletID(db)
 	}
 	return nil
 }
 
-func (m *Applet) UpdateByName(db sqlx.DBExecutor, zeros ...string) error {
+func (m *Applet) UpdateByAppletID(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByNameWithFVs(db, fvs)
+	return m.UpdateByAppletIDWithFVs(db, fvs)
 }
 
 func (m *Applet) UpdateByMd5WithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
@@ -371,7 +371,7 @@ func (m *Applet) UpdateByMd5(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByMd5WithFVs(db, fvs)
 }
 
-func (m *Applet) UpdateByAppletIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+func (m *Applet) UpdateByNameWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
 		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
@@ -381,9 +381,9 @@ func (m *Applet) UpdateByAppletIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldVa
 		builder.Update(tbl).
 			Where(
 				builder.And(
-					tbl.ColByFieldName("AppletID").Eq(m.AppletID),
+					tbl.ColByFieldName("Name").Eq(m.Name),
 				),
-				builder.Comment("Applet.UpdateByAppletIDWithFVs"),
+				builder.Comment("Applet.UpdateByNameWithFVs"),
 			).
 			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)
@@ -391,14 +391,14 @@ func (m *Applet) UpdateByAppletIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldVa
 		return err
 	}
 	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByAppletID(db)
+		return m.FetchByName(db)
 	}
 	return nil
 }
 
-func (m *Applet) UpdateByAppletID(db sqlx.DBExecutor, zeros ...string) error {
+func (m *Applet) UpdateByName(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByAppletIDWithFVs(db, fvs)
+	return m.UpdateByNameWithFVs(db, fvs)
 }
 
 func (m *Applet) Delete(db sqlx.DBExecutor) error {
@@ -430,7 +430,7 @@ func (m *Applet) DeleteByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Applet) DeleteByName(db sqlx.DBExecutor) error {
+func (m *Applet) DeleteByAppletID(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	_, err := db.Exec(
 		builder.Delete().
@@ -438,10 +438,10 @@ func (m *Applet) DeleteByName(db sqlx.DBExecutor) error {
 				tbl,
 				builder.Where(
 					builder.And(
-						tbl.ColByFieldName("Name").Eq(m.Name),
+						tbl.ColByFieldName("AppletID").Eq(m.AppletID),
 					),
 				),
-				builder.Comment("Applet.DeleteByName"),
+				builder.Comment("Applet.DeleteByAppletID"),
 			),
 	)
 	return err
@@ -464,7 +464,7 @@ func (m *Applet) DeleteByMd5(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Applet) DeleteByAppletID(db sqlx.DBExecutor) error {
+func (m *Applet) DeleteByName(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	_, err := db.Exec(
 		builder.Delete().
@@ -472,10 +472,10 @@ func (m *Applet) DeleteByAppletID(db sqlx.DBExecutor) error {
 				tbl,
 				builder.Where(
 					builder.And(
-						tbl.ColByFieldName("AppletID").Eq(m.AppletID),
+						tbl.ColByFieldName("Name").Eq(m.Name),
 					),
 				),
-				builder.Comment("Applet.DeleteByAppletID"),
+				builder.Comment("Applet.DeleteByName"),
 			),
 	)
 	return err
