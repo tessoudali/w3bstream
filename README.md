@@ -198,7 +198,6 @@ output like
 Create a strategy of handler in applet and eventType
 
 ```sh
-## The value of eventType is one of EXAMP1, EXAMP2, EXAMP3, EXAMP4, EXAMP5, EXAMP6, ANY
 export EVENTTYPE=${event_type}
 export HANDLER=${applet_handler}
 echo '{"strategies":[{"appletID":"'$APPLETID'", "eventType":"'$EVENTTYPE'", "handler":"'$HANDLER'"}]}' | http post :8888/srv-applet-mgr/v0/strategy/$PROJECTNAME -A bearer -a $TOK
@@ -292,7 +291,7 @@ server log like
 ### Post blockchain contract event log monitor 
 
 ```sh
-echo '{"contractLog":{"chainID": 4690, "contractAddress": "${contractAddress}","blockStart": ${blockStart},"blockEnd": ${blockEnd},"topic0":"${topic0}"}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
+echo '{"contractLog":{"eventType": "DEFAULT", "chainID": 4690, "contractAddress": "${contractAddress}","blockStart": ${blockStart},"blockEnd": ${blockEnd},"topic0":"${topic0}"}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
 ```
 
 output like
@@ -316,7 +315,7 @@ output like
 ### Post blockchain transaction monitor 
 
 ```sh
-echo '{"chainTx":{"chainID": 4690, "txAddress": "${txAddress}"}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
+echo '{"chainTx":{"eventType": "DEFAULT", "chainID": 4690, "txAddress": "${txAddress}"}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
 ```
 
 output like
@@ -336,7 +335,7 @@ output like
 ### Post blockchain height monitor 
 
 ```sh
-echo '{"chainHeight":{"chainID": 4690, "height": ${height}}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
+echo '{"chainHeight":{"eventType": "DEFAULT", "chainID": 4690, "height": ${height}}}' | http :8888/srv-applet-mgr/v0/project/monitor/$PROJECTID -A bearer -a $TOK
 ```
 
 output like

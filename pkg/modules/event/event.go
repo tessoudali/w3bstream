@@ -33,7 +33,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	l = l.WithValues("project_name", projectName)
 
 	eventType := types.EVENTTYPEDEFAULT
-	if r.Header != nil {
+	if r.Header != nil && len(r.Header.EventType) > 0 {
 		eventType = r.Header.EventType
 	}
 	l = l.WithValues("event_type", eventType)
@@ -65,6 +65,8 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		return nil, err
 	}
 
+	l.Info("Event Received")
+
 	ret := make(HandleEventRsp, 0, len(instances))
 
 	for _, v := range instances {
@@ -76,6 +78,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		_, code, err := consumer.HandleEvent(cctx, v.Handler, []byte(r.Payload))
 
 		if err != nil {
+			l.Error(err)
 			ret = append(ret, HandleEventResult{
 				InstanceID: v.InstanceID,
 				Error:      err.Error(),
@@ -87,7 +90,6 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 				ResultCode: code,
 			})
 		}
-
 	}
 	return ret, nil
 }

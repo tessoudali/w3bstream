@@ -32,7 +32,7 @@ func (t *contract) run(ctx context.Context) {
 	defer l.End()
 
 	for range ticker.C {
-		cs, err := m.List(d, m.ColBlockCurrent().Lt(m.ColBlockEnd()))
+		cs, err := m.List(d, m.ColBlockCurrent().Lt(m.ColBlockEnd()).Or(m.ColBlockEnd().Eq(0)))
 		if err != nil {
 			l.WithValues("info", "list contractlog db failed").Error(err)
 			continue
