@@ -33,7 +33,7 @@ build_server: update_go_module generate format
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
 	@rm -rf build/config
-        @mkdir -p build/config
+	@mkdir -p build/config
 	@cp cmd/srv-applet-mgr/config/default.yml build/config/default.yml
 	@cp build_image/conf/srv-applet-mgr/config/local.yml build/config/local.yml
 	@echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'

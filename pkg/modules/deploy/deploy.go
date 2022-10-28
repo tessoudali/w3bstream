@@ -130,7 +130,7 @@ func ControlInstance(ctx context.Context, instanceID types.SFID, cmd enums.Deplo
 			l.Error(err)
 			return err
 		}
-		m.State = enums.INSTANCE_STATE__CREATED
+		m.State = enums.INSTANCE_STATE__STARTED
 		if err = m.UpdateByInstanceID(d); err != nil {
 			l.Error(err)
 			return status.CheckDatabaseError(err, "UpdateInstanceByInstanceID")
