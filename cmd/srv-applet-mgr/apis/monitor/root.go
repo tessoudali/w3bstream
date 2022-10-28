@@ -5,8 +5,9 @@ import (
 	"github.com/iotexproject/Bumblebee/kit/kit"
 )
 
-var Root = kit.NewRouter(httptransport.Group("/monitor/contractlog"))
+var Root = kit.NewRouter(httptransport.Group("/monitor"))
 
 func init() {
-	Root.Register(kit.NewRouter(&CreateContractlog{}))
+	Root.Register(kit.NewRouter(&CreateMonitor{}))
+	Root.Register(kit.NewRouter(&RemoveMonitor{}))
 }

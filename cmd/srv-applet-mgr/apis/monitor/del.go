@@ -10,19 +10,19 @@ import (
 	"github.com/iotexproject/w3bstream/pkg/types"
 )
 
-type CreateMonitor struct {
-	httpx.MethodPost
+type RemoveMonitor struct {
+	httpx.MethodDelete
 	ProjectID                   types.SFID `in:"path" name:"projectID"`
-	blockchain.CreateMonitorReq `in:"body"`
+	blockchain.RemoveMonitorReq `in:"body"`
 }
 
-func (r *CreateMonitor) Path() string { return "/:projectID" }
+func (r *RemoveMonitor) Path() string { return "/:projectID" }
 
-func (r *CreateMonitor) Output(ctx context.Context) (interface{}, error) {
+func (r *RemoveMonitor) Output(ctx context.Context) (interface{}, error) {
 	ca := middleware.CurrentAccountFromContext(ctx)
 	p, err := ca.ValidateProjectPerm(ctx, r.ProjectID)
 	if err != nil {
 		return nil, err
 	}
-	return blockchain.CreateMonitor(ctx, p.Name, &r.CreateMonitorReq)
+	return nil, blockchain.RemoveMonitor(ctx, p.Name, &r.RemoveMonitorReq)
 }
