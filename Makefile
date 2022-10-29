@@ -66,19 +66,19 @@ build_image: update_go_module vendor init_frontend update_frontend
 
 # drop docker container
 drop_image:
-	@docker-compose -f ./build_image/conf/w3b_compose.yaml down -d
+	@docker-compose -f ./docker-compose.yaml down -d
 	#@docker stop iotex_w3bstream
 	#@docker rm iotex_w3bstream
 
 # restart docker container
 restart_image:
-	@docker-compose -f ./build_image/conf/w3b_compose.yaml down
+	@docker-compose -f ./docker-compose.yaml down
 	@echo "The container was shut down before, now restart it"
-	@docker-compose -f ./build_image/conf/w3b_compose.yaml up -d
+	@WS_WORKING_DIR=$(shell pwd)/build_image docker-compose -p w3bstream -f ./docker-compose.yaml up -d
 
 # run docker image
 run_image:
-	@docker-compose -f ./build_image/conf/w3b_compose.yaml up -d
+	@WS_WORKING_DIR=$(shell pwd)/build_image docker-compose -p w3bstream -f ./docker-compose.yaml up -d
 	#@docker run -d -it --name iotex_w3bstream  -e DATABASE_URL="postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management" -e NEXT_PUBLIC_API_URL="http://127.0.0.1:8888" -p 5432:5432 -p 8888:8888 -p 1883:1883  -p 3000:3000 -v $(shell pwd)/build_image/pgdata:/var/lib/postgresql_data -v $(shell pwd)/build_image/asserts:/w3bstream/cmd/srv-applet-mgr/asserts -v $(shell pwd)/build_image/conf/srv-applet-mgr/config/local.yml:/w3bstream/cmd/srv-applet-mgr/config/local.yml iotex/w3bstream:v3 /bin/sh /init.sh
 
 
