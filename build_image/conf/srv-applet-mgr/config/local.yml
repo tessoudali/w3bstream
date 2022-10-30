@@ -35,4 +35,3 @@ SRV_APPLET_MGR__SERVER__Spec: ./swagger.json
 
 SRV_APPLET_MGR__UPLOADCONFIG__FileSizeLimit: "104857600"
 SRV_APPLET_MGR__UPLOADCONFIG__Root: ./asserts
-AA: ssss
