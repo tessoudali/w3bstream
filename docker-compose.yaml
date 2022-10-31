@@ -10,12 +10,13 @@ services:
     - "3000:3000"
     command: ["/bin/sh","/init.sh"]
     volumes:
-    - ${WS_WORKING_DIR}/pgdata:/var/lib/postgresql_data
-    - ${WS_WORKING_DIR}/asserts:/w3bstream/cmd/srv-applet-mgr/asserts
-    - ${WS_WORKING_DIR}/conf/srv-applet-mgr/config/local.yml:/w3bstream/cmd/srv-applet-mgr/config/local.yml
+    - ${WS_WORKING_DIR:-./build_image}/data/pgdata:/var/lib/postgresql_data
+    - ${WS_WORKING_DIR:-./build_image}/data/asserts:/w3bstream/cmd/srv-applet-mgr/asserts
+    - ${WS_WORKING_DIR:-./build_image}/etc/srv-applet-mgr/config/local.yml:/w3bstream/cmd/srv-applet-mgr/config/local.yml
+    - ${WS_WORKING_DIR:-./build_image}/etc/config:/w3bstream/build_image/config
     environment:
       DATABASE_URL: "postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management"
-      NEXT_PUBLIC_API_URL: "http://127.0.0.1:8888"
+      NEXT_PUBLIC_API_URL: "http://34.83.32.222:8888"
   graphql-engine:
     image: hasura/graphql-engine:v2.2.0
     depends_on:

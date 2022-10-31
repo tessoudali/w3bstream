@@ -1,19 +1,27 @@
 #!/bin/sh
 #init pg
-if [ ! -d "/var/lib/postgresql_data/13" ]; then
+
+pg_config="/w3bstream/build_image/etc/config/postgresql.conf"
+if [ -f "${pg_config}" ]; then
+   rm -f /etc/postgresql/13/main/postgresql.conf
+   ln -s ${pg_config} /etc/postgresql/13/main/postgresql.conf 
+fi
+
+pg_data="/var/lib/postgresql_data"
+if [ ! -d "${pg_data}/13" ]; then
    echo "PG data does not exsit!"
-   cp -r /var/lib/postgresql/13 /var/lib/postgresql_data/
+   cp -r /var/lib/postgresql/13 ${pg_data}
    rm -rf /var/lib/postgresql/13
+   chown -R postgres:postgres /var/lib/postgresql_data/13
+   chmod -R 700 /var/lib/postgresql_data/13
+   su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
 else
+   su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
    echo "PG data exists!"
 fi
-rm -f /etc/postgresql/13/main/postgresql.conf
-ln -s /w3bstream/build_image/conf/postgresql.conf /etc/postgresql/13/main/postgresql.conf 
-chown -R postgres:postgres /var/lib/postgresql_data/13
-chmod -R 700 /var/lib/postgresql_data/13
+
 
 #Start postgres
-su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
 #su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
 #su postgres sh -c "createuser test_user"
 #if [ $? -ne 0 ];then
@@ -26,13 +34,18 @@ su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/
 #su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;;\""
 
 #Start mosquitto
+mqtt_config="/w3bstream/build_image/config/mosquitto.conf"
+if [ -f "${mqtt_config}" ]; then
+   rm -f /etc/mosquitto/mosquitto.conf
+   ln -s ${mqtt_config} /etc/mosquitto/mosquitto.conf
+fi
+
 /etc/init.d/mosquitto start
 #sleep 10
 
 cd /w3bstream/cmd/srv-applet-mgr && ./srv-applet-mgr migrate
 #cd /w3bstream/build && ./srv-applet-mgr init_admin &
 cd /w3bstream/cmd/srv-applet-mgr && ./srv-applet-mgr &
-
 sleep 3
 
 cd /w3bstream/frontend-build && node server.js

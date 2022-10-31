@@ -62,8 +62,8 @@ RUN /etc/init.d/postgresql start && \
   su postgres sh -c "psql -c \"CREATE USER test_user WITH ENCRYPTED PASSWORD 'test_passwd'\"" && \
   su postgres sh -c "psql -c \"CREATE DATABASE test\"" && \
   su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;;\""
-RUN mkdir -p /w3bstream/build_image/conf
-COPY build_image/conf/postgresql.conf /w3bstream/build_image/conf/postgresql.conf
+#RUN mkdir -p /w3bstream/build_image/conf
+#COPY build_image/conf/postgresql.conf /w3bstream/build_image/conf/postgresql.conf
 
 RUN echo "listen_addresses='*'" >> /etc/postgresql/13/main/postgresql.conf
 RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/13/main/pg_hba.conf
@@ -72,9 +72,10 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/13/main/pg_hba.conf
 #RUN add-apt-repository ppa:mosquitto-dev/mosquitto-ppa
 RUN apt install mosquitto mosquitto-clients -y
 RUN mkdir /var/run/mosquitto -p
-RUN rm -f /etc/mosquitto/mosquitto.conf
-COPY build_image/conf/mosquitto.conf /etc/mosquitto/mosquitto.conf 
-RUN /etc/init.d/mosquitto start
+#RUN rm -f /etc/mosquitto/mosquitto.conf
+#COPY build_image/conf/mosquitto.conf /etc/mosquitto/mosquitto.conf 
+RUN sed -i 's,/run/mosquitto/mosquitto.pid,/tmp/mosquitto.pid,g' /etc/mosquitto/mosquitto.conf
+#RUN /etc/init.d/mosquitto start
 
 #Install Nginx
 RUN apt-get install nginx -y
@@ -102,6 +103,7 @@ COPY --from=build-nodejs /w3bstream-nodejs/public ./frontend-build/public
 COPY --from=build-nodejs /w3bstream-nodejs/.next/standalone ./frontend-build
 COPY --from=build-nodejs /w3bstream-nodejs/.next/static ./frontend-build/.next/static
 
-#Upload init script
+#Upload init script and configure
+RUN mkdir /w3bstream/build_image -p 
 ADD build_image/cmd/docker_init.sh /init.sh
 RUN chmod 775 /init.sh
