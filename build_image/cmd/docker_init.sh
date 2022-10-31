@@ -2,22 +2,22 @@
 #init pg
 
 pg_config="/w3bstream/build_image/etc/config/postgresql.conf"
+pg_data="/var/lib/postgresql_data"
 if [ -f "${pg_config}" ]; then
    rm -f /etc/postgresql/13/main/postgresql.conf
    ln -s ${pg_config} /etc/postgresql/13/main/postgresql.conf 
-fi
-
-pg_data="/var/lib/postgresql_data"
-if [ ! -d "${pg_data}/13" ]; then
-   echo "PG data does not exsit!"
-   cp -r /var/lib/postgresql/13 ${pg_data}
-   rm -rf /var/lib/postgresql/13
-   chown -R postgres:postgres /var/lib/postgresql_data/13
-   chmod -R 700 /var/lib/postgresql_data/13
-   su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
+   if [ ! -d "${pg_data}/13" ]; then
+      echo "PG data does not exsit!"
+      cp -r /var/lib/postgresql/13 ${pg_data}
+      rm -rf /var/lib/postgresql/13
+      chown -R postgres:postgres ${pg_data}/13
+      chmod -R 700 ${pg_data}/13
+      su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql_data/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
+   else
+      echo "PG data exists!"
+   fi
 else
    su postgres -c "/usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf"&
-   echo "PG data exists!"
 fi
 
 
