@@ -4,7 +4,7 @@ update_go_module:
 	go mod tidy
 
 install_toolkit: update_go_module
-	@go install github.com/iotexproject/Bumblebee/gen/cmd/...
+	@go install github.com/machinefi/Bumblebee/gen/cmd/...@latest
 
 install_goimports: update_go_module
 	@go install golang.org/x/tools/cmd/goimports@latest
@@ -35,7 +35,7 @@ build_server: update_go_module generate format
 	@rm -rf build/config
 	@mkdir -p build/config
 	@cp cmd/srv-applet-mgr/config/default.yml build/config/default.yml
-	@cp build_image/etc/conf/srv-applet-mgr/config/local.yml build/config/local.yml
+	@cp build_image/etc/srv-applet-mgr/config/local.yml build/config/local.yml
 	@echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
 	@echo 'succeed! config =>build/config/'
 	@echo 'modify config/local.yaml to use your server config'
@@ -102,7 +102,7 @@ run_depends:
 	docker-compose -f testutil/docker-compose-mqtt.yaml up -d
 
 wasm_demo: update_go_module
-	@cd examples && make all
+	@cd _examples && make all
 
 build: build_server build_pub_client
 
