@@ -4,6 +4,6 @@ build
 .session.vim
 .undodir
 .vscode
-#asserts
+asserts
 vendor
-#pgdata
+pgdata
