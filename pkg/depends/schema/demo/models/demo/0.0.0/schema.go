@@ -4,7 +4,7 @@
 package demo
 
 import (
-	"github.com/iotexproject/w3bstream/pkg/models"
+	"github.com/machinefi/w3bstream/pkg/models"
 )
 
 var DB = models.DB.WithSchema("demo_0.0.0")

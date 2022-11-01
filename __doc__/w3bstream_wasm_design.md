@@ -24,7 +24,7 @@ fn main(in Request) -> Response {
 
 Examples:
 
-[wasmedge_wasi_socket](https://github.com/second-state/wasmedge_wasi_socket/blob/main/examples/http_server/src/main.rs#L15)
+[wasmedge_wasi_socket](https://github.com/second-state/wasmedge_wasi_socket/blob/main/_examples/http_server/src/main.rs#L15)
 
 [Rust on Compute@Edge](https://developer.fastly.com/learning/compute/rust/#main-interface)
 

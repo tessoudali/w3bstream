@@ -12,12 +12,13 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/google/uuid"
-	"github.com/iotexproject/Bumblebee/conf/log"
-	"github.com/iotexproject/Bumblebee/x/mapx"
-	"github.com/iotexproject/w3bstream/pkg/enums"
-	"github.com/iotexproject/w3bstream/pkg/modules/job"
-	"github.com/iotexproject/w3bstream/pkg/types"
-	"github.com/iotexproject/w3bstream/pkg/types/wasm"
+	"github.com/machinefi/Bumblebee/conf/log"
+	"github.com/machinefi/Bumblebee/x/mapx"
+
+	"github.com/machinefi/w3bstream/pkg/enums"
+	"github.com/machinefi/w3bstream/pkg/modules/job"
+	"github.com/machinefi/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/pkg/types/wasm"
 )
 
 func NewInstanceByCode(ctx context.Context, id types.SFID, code []byte) (*Instance, error) {

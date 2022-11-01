@@ -1,6 +1,6 @@
 package types
 
-import "github.com/iotexproject/Bumblebee/base/types"
+import "github.com/machinefi/Bumblebee/base/types"
 
 type UploadConfig struct {
 	Root          string `env:""`

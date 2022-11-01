@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 
-	confapp "github.com/iotexproject/Bumblebee/conf/app"
-	conflog "github.com/iotexproject/Bumblebee/conf/log"
-	confmqtt "github.com/iotexproject/Bumblebee/conf/mqtt"
+	confapp "github.com/machinefi/Bumblebee/conf/app"
+	conflog "github.com/machinefi/Bumblebee/conf/log"
+	confmqtt "github.com/machinefi/Bumblebee/conf/mqtt"
 )
 
 var (

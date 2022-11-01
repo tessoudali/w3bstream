@@ -4,7 +4,7 @@
 package demo
 
 import (
-	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
 )
 
 var UserTable *builder.Table

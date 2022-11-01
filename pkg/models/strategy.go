@@ -1,9 +1,10 @@
 package models
 
 import (
-	"github.com/iotexproject/Bumblebee/base/types"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
-	"github.com/iotexproject/w3bstream/pkg/enums"
+	"github.com/machinefi/Bumblebee/base/types"
+	"github.com/machinefi/Bumblebee/kit/sqlx/datatypes"
+
+	"github.com/machinefi/w3bstream/pkg/enums"
 )
 
 // Strategy event route strategy

@@ -3,14 +3,14 @@ package publisher
 import (
 	"context"
 
-	confid "github.com/iotexproject/Bumblebee/conf/id"
-	"github.com/iotexproject/Bumblebee/conf/jwt"
-	"github.com/iotexproject/Bumblebee/kit/sqlx"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
+	confid "github.com/machinefi/Bumblebee/conf/id"
+	"github.com/machinefi/Bumblebee/conf/jwt"
+	"github.com/machinefi/Bumblebee/kit/sqlx"
+	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
 
-	"github.com/iotexproject/w3bstream/pkg/errors/status"
-	"github.com/iotexproject/w3bstream/pkg/models"
-	"github.com/iotexproject/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/pkg/errors/status"
+	"github.com/machinefi/w3bstream/pkg/models"
+	"github.com/machinefi/w3bstream/pkg/types"
 )
 
 type CreatePublisherReq struct {

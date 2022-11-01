@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+	"github.com/machinefi/Bumblebee/kit/sqlx/datatypes"
 )
 
 // Blockchain database model blockchain

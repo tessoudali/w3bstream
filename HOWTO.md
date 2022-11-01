@@ -46,20 +46,20 @@ output like
 ### Build demo wasm scripts
 
 ```sh
-make wasm_demo ## build to `examples` use to deploy wasm applet
+make wasm_demo ## build to `_examples` use to deploy wasm applet
 ```
 
 ### Create and deploy applet
 
 upload wasm script
 
-> use `examples/word_count/word_count.wasm` or `examples/log/log.wasm`
+> use `_examples/word_count/word_count.wasm` or `_examples/log/log.wasm`
 
 ```sh
 ## set env vars
 export PROJECTID=${project_id}
 export PROJECTNAME=${project_name}
-export WASMFILE=examples/log/log.wasm
+export WASMFILE=_examples/log/log.wasm
 http --form post :8888/srv-applet-mgr/v0/applet/$PROJECTID file@$WASMFILE info='{"appletName":"log","strategies":[{"eventType":"DEFAULT","handler":"start"}]}' -A bearer -a $TOK
 ```
 

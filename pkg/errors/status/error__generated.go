@@ -4,7 +4,7 @@
 package status
 
 import (
-	"github.com/iotexproject/Bumblebee/kit/statusx"
+	"github.com/machinefi/Bumblebee/kit/statusx"
 )
 
 var _ statusx.Error = (*Error)(nil)

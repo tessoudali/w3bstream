@@ -6,21 +6,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iotexproject/Bumblebee/kit/sqlx"
+	"github.com/machinefi/Bumblebee/kit/sqlx"
 
-	"github.com/iotexproject/w3bstream/pkg/modules/vm"
+	"github.com/machinefi/w3bstream/pkg/modules/vm"
 
-	confid "github.com/iotexproject/Bumblebee/conf/id"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/builder"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+	confid "github.com/machinefi/Bumblebee/conf/id"
+	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
+	"github.com/machinefi/Bumblebee/kit/sqlx/datatypes"
 	"github.com/pkg/errors"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
-	"github.com/iotexproject/w3bstream/pkg/enums"
-	"github.com/iotexproject/w3bstream/pkg/errors/status"
-	"github.com/iotexproject/w3bstream/pkg/models"
-	"github.com/iotexproject/w3bstream/pkg/modules/mq"
-	"github.com/iotexproject/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/apis/middleware"
+	"github.com/machinefi/w3bstream/pkg/enums"
+	"github.com/machinefi/w3bstream/pkg/errors/status"
+	"github.com/machinefi/w3bstream/pkg/models"
+	"github.com/machinefi/w3bstream/pkg/modules/mq"
+	"github.com/machinefi/w3bstream/pkg/types"
 )
 
 type CreateProjectReq = models.ProjectInfo
