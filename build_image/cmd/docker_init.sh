@@ -1,7 +1,7 @@
 #!/bin/sh
 #init pg
 
-pg_config="/w3bstream/build_image/etc/config/postgresql.conf"
+pg_config="/w3bstream/build_image/config/postgresql.conf"
 pg_data="/var/lib/postgresql_data"
 if [ -f "${pg_config}" ]; then
    rm -f /etc/postgresql/13/main/postgresql.conf
