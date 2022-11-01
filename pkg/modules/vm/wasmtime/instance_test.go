@@ -35,7 +35,7 @@ var (
 func init() {
 	wd, _ := os.Getwd()
 	fmt.Println(wd)
-	root := filepath.Join(wd, "../../../../examples")
+	root := filepath.Join(wd, "../../../../_examples")
 	fmt.Println(root)
 
 	var err error
