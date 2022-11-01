@@ -12,16 +12,16 @@ import (
 func PointerToString(ptr uint32, size uint32) string {
 	return *(*string)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: uintptr(ptr),
-		Len:  uintptr(size),
-		Cap:  uintptr(size),
+		Len:  int(uintptr(size)),
+		Cap:  int(uintptr(size)),
 	}))
 }
 
 func PointerToBytes(ptr uint32, size uint32) []byte {
 	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: uintptr(ptr),
-		Len:  uintptr(size),
-		Cap:  uintptr(size),
+		Len:  int(uintptr(size)),
+		Cap:  int(uintptr(size)),
 	}))
 }
 
