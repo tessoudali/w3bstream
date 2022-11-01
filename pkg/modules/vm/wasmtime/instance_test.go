@@ -1,20 +1,11 @@
 package wasmtime_test
 
 import (
-	"context"
 	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
-
 	// . "github.com/onsi/gomega"
-
-	confid "github.com/machinefi/Bumblebee/conf/id"
-	"github.com/machinefi/Bumblebee/kit/kit"
-
-	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/global"
-	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/tasks"
-	"github.com/machinefi/w3bstream/pkg/types"
 )
 
 var (
@@ -25,8 +16,8 @@ var (
 	wasmWordCountV2Code     []byte
 	wasmTokenDistributeCode []byte
 
-	ctx context.Context
-	idg confid.SFIDGenerator
+	// ctx context.Context
+	// idg confid.SFIDGenerator
 )
 
 func init() {
@@ -63,15 +54,17 @@ func init() {
 		panic(err)
 	}
 
-	ctx = global.WithContext(context.Background())
-	ctx = types.WithETHClientConfig(ctx, &types.ETHClientConfig{
-		PrivateKey:    "",
-		ChainEndpoint: "https://babel-api.testnet.iotex.io",
-	})
+	/*
+		ctx = global.WithContext(context.Background())
+		ctx = types.WithETHClientConfig(ctx, &types.ETHClientConfig{
+			PrivateKey:    "",
+			ChainEndpoint: "https://babel-api.testnet.iotex.io",
+		})
 
-	idg = confid.MustSFIDGeneratorFromContext(ctx)
+		idg = confid.MustSFIDGeneratorFromContext(ctx)
 
-	go kit.Run(tasks.Root, global.TaskServer())
+		go kit.Run(tasks.Root, global.TaskServer())
+	*/
 }
 
 /*
