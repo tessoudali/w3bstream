@@ -35,7 +35,7 @@ build_server: update_go_module generate format
 	@rm -rf build/config
 	@mkdir -p build/config
 	@cp cmd/srv-applet-mgr/config/default.yml build/config/default.yml
-	@cp build_image/conf/srv-applet-mgr/config/local.yml build/config/local.yml
+	@cp build_image/etc/conf/srv-applet-mgr/config/local.yml build/config/local.yml
 	@echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
 	@echo 'succeed! config =>build/config/'
 	@echo 'modify config/local.yaml to use your server config'
