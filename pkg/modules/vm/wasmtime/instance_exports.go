@@ -13,12 +13,12 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	conflog "github.com/iotexproject/Bumblebee/conf/log"
-	"github.com/iotexproject/Bumblebee/x/mapx"
+	conflog "github.com/machinefi/Bumblebee/conf/log"
+	"github.com/machinefi/Bumblebee/x/mapx"
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 
-	"github.com/iotexproject/w3bstream/pkg/types/wasm"
+	"github.com/machinefi/w3bstream/pkg/types/wasm"
 )
 
 const (

@@ -3,10 +3,10 @@ package strategy
 import (
 	"context"
 
-	"github.com/iotexproject/Bumblebee/kit/httptransport/httpx"
+	"github.com/machinefi/Bumblebee/kit/httptransport/httpx"
 
-	"github.com/iotexproject/w3bstream/cmd/srv-applet-mgr/apis/middleware"
-	"github.com/iotexproject/w3bstream/pkg/modules/strategy"
+	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/apis/middleware"
+	"github.com/machinefi/w3bstream/pkg/modules/strategy"
 )
 
 type CreateStrategy struct {

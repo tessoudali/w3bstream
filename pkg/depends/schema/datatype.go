@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"github.com/iotexproject/Bumblebee/gen/codegen"
+	"github.com/machinefi/Bumblebee/gen/codegen"
 )
 
 //go:generate toolkit gen enum Datatype
@@ -56,4 +56,4 @@ func (d *Datatype) CodeGenType(f *codegen.File) codegen.SnippetType {
 	return codegen.Int
 }
 
-var PkgTypes = "github.com/iotexproject/Bumblebee/base/types"
+var PkgTypes = "github.com/machinefi/Bumblebee/base/types"

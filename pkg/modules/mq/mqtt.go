@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	confmqtt "github.com/iotexproject/Bumblebee/conf/mqtt"
-	"github.com/iotexproject/Bumblebee/x/mapx"
+	confmqtt "github.com/machinefi/Bumblebee/conf/mqtt"
+	"github.com/machinefi/Bumblebee/x/mapx"
 
-	"github.com/iotexproject/w3bstream/pkg/depends/protocol/eventpb"
-	"github.com/iotexproject/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/pkg/depends/protocol/eventpb"
+	"github.com/machinefi/w3bstream/pkg/types"
 )
 
 type OnMessage func(ctx context.Context, channel string, data *eventpb.Event) (interface{}, error)

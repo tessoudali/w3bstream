@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql/driver"
 
-	"github.com/iotexproject/Bumblebee/kit/sqlx"
-	"github.com/iotexproject/Bumblebee/kit/sqlx/datatypes"
+	"github.com/machinefi/Bumblebee/kit/sqlx"
+	"github.com/machinefi/Bumblebee/kit/sqlx/datatypes"
 )
 
 var (

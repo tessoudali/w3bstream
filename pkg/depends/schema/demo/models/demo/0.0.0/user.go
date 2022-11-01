@@ -4,7 +4,7 @@
 package demo
 
 import (
-	"github.com/iotexproject/Bumblebee/base/types"
+	"github.com/machinefi/Bumblebee/base/types"
 )
 
 // User User Table

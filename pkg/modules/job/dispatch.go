@@ -3,8 +3,9 @@ package job
 import (
 	"context"
 
-	"github.com/iotexproject/Bumblebee/kit/mq"
-	"github.com/iotexproject/w3bstream/pkg/types"
+	"github.com/machinefi/Bumblebee/kit/mq"
+
+	"github.com/machinefi/w3bstream/pkg/types"
 )
 
 func Dispatch(ctx context.Context, t mq.Task) {

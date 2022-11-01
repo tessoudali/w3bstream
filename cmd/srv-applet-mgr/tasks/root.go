@@ -1,6 +1,6 @@
 package tasks
 
-import "github.com/iotexproject/Bumblebee/kit/kit"
+import "github.com/machinefi/Bumblebee/kit/kit"
 
 var Root = kit.NewRouter()
 

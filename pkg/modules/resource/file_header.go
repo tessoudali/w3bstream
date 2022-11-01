@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/v3/disk"
 
-	"github.com/iotexproject/w3bstream/pkg/depends/util"
+	"github.com/machinefi/w3bstream/pkg/depends/util"
 
-	"github.com/iotexproject/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/pkg/types"
 )
 
 var reserve = int64(100 * 1024 * 1024)
