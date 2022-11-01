@@ -16,6 +16,7 @@ services:
     - ${WS_WORKING_DIR:-./build_image}/etc/config:/w3bstream/build_image/config
     environment:
       DATABASE_URL: "postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management"
+      DATABASE_URL_MONITOR: "postgresql://test_user:test_passwd@127.0.0.1/test?schema=monitor"
       NEXT_PUBLIC_API_URL: "http://34.83.32.222:8888"
   graphql-engine:
     image: hasura/graphql-engine:v2.2.0
