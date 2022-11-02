@@ -6,16 +6,17 @@ import (
 )
 
 // Applet database model applet
-// @def primary                     ID
-// @def unique_index UI_applet_id   AppletID
-// @def unique_index UI_name        Name
-// @def unique_index UI_project_md5 ProjectID Md5
+// @def primary                          ID
+// @def unique_index UI_applet_id        AppletID
+// @def unique_index UI_project_name     ProjectID Name
+// @def unique_index UI_project_resource ProjectID WasmResourceID
 //
 //go:generate toolkit gen model Applet --database DB
 type Applet struct {
 	datatypes.PrimaryID
 	RelProject
 	RelApplet
+	RelWasmResource
 	AppletInfo
 	datatypes.OperationTimes
 }
@@ -26,6 +27,4 @@ type RelApplet struct {
 
 type AppletInfo struct {
 	Name string `db:"f_name" json:"name"`
-	Path string `db:"f_path" json:"-"`
-	Md5  string `db:"f_md5"  json:"-"`
 }
