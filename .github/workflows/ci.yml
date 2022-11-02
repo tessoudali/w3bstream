@@ -59,7 +59,7 @@ jobs:
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.TOKEN_GITHUB }}
 
     - name: Extract metadata for Docker
       id: meta
