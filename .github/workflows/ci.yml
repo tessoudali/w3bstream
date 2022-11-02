@@ -8,7 +8,7 @@ on:
         
 env:
   REGISTRY: ghcr.io
-  IMAGE: w3bstream/w3bstreamapp
+  IMAGE: imjeson/w3bstream
 
       
 jobs:
