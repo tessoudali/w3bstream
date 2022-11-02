@@ -35,15 +35,11 @@ build_server:
 	@echo 'succeed! config =>build/config/'
 	@echo 'modify config/local.yaml to use your server config'
 
-build_server_for_docker: update_go_module vendor
-	@cd cmd/srv-applet-mgr && GOOS=linux GOWORK=off CGO_ENABLED=1 go build -mod vendor
+build_server_for_docker: update_go_module
+	@cd cmd/srv-applet-mgr && GOOS=linux GOWORK=off CGO_ENABLED=1 go build
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
 	@cp -r cmd/srv-applet-mgr/config build/config
-	@rm -rf vendor
-
-vendor: update_go_module
-	@go mod vendor
 
 #
 update_frontend:
@@ -53,11 +49,10 @@ init_frontend:
 	@git submodule update --init
 
 # build docker image
-build_image: update_go_module vendor init_frontend update_frontend
+build_image: update_go_module init_frontend update_frontend
 	@mkdir -p build_image/pgdata
 	@mkdir -p build_image/asserts
 	@docker build -t iotex/w3bstream:v3 .
-	@rm -rf vendor
 
 # drop docker container
 drop_image:
