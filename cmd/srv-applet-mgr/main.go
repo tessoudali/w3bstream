@@ -7,10 +7,9 @@ import (
 
 	"github.com/machinefi/Bumblebee/kit/kit"
 
-	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/tasks"
-
 	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/apis"
 	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/global"
+	"github.com/machinefi/w3bstream/cmd/srv-applet-mgr/tasks"
 	"github.com/machinefi/w3bstream/pkg/depends/protocol/eventpb"
 	"github.com/machinefi/w3bstream/pkg/modules/account"
 	"github.com/machinefi/w3bstream/pkg/modules/blockchain"

@@ -4,27 +4,22 @@ update_go_module:
 	go mod tidy
 
 install_toolkit: update_go_module
-	@go install github.com/machinefi/Bumblebee/gen/cmd/...@latest
-
-install_goimports: update_go_module
-	@go install golang.org/x/tools/cmd/goimports@latest
+	@go install github.com/machinefi/w3bstream/pkg/depends/gen/cmd/...
 
 install_easyjson: update_go_module
 	@go install github.com/mailru/easyjson/...@latest
 
 ## TODO add source format as a githook
-format: install_goimports
-	go mod tidy
-	goimports -w -l -local "${MODULE_NAME}" ./
+format: install_toolkit
+	@toolkit fmt
 
 ## gen code
-generate: install_toolkit install_easyjson install_goimports
-	go generate ./...
-	goimports -w -l -local "${MODULE_NAME}" ./
-	toolkit patch goid
+generate: install_toolkit install_easyjson
+	@go generate ./...
+	@toolkit fmt
 
 ## to migrate database models, if model defines changed, make this entry
-migrate: install_toolkit install_easyjson install_goimports
+migrate: install_toolkit install_easyjson
 	go run cmd/srv-applet-mgr/main.go migrate
 
 ## build srv-applet-mgr

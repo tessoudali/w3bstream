@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/machinefi/Bumblebee/base/types"
-	"github.com/machinefi/Bumblebee/kit/sqlx"
-	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
+
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/builder"
 )
 
 var BlockchainTable *builder.Table
