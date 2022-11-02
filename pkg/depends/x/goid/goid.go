@@ -1,7 +1,6 @@
 package goid
 
 import (
-	"runtime"
 	"sync"
 
 	"github.com/machinefi/w3bstream/pkg/depends/kit/metax"
@@ -12,7 +11,7 @@ var Default = &Meta{}
 type Meta struct{ m sync.Map }
 
 func (m *Meta) Clear() {
-	m.m.Delete(runtime.GoID())
+	// m.m.Delete(runtime.GoID())
 }
 
 func (m *Meta) Get() metax.Meta {
@@ -23,7 +22,7 @@ func (m *Meta) Get() metax.Meta {
 }
 
 func (m *Meta) Set(meta metax.Meta) {
-	m.m.Store(runtime.GoID(), meta)
+	// m.m.Store(runtime.GoID(), meta)
 }
 
 func (m *Meta) With(cb func(), metas ...metax.Meta) func() {
