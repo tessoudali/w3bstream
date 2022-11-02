@@ -1,7 +1,6 @@
 package snowflake_id
 
 import (
-	"log"
 	"math/rand"
 	"net"
 	"os"
@@ -77,7 +76,7 @@ func (f *SnowflakeFactory) BuildID(wid, seq uint32, elapsed uint64) (uint64, err
 	v := elapsed<<(f.bitsSequence+f.bitsWorkerID) |
 		uint64(seq)<<f.bitsWorkerID |
 		uint64(wid)
-	log.Printf("build %d w: %d seq: %2d elapsed: %d", v, wid, seq, elapsed)
+	// log.Printf("build %d w: %d seq: %2d elapsed: %d", v, wid, seq, elapsed)
 	return v, nil
 }
 
@@ -88,7 +87,7 @@ func (f *SnowflakeFactory) BuildID2(wid, seq uint32, elapsed uint64) (uint64, er
 	v := uint64(wid)<<(f.bitsSequence+f.bitsTimestamp) |
 		elapsed<<f.bitsSequence |
 		uint64(seq)
-	log.Printf("build %d w: %d seq: %2d elapsed: %d ", v, wid, seq, elapsed)
+	// log.Printf("build %d w: %d seq: %2d elapsed: %d ", v, wid, seq, elapsed)
 	return v, nil
 }
 
@@ -96,7 +95,7 @@ func (f *SnowflakeFactory) NewSnowflake(wid uint32) (*Snowflake, error) {
 	if wid > f.maxWorkerID {
 		wid = f.maxWorkerID
 	}
-	log.Printf("worker: %d len_worker: %d len_seq: %d len_ts: %d", wid, f.bitsWorkerID, f.bitsSequence, f.bitsTimestamp)
+	// log.Printf("worker: %d len_worker: %d len_seq: %d len_ts: %d", wid, f.bitsWorkerID, f.bitsSequence, f.bitsTimestamp)
 	return &Snowflake{f: f, build: f.BuildID2, worker: wid, mtx: &sync.Mutex{}}, nil
 }
 
