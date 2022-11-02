@@ -23,7 +23,7 @@ migrate: install_toolkit install_easyjson
 	go run cmd/srv-applet-mgr/main.go migrate
 
 ## build srv-applet-mgr
-build_server: update_go_module generate format
+build_server:
 	@cd cmd/srv-applet-mgr && go build
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
