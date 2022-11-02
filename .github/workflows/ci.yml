@@ -30,4 +30,12 @@ jobs:
         go mod vendor
         git submodule update --init
         cd frontend &&	git pull origin main
+        
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
 
