@@ -4,31 +4,26 @@ update_go_module:
 	go mod tidy
 
 install_toolkit: update_go_module
-	@go install github.com/machinefi/Bumblebee/gen/cmd/...@latest
-
-install_goimports: update_go_module
-	@go install golang.org/x/tools/cmd/goimports@latest
+	@go install github.com/machinefi/w3bstream/pkg/depends/gen/cmd/...
 
 install_easyjson: update_go_module
 	@go install github.com/mailru/easyjson/...@latest
 
 ## TODO add source format as a githook
-format: install_goimports
-	go mod tidy
-	goimports -w -l -local "${MODULE_NAME}" ./
+format: install_toolkit
+	@toolkit fmt
 
 ## gen code
-generate: install_toolkit install_easyjson install_goimports
-	go generate ./...
-	goimports -w -l -local "${MODULE_NAME}" ./
-	toolkit patch goid
+generate: install_toolkit install_easyjson
+	@go generate ./...
+	@toolkit fmt
 
 ## to migrate database models, if model defines changed, make this entry
-migrate: install_toolkit install_easyjson install_goimports
+migrate: install_toolkit install_easyjson
 	go run cmd/srv-applet-mgr/main.go migrate
 
 ## build srv-applet-mgr
-build_server: update_go_module generate format
+build_server:
 	@cd cmd/srv-applet-mgr && go build
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
@@ -40,15 +35,11 @@ build_server: update_go_module generate format
 	@echo 'succeed! config =>build/config/'
 	@echo 'modify config/local.yaml to use your server config'
 
-build_server_for_docker: update_go_module vendor
-	@cd cmd/srv-applet-mgr && GOOS=linux GOWORK=off CGO_ENABLED=1 go build -mod vendor
+build_server_for_docker: update_go_module
+	@cd cmd/srv-applet-mgr && GOOS=linux GOWORK=off CGO_ENABLED=1 go build
 	@mkdir -p build
 	@mv cmd/srv-applet-mgr/srv-applet-mgr build
 	@cp -r cmd/srv-applet-mgr/config build/config
-	@rm -rf vendor
-
-vendor: update_go_module
-	@go mod vendor
 
 #
 update_frontend:
@@ -58,11 +49,10 @@ init_frontend:
 	@git submodule update --init
 
 # build docker image
-build_image: update_go_module vendor init_frontend update_frontend
+build_image: update_go_module init_frontend update_frontend
 	@mkdir -p build_image/pgdata
 	@mkdir -p build_image/asserts
 	@docker build -t iotex/w3bstream:v3 .
-	@rm -rf vendor
 
 # drop docker container
 drop_image:
@@ -102,8 +92,12 @@ clean:
 	@echo 'remove build/{config,pub_client,srv-applet-mgr}'
 
 run_depends:
-	docker-compose -f testutil/docker-compose-pg.yaml up -d
-	docker-compose -f testutil/docker-compose-mqtt.yaml up -d
+	@docker-compose -f testutil/docker-compose-pg.yaml up -d
+	@docker-compose -f testutil/docker-compose-mqtt.yaml up -d
+
+stop_depends:
+	@docker-compose -f testutil/docker-compose-pg.yaml stop
+	@docker-compose -f testutil/docker-compose-mqtt.yaml stop
 
 wasm_demo: update_go_module
 	@cd _examples && make all
