@@ -93,8 +93,12 @@ clean:
 	@echo 'remove build/{config,pub_client,srv-applet-mgr}'
 
 run_depends:
-	docker-compose -f testutil/docker-compose-pg.yaml up -d
-	docker-compose -f testutil/docker-compose-mqtt.yaml up -d
+	@docker-compose -f testutil/docker-compose-pg.yaml up -d
+	@docker-compose -f testutil/docker-compose-mqtt.yaml up -d
+
+stop_depends:
+	@docker-compose -f testutil/docker-compose-pg.yaml stop
+	@docker-compose -f testutil/docker-compose-mqtt.yaml stop
 
 wasm_demo: update_go_module
 	@cd _examples && make all
