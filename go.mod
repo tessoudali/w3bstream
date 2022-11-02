@@ -21,16 +21,20 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/tidwall/gjson v1.14.3
 	github.com/wasmerio/wasmer-go v1.0.4
-	go.opentelemetry.io/contrib/propagators/b3 v1.9.0
-	go.opentelemetry.io/otel v1.9.0
-	go.opentelemetry.io/otel/exporters/zipkin v1.9.0
-	go.opentelemetry.io/otel/sdk v1.9.0
-	go.opentelemetry.io/otel/trace v1.9.0
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 	golang.org/x/tools v0.1.12
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/yaml.v2 v2.4.0
+)
+
+// lock these modules
+require (
+	go.opentelemetry.io/contrib/propagators/b3 v1.9.0
+	go.opentelemetry.io/otel v1.9.0
+	go.opentelemetry.io/otel/exporters/zipkin v1.9.0
+	go.opentelemetry.io/otel/sdk v1.9.0
+	go.opentelemetry.io/otel/trace v1.9.0
 )
 
 require (
