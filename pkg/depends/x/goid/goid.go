@@ -16,9 +16,9 @@ func (m *Meta) Clear() {
 }
 
 func (m *Meta) Get() metax.Meta {
-	if logID, ok := m.m.Load(runtime.GoID()); ok {
-		return logID.(metax.Meta)
-	}
+	// if logID, ok := m.m.Load(runtime.GoID()); ok {
+	// 	return logID.(metax.Meta)
+	// }
 	return metax.Meta{}
 }
 
