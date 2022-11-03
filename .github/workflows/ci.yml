@@ -85,5 +85,6 @@ jobs:
     - name: Inspect image
       run: |
         docker buildx imagetools inspect \
-        ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
+        ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.meta.outputs.tags }}
+        #${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
 
