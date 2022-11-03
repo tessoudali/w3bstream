@@ -1,5 +1,6 @@
 MODULE_NAME = $(shell cat go.mod | grep "^module" | sed -e "s/module //g")
 DOCKER_IMAGE = $(USER)/w3bstream:main
+STUDIO_DOCKER_IMAGE = $(USER)/w3bstream-studio:main
 
 update_go_module:
 	go mod tidy
@@ -49,11 +50,14 @@ update_frontend:
 init_frontend:
 	@git submodule update --init
 
-# build docker image
-build_image: update_go_module init_frontend update_frontend
-	@mkdir -p build_image/pgdata
-	@mkdir -p build_image/asserts
-	@docker build -t ${DOCKER_IMAGE} .
+# build docker images
+build_backend_image: update_go_module
+	@docker build -f Dockerfile.backend -t ${DOCKER_IMAGE} .
+
+build_studio_image: init_frontend update_frontend
+	@docker build -f Dockerfile.studio -t ${STUDIO_DOCKER_IMAGE} .
+
+build_images: build_backend_image build_studio_image
 
 # drop docker container
 drop_image:
@@ -63,11 +67,11 @@ drop_image:
 restart_image:
 	@docker-compose -f ./docker-compose.yaml down
 	@echo "The container was shut down before, now restart it"
-	@WS_WORKING_DIR=$(shell pwd)/build_image docker-compose -p w3bstream -f ./docker-compose.yaml up -d
+	@WS_WORKING_DIR=$(shell pwd)/working_dir WS_BACKEND_IMAGE=${DOCKER_IMAGE} WS_STUDIO_IMAGE=${STUDIO_DOCKER_IMAGE} docker-compose -p w3bstream -f ./docker-compose.yaml up -d
 
 # run docker image
 run_image:
-	@WS_WORKING_DIR=$(shell pwd)/build_image DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -p w3bstream -f ./docker-compose.yaml up -d
+	@WS_WORKING_DIR=$(shell pwd)/working_dir WS_BACKEND_IMAGE=${DOCKER_IMAGE} WS_STUDIO_IMAGE=${STUDIO_DOCKER_IMAGE} docker-compose -p w3bstream -f ./docker-compose.yaml up -d
 
 ## migrate first
 run_server: build_server

@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   w3bapp:
-    image: ${WS_BACKEND_IMAGE:-iotexdev/w3bstream:latest}
+    image: ${WS_BACKEND_IMAGE:-ghcr.io/machinefi/w3bstream:latest}
     depends_on:
       - "postgres"
       - "mqtt"
@@ -11,11 +11,20 @@ services:
     restart: always
     ports:
       - "8888:8888"
+    environment:
+      SRV_APPLET_MGR__ETHCLIENTCONFIG__ChainEndpoint: ""
+      SRV_APPLET_MGR__ETHCLIENTCONFIG__PrivateKey: ""
+      SRV_APPLET_MGR__JWT__ExpIn: 1h
+      SRV_APPLET_MGR__JWT__Issuer: "srv-applet-mgr"
+      SRV_APPLET_MGR__JWT__SignKey: "xxxx"
+      SRV_APPLET_MGR__PGCLI__Master: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?sslmode=disable"
+      SRV_APPLET_MGR__SERVER__Port: "8888"
+      SRV_APPLET_MGR__BROKER__Server: mqtt://mqtt:1883
     volumes:
       - ${WS_WORKING_DIR:-.}/asserts:/w3bstream/asserts
 
   w3bstream-studio:
-    image: ${WS_STUDIO_IMAGE:-iotexdev/w3bstream-studio:latest}
+    image: ${WS_STUDIO_IMAGE:-ghcr.io/machinefi/w3bstream-studio:latest}
     container_name: w3bstream-studio
     restart: always
     working_dir: /w3bstream
@@ -25,13 +34,15 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=applet_management"
-      DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=monitor"
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://w3bapp:8888}
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?schema=applet_management"
+      DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?schema=monitor"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8888}
 
   mqtt:
     image: eclipse-mosquitto:1.6.15
     container_name: mosquitto
+    ports:
+      - "1883:1883"
     restart: always
 
   postgres:
@@ -41,9 +52,9 @@ services:
       - "5432:5432"
     command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-test_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test_passwd}
-      POSTGRES_DB: ${POSTGRES_DB:-test}
+      POSTGRES_USER: ${POSTGRES_USER:-w3badmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-PaSsW0Rd}
+      POSTGRES_DB: ${POSTGRES_DB:-w3bstream}
     volumes:
       - ${WS_WORKING_DIR:-.}/postgres:/var/lib/postgresql/data
 
@@ -55,7 +66,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test"
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}"
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log

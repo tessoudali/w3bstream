@@ -1,4 +1,4 @@
-#build frontend
+#build studio
 FROM node:14.20-alpine AS build-nodejs
 
 WORKDIR /w3bstream

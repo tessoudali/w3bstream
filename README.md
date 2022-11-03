@@ -36,10 +36,10 @@ make init_frontend
 make update_frontend
 ```
 
-### Build docker image
+### Build docker images
 
 ```bash
-make build_image
+make build_images
 ```
 
 ### Run docker container

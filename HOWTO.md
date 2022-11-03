@@ -1,3 +1,31 @@
+# How to run a w3bstream node with docker
+Suppose `$working_dir` is the directory you want to store your data.
+
+## Install docker-compose
+
+https://docker-docs.netlify.app/compose/install/#uninstallation
+
+## Download docker-compose.yaml
+
+```bash
+cd $working_dir
+curl https://raw.githubusercontent.com/machinefi/w3bstream/docker/docker-compose.yaml > docker-compose.yaml
+
+docker-compose up -d
+```
+You are all set.
+
+## Customize settings
+```bash
+cd $working_dir
+curl https://raw.githubusercontent.com/machinefi/w3bstream/docker/.env.tmpl > .env
+```
+
+then modify the corresponding parameters in `.env`, and restart your docker containers
+```bash
+docker-compose restart
+```
+
 # How to interact with W3bstream Node Using CLI
 
 ### Login (fetch auth token)
