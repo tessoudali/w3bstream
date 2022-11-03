@@ -1,42 +1,61 @@
 version: '3.6'
+
 services:
   w3bapp:
-    image: ${DOCKER_IMAGE:-ghcr.io/machinefi/w3bstream:main}
+    image: ${WS_BACKEND_IMAGE:-iotexdev/w3bstream:latest}
+    depends_on:
+    - "postgres"
+    - "mqtt"
     container_name: w3bstream
+    working_dir: /w3bstream
     restart: always
     ports:
-    - "5432:5432"
     - "8888:8888"
-    - "1883:1883"
-    - "3000:3000"
-    command: ["/bin/sh","/init.sh"]
-    volumes:
-    - ${WS_WORKING_DIR:-./build_image}/pgdata:/var/lib/postgresql_data
-    - ${WS_WORKING_DIR:-./build_image}/asserts:/w3bstream/cmd/srv-applet-mgr/asserts
-    - ${WS_WORKING_DIR:-./build_image}/etc/srv-applet-mgr/config/local.yml:/w3bstream/cmd/srv-applet-mgr/config/local.yml
-    - ${WS_WORKING_DIR:-./build_image}/etc/config:/w3bstream/build_image/config
     environment:
-      DATABASE_URL: "postgresql://test_user:test_passwd@127.0.0.1/test?schema=applet_management"
-      DATABASE_URL_MONITOR: "postgresql://test_user:test_passwd@127.0.0.1/test?schema=monitor"
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://127.0.0.1:8888}
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=applet_management"
+      DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=monitor"
+
+  w3bstream-studio:
+    image: ${WS_STUDIO_IMAGE:-iotexdev/w3bstream-studio:latest}
+    container_name: w3bstream-studio
+    restart: always
+    working_dir: /w3bstream
+    command: ["node","server.js"]
+    ports:
+    - "3000:3000"
+    volumes:
+    - ${WS_WORKING_DIR:-.}/asserts:/w3bstream/asserts
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=applet_management"
+      DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=monitor"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://w3bapp:8888}
+
+  mqtt:
+    image: eclipse-mosquitto:1.6.15
+    container_name: mosquitto
+    restart: always
+
+  postgres:
+    image: postgres:13
+    restart: always
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-test_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test_passwd}
+      POSTGRES_DB: ${POSTGRES_DB:-test}
+    volumes:
+      - ${WS_WORKING_DIR:-.}/postgres:/var/lib/postgresql/data
+
   graphql-engine:
-    image: hasura/graphql-engine:v2.2.0
+    image: hasura/graphql-engine:v2.14.0
     depends_on:
-    - "w3bapp"
+    - "postgres"
     restart: always
     ports:
     - "8080:8080"
     environment:
-      ## postgres database to store Hasura metadata
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgresql://test_user:test_passwd@w3bapp/test
-      ## enable the console served by server
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set "false" to disable console
-      ## enable debugging mode. It is recommended to disable this in production
-      HASURA_GRAPHQL_DEV_MODE: "true"
-      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test"
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      ## uncomment next line to run console offline (i.e load console assets from server instead of CDN)
-      # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
-      ## uncomment next line to set an admin secret
-      HASURA_GRAPHQL_ADMIN_SECRET: w3baAdmiNsecrEtkey
+      HASURA_GRAPHQL_ADMIN_SECRET: ${ADMIN_SECRET:-w3baAdmiNsecrEtkey}
