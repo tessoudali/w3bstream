@@ -39,18 +39,22 @@ make update_studio
 ### Build docker images
 
 ```bash
-make build_images
+make build_docker_images
 ```
 
-### Run docker container
+### Run server in docker containers
 
 ```bash
- make run_image
+ make run_docker
  ```
 
- ### drop docker image
+ ### stop server running in docker containers
  ```bash
- make drop_image
+ make stop_docker
+ ```
+ ### delete docker resources
+ ```bash
+ make drop_docker
  ```
 
 ## Access W3bstream Studio

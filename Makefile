@@ -57,20 +57,23 @@ build_backend_image: update_go_module
 build_studio_image: init_submodules update_studio
 	@docker build -f Dockerfile.studio -t ${STUDIO_DOCKER_IMAGE} .
 
-build_images: build_backend_image build_studio_image
+build_docker_images: build_backend_image build_studio_image
 
-# drop docker container
-drop_image:
+# stop server running in docker containers
+stop_docker:
+	@docker-compose -f ./docker-compose.yaml stop
+
+# stop docker and delete docker resouces
+drop_docker:
 	@docker-compose -f ./docker-compose.yaml down
 
-# restart docker container
-restart_image:
-	@docker-compose -f ./docker-compose.yaml down
-	@echo "The container was shut down before, now restart it"
+# restart server in docker containers
+restart_docker: drop_docker
+	@echo "The containers have been shut down, now restart the server"
 	@WS_WORKING_DIR=$(shell pwd)/working_dir WS_BACKEND_IMAGE=${DOCKER_IMAGE} WS_STUDIO_IMAGE=${STUDIO_DOCKER_IMAGE} docker-compose -p w3bstream -f ./docker-compose.yaml up -d
 
-# run docker image
-run_image:
+# run server in docker containers
+run_docker:
 	@WS_WORKING_DIR=$(shell pwd)/working_dir WS_BACKEND_IMAGE=${DOCKER_IMAGE} WS_STUDIO_IMAGE=${STUDIO_DOCKER_IMAGE} docker-compose -p w3bstream -f ./docker-compose.yaml up -d
 
 ## migrate first
