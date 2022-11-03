@@ -91,9 +91,9 @@ RUN /bin/bash /w3bstream/build_image/packages/install.sh
 RUN ln -s /root/.local/share/pnpm/pnpm /usr/bin/pnpm
 
 #WORKDIR /w3bstream
-RUN mkdir -p /w3bstream/cmd/srv-applet-mgr/config
+RUN mkdir -p /w3bstream/cmd/srv-applet-mgr
 COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/srv-applet-mgr /w3bstream/cmd/srv-applet-mgr/srv-applet-mgr
-COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/config/default.yml /w3bstream/cmd/srv-applet-mgr/config/default.yml
+COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/config /w3bstream/cmd/srv-applet-mgr/config
 
 
 #COPY --from=build-nodejs /w3bstream/frontend /w3bstream/frontend
