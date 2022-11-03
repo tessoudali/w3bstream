@@ -44,17 +44,17 @@ build_server_for_docker: update_go_module
 	@cp -r cmd/srv-applet-mgr/config build/config
 
 #
-update_frontend:
-	@cd frontend &&	git pull origin main
+update_studio:
+	@cd studio &&	git pull origin main
 
-init_frontend:
+init_submodules:
 	@git submodule update --init
 
 # build docker images
 build_backend_image: update_go_module
 	@docker build -f Dockerfile.backend -t ${DOCKER_IMAGE} .
 
-build_studio_image: init_frontend update_frontend
+build_studio_image: init_submodules update_studio
 	@docker build -f Dockerfile.studio -t ${STUDIO_DOCKER_IMAGE} .
 
 build_images: build_backend_image build_studio_image

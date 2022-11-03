@@ -17,7 +17,7 @@ WORKDIR /w3bstream-nodejs
 #RUN curl -fsSL "https://github.com/pnpm/pnpm/releases/latest/download/pnpm-linuxstatic-x64" -o /bin/pnpm
 #RUN chmod +x /bin/pnpm
 RUN npm i -g pnpm
-COPY ./frontend .
+COPY ./studio .
 RUN npm i pnpm -g
 RUN pnpm install --no-frozen-lockfile
 RUN pnpm i --frozen-lockfile;
@@ -44,38 +44,24 @@ RUN apt -y update
 RUN apt install postgresql postgresql-contrib -y
 RUN apt-get install net-tools -y
 RUN apt install postgis postgresql-13-postgis-3 -y
-#RUN apt install -y postgresql-13 postgresql-client-13
-
 
 #Create app directory and upload w3bstream app
 RUN mkdir -p /w3bstream
-#COPY . /w3bstream/
-#RUN rm -rf /w3bstream/build_image/pgdata
 WORKDIR /w3bstream
 
-#RUN /etc/init.d/postgresql start
-#Add VOLUMEs to allow backup of config, logs and databases
-#VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql_data"]
 
 #Initialize PostgreSQL database
 RUN /etc/init.d/postgresql start && \
   su postgres sh -c "psql -c \"CREATE USER test_user WITH ENCRYPTED PASSWORD 'test_passwd'\"" && \
   su postgres sh -c "psql -c \"CREATE DATABASE test\"" && \
   su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE test to test_user;;\""
-#RUN mkdir -p /w3bstream/build_image/conf
-#COPY build_image/conf/postgresql.conf /w3bstream/build_image/conf/postgresql.conf
 
 RUN echo "listen_addresses='*'" >> /etc/postgresql/13/main/postgresql.conf
 RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/13/main/pg_hba.conf
 #Install mqtt
-#RUN apt-get install add-apt-repository
-#RUN add-apt-repository ppa:mosquitto-dev/mosquitto-ppa
 RUN apt install mosquitto mosquitto-clients -y
 RUN mkdir /var/run/mosquitto -p
-#RUN rm -f /etc/mosquitto/mosquitto.conf
-#COPY build_image/conf/mosquitto.conf /etc/mosquitto/mosquitto.conf 
 RUN sed -i 's,/run/mosquitto/mosquitto.pid,/tmp/mosquitto.pid,g' /etc/mosquitto/mosquitto.conf
-#RUN /etc/init.d/mosquitto start
 
 #Install Nginx
 RUN apt-get install nginx -y
@@ -94,15 +80,10 @@ RUN ln -s /root/.local/share/pnpm/pnpm /usr/bin/pnpm
 RUN mkdir -p /w3bstream/cmd/srv-applet-mgr/config
 COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/srv-applet-mgr /w3bstream/cmd/srv-applet-mgr/srv-applet-mgr
 COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/config/default.yml /w3bstream/cmd/srv-applet-mgr/config/default.yml
-#COPY --from=build-go /w3bstream/cmd/srv-applet-mgr/config/local.yml /w3bstream/cmd/srv-applet-mgr/config/local.yml
 
-
-#COPY --from=build-nodejs /w3bstream/frontend /w3bstream/frontend
-#
-#COPY --from=build-nodejs /w3bstream-nodejs/frontend/.env.tmpl /w3bstream/frontend-build/.env
-COPY --from=build-nodejs /w3bstream-nodejs/public ./frontend-build/public
-COPY --from=build-nodejs /w3bstream-nodejs/.next/standalone ./frontend-build
-COPY --from=build-nodejs /w3bstream-nodejs/.next/static ./frontend-build/.next/static
+COPY --from=build-nodejs /w3bstream-nodejs/public ./studio-build/public
+COPY --from=build-nodejs /w3bstream-nodejs/.next/standalone ./studio-build
+COPY --from=build-nodejs /w3bstream-nodejs/.next/static ./studio-build/.next/static
 
 #Upload init script and configure
 RUN mkdir /w3bstream/build_image -p 

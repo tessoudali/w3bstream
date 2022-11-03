@@ -24,16 +24,16 @@ You will run with prebuilt docker image from recent stable versions.
 
 ## Run with docker
 
-### init frontend
+### init submodules
 
 ```bash
-make init_frontend
+make init_submodules
 ```
 
-### Update frontend to latest if needed
+### Update studio to latest if needed
 
 ```bash
-make update_frontend
+make update_studio
 ```
 
 ### Build docker images
