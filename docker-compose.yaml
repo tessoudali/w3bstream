@@ -1,30 +1,29 @@
-version: '3.6'
+version: "3.6"
 
 services:
   w3bapp:
     image: ${WS_BACKEND_IMAGE:-iotexdev/w3bstream:latest}
     depends_on:
-    - "postgres"
-    - "mqtt"
+      - "postgres"
+      - "mqtt"
     container_name: w3bstream
     working_dir: /w3bstream
     restart: always
     ports:
-    - "8888:8888"
-    environment:
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=applet_management"
-      DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=monitor"
+      - "8888:8888"
+    volumes:
+      - ${WS_WORKING_DIR:-.}/asserts:/w3bstream/asserts
 
   w3bstream-studio:
     image: ${WS_STUDIO_IMAGE:-iotexdev/w3bstream-studio:latest}
     container_name: w3bstream-studio
     restart: always
     working_dir: /w3bstream
-    command: ["node","server.js"]
+    command: ["node", "server.js"]
+    depends_on:
+      - "postgres"
     ports:
-    - "3000:3000"
-    volumes:
-    - ${WS_WORKING_DIR:-.}/asserts:/w3bstream/asserts
+      - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=applet_management"
       DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test?schema=monitor"
@@ -38,6 +37,8 @@ services:
   postgres:
     image: postgres:13
     restart: always
+    ports:
+      - "5432:5432"
     command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-test_user}
@@ -49,10 +50,10 @@ services:
   graphql-engine:
     image: hasura/graphql-engine:v2.14.0
     depends_on:
-    - "postgres"
+      - "postgres"
     restart: always
     ports:
-    - "8080:8080"
+      - "8080:8080"
     environment:
       HASURA_GRAPHQL_METADATA_DATABASE_URL: "postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_passwd}@postgres:5432/test"
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
