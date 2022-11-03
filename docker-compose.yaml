@@ -12,7 +12,7 @@ services:
     ports:
       - "8888:8888"
     environment:
-      SRV_APPLET_MGR__ETHCLIENTCONFIG__ChainEndpoint: ""
+      SRV_APPLET_MGR__ETHCLIENTCONFIG__ChainEndpoint: "https://babel-api.testnet.iotex.io/"
       SRV_APPLET_MGR__ETHCLIENTCONFIG__PrivateKey: ""
       SRV_APPLET_MGR__JWT__ExpIn: 1h
       SRV_APPLET_MGR__JWT__Issuer: "srv-applet-mgr"
@@ -27,7 +27,7 @@ services:
     image: ${WS_STUDIO_IMAGE:-ghcr.io/machinefi/w3bstream-studio:latest}
     container_name: w3bstream-studio
     restart: always
-    working_dir: /w3bstream
+    working_dir: /w3bstream-studio
     command: ["node", "server.js"]
     depends_on:
       - "postgres"

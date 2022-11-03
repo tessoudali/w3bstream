@@ -45,17 +45,17 @@ build_server_for_docker: update_go_module
 
 #
 update_studio:
-	@cd studio &&	git pull origin main
+	@cd studio && git pull origin main
 
 init_submodules:
 	@git submodule update --init
 
 # build docker images
 build_backend_image: update_go_module
-	@docker build -f Dockerfile.backend -t ${DOCKER_IMAGE} .
+	@docker build -f Dockerfile -t ${DOCKER_IMAGE} .
 
 build_studio_image: init_submodules update_studio
-	@docker build -f Dockerfile.studio -t ${STUDIO_DOCKER_IMAGE} .
+	@cd studio && docker build -f Dockerfile -t ${STUDIO_DOCKER_IMAGE} .
 
 build_docker_images: build_backend_image build_studio_image
 
