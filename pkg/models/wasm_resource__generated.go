@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/machinefi/Bumblebee/base/types"
-	"github.com/machinefi/Bumblebee/kit/sqlx"
-	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
+	"github.com/machinefi/w3bstream/pkg/depends/base/types"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/builder"
 )
 
 var WasmResourceTable *builder.Table
@@ -61,17 +61,13 @@ func (m *WasmResource) IndexFieldNames() []string {
 	return []string{
 		"ID",
 		"Md5",
-		"Path",
-		"ProjectID",
 		"WasmResourceID",
 	}
 }
 
 func (*WasmResource) UniqueIndexes() builder.Indexes {
 	return builder.Indexes{
-		"ui_project_path_md5": []string{
-			"ProjectID",
-			"Path",
+		"ui_md5": []string{
 			"Md5",
 		},
 		"ui_wasm_resource_id": []string{
@@ -80,8 +76,8 @@ func (*WasmResource) UniqueIndexes() builder.Indexes {
 	}
 }
 
-func (*WasmResource) UniqueIndexUIProjectPathMd5() string {
-	return "ui_project_path_md5"
+func (*WasmResource) UniqueIndexUIMd5() string {
+	return "ui_md5"
 }
 
 func (*WasmResource) UniqueIndexUIWasmResourceID() string {
@@ -96,28 +92,12 @@ func (*WasmResource) FieldID() string {
 	return "ID"
 }
 
-func (m *WasmResource) ColProjectID() *builder.Column {
-	return WasmResourceTable.ColByFieldName(m.FieldProjectID())
-}
-
-func (*WasmResource) FieldProjectID() string {
-	return "ProjectID"
-}
-
 func (m *WasmResource) ColWasmResourceID() *builder.Column {
 	return WasmResourceTable.ColByFieldName(m.FieldWasmResourceID())
 }
 
 func (*WasmResource) FieldWasmResourceID() string {
 	return "WasmResourceID"
-}
-
-func (m *WasmResource) ColName() *builder.Column {
-	return WasmResourceTable.ColByFieldName(m.FieldName())
-}
-
-func (*WasmResource) FieldName() string {
-	return "Name"
 }
 
 func (m *WasmResource) ColPath() *builder.Column {
@@ -134,6 +114,14 @@ func (m *WasmResource) ColMd5() *builder.Column {
 
 func (*WasmResource) FieldMd5() string {
 	return "Md5"
+}
+
+func (m *WasmResource) ColRefCnt() *builder.Column {
+	return WasmResourceTable.ColByFieldName(m.FieldRefCnt())
+}
+
+func (*WasmResource) FieldRefCnt() string {
+	return "RefCnt"
 }
 
 func (m *WasmResource) ColCreatedAt() *builder.Column {
@@ -223,7 +211,7 @@ func (m *WasmResource) FetchByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *WasmResource) FetchByProjectIDAndPathAndMd5(db sqlx.DBExecutor) error {
+func (m *WasmResource) FetchByMd5(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	err := db.QueryAndScan(
 		builder.Select(nil).
@@ -231,12 +219,10 @@ func (m *WasmResource) FetchByProjectIDAndPathAndMd5(db sqlx.DBExecutor) error {
 				tbl,
 				builder.Where(
 					builder.And(
-						tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
-						tbl.ColByFieldName("Path").Eq(m.Path),
 						tbl.ColByFieldName("Md5").Eq(m.Md5),
 					),
 				),
-				builder.Comment("WasmResource.FetchByProjectIDAndPathAndMd5"),
+				builder.Comment("WasmResource.FetchByMd5"),
 			),
 		m,
 	)
@@ -291,7 +277,7 @@ func (m *WasmResource) UpdateByID(db sqlx.DBExecutor, zeros ...string) error {
 	return m.UpdateByIDWithFVs(db, fvs)
 }
 
-func (m *WasmResource) UpdateByProjectIDAndPathAndMd5WithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
+func (m *WasmResource) UpdateByMd5WithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
 		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
@@ -301,11 +287,9 @@ func (m *WasmResource) UpdateByProjectIDAndPathAndMd5WithFVs(db sqlx.DBExecutor,
 		builder.Update(tbl).
 			Where(
 				builder.And(
-					tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
-					tbl.ColByFieldName("Path").Eq(m.Path),
 					tbl.ColByFieldName("Md5").Eq(m.Md5),
 				),
-				builder.Comment("WasmResource.UpdateByProjectIDAndPathAndMd5WithFVs"),
+				builder.Comment("WasmResource.UpdateByMd5WithFVs"),
 			).
 			Set(tbl.AssignmentsByFieldValues(fvs)...),
 	)
@@ -313,14 +297,14 @@ func (m *WasmResource) UpdateByProjectIDAndPathAndMd5WithFVs(db sqlx.DBExecutor,
 		return err
 	}
 	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByProjectIDAndPathAndMd5(db)
+		return m.FetchByMd5(db)
 	}
 	return nil
 }
 
-func (m *WasmResource) UpdateByProjectIDAndPathAndMd5(db sqlx.DBExecutor, zeros ...string) error {
+func (m *WasmResource) UpdateByMd5(db sqlx.DBExecutor, zeros ...string) error {
 	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByProjectIDAndPathAndMd5WithFVs(db, fvs)
+	return m.UpdateByMd5WithFVs(db, fvs)
 }
 
 func (m *WasmResource) UpdateByWasmResourceIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
@@ -382,7 +366,7 @@ func (m *WasmResource) DeleteByID(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *WasmResource) DeleteByProjectIDAndPathAndMd5(db sqlx.DBExecutor) error {
+func (m *WasmResource) DeleteByMd5(db sqlx.DBExecutor) error {
 	tbl := db.T(m)
 	_, err := db.Exec(
 		builder.Delete().
@@ -390,12 +374,10 @@ func (m *WasmResource) DeleteByProjectIDAndPathAndMd5(db sqlx.DBExecutor) error 
 				tbl,
 				builder.Where(
 					builder.And(
-						tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
-						tbl.ColByFieldName("Path").Eq(m.Path),
 						tbl.ColByFieldName("Md5").Eq(m.Md5),
 					),
 				),
-				builder.Comment("WasmResource.DeleteByProjectIDAndPathAndMd5"),
+				builder.Comment("WasmResource.DeleteByMd5"),
 			),
 	)
 	return err

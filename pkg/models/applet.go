@@ -1,15 +1,14 @@
 package models
 
 import (
-	"github.com/machinefi/Bumblebee/base/types"
-	"github.com/machinefi/Bumblebee/kit/sqlx/datatypes"
+	"github.com/machinefi/w3bstream/pkg/depends/base/types"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/datatypes"
 )
 
 // Applet database model applet
 // @def primary                          ID
 // @def unique_index UI_applet_id        AppletID
 // @def unique_index UI_project_name     ProjectID Name
-// @def unique_index UI_project_resource ProjectID WasmResourceID
 //
 //go:generate toolkit gen model Applet --database DB
 type Applet struct {
@@ -26,5 +25,6 @@ type RelApplet struct {
 }
 
 type AppletInfo struct {
-	Name string `db:"f_name" json:"name"`
+	Name     string `db:"f_name" json:"name"`
+	WasmName string `db:"f_wasm_name" json:"wasmName"`
 }

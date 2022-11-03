@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/machinefi/Bumblebee/base/types"
-	"github.com/machinefi/Bumblebee/kit/sqlx"
-	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
+	"github.com/machinefi/w3bstream/pkg/depends/base/types"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/builder"
 )
 
 var AppletTable *builder.Table
@@ -63,7 +63,6 @@ func (m *Applet) IndexFieldNames() []string {
 		"ID",
 		"Name",
 		"ProjectID",
-		"WasmResourceID",
 	}
 }
 
@@ -76,10 +75,6 @@ func (*Applet) UniqueIndexes() builder.Indexes {
 			"ProjectID",
 			"Name",
 		},
-		"ui_project_resource": []string{
-			"ProjectID",
-			"WasmResourceID",
-		},
 	}
 }
 
@@ -89,10 +84,6 @@ func (*Applet) UniqueIndexUIAppletID() string {
 
 func (*Applet) UniqueIndexUIProjectName() string {
 	return "ui_project_name"
-}
-
-func (*Applet) UniqueIndexUIProjectResource() string {
-	return "ui_project_resource"
 }
 
 func (m *Applet) ColID() *builder.Column {
@@ -133,6 +124,14 @@ func (m *Applet) ColName() *builder.Column {
 
 func (*Applet) FieldName() string {
 	return "Name"
+}
+
+func (m *Applet) ColWasmName() *builder.Column {
+	return AppletTable.ColByFieldName(m.FieldWasmName())
+}
+
+func (*Applet) FieldWasmName() string {
+	return "WasmName"
 }
 
 func (m *Applet) ColCreatedAt() *builder.Column {
@@ -259,25 +258,6 @@ func (m *Applet) FetchByProjectIDAndName(db sqlx.DBExecutor) error {
 	return err
 }
 
-func (m *Applet) FetchByProjectIDAndWasmResourceID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	err := db.QueryAndScan(
-		builder.Select(nil).
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
-						tbl.ColByFieldName("WasmResourceID").Eq(m.WasmResourceID),
-					),
-				),
-				builder.Comment("Applet.FetchByProjectIDAndWasmResourceID"),
-			),
-		m,
-	)
-	return err
-}
-
 func (m *Applet) UpdateByIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
 
 	if _, ok := fvs["UpdatedAt"]; !ok {
@@ -369,37 +349,6 @@ func (m *Applet) UpdateByProjectIDAndName(db sqlx.DBExecutor, zeros ...string) e
 	return m.UpdateByProjectIDAndNameWithFVs(db, fvs)
 }
 
-func (m *Applet) UpdateByProjectIDAndWasmResourceIDWithFVs(db sqlx.DBExecutor, fvs builder.FieldValues) error {
-
-	if _, ok := fvs["UpdatedAt"]; !ok {
-		fvs["UpdatedAt"] = types.Timestamp{Time: time.Now()}
-	}
-	tbl := db.T(m)
-	res, err := db.Exec(
-		builder.Update(tbl).
-			Where(
-				builder.And(
-					tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
-					tbl.ColByFieldName("WasmResourceID").Eq(m.WasmResourceID),
-				),
-				builder.Comment("Applet.UpdateByProjectIDAndWasmResourceIDWithFVs"),
-			).
-			Set(tbl.AssignmentsByFieldValues(fvs)...),
-	)
-	if err != nil {
-		return err
-	}
-	if affected, _ := res.RowsAffected(); affected == 0 {
-		return m.FetchByProjectIDAndWasmResourceID(db)
-	}
-	return nil
-}
-
-func (m *Applet) UpdateByProjectIDAndWasmResourceID(db sqlx.DBExecutor, zeros ...string) error {
-	fvs := builder.FieldValueFromStructByNoneZero(m, zeros...)
-	return m.UpdateByProjectIDAndWasmResourceIDWithFVs(db, fvs)
-}
-
 func (m *Applet) Delete(db sqlx.DBExecutor) error {
 	_, err := db.Exec(
 		builder.Delete().
@@ -459,24 +408,6 @@ func (m *Applet) DeleteByProjectIDAndName(db sqlx.DBExecutor) error {
 					),
 				),
 				builder.Comment("Applet.DeleteByProjectIDAndName"),
-			),
-	)
-	return err
-}
-
-func (m *Applet) DeleteByProjectIDAndWasmResourceID(db sqlx.DBExecutor) error {
-	tbl := db.T(m)
-	_, err := db.Exec(
-		builder.Delete().
-			From(
-				tbl,
-				builder.Where(
-					builder.And(
-						tbl.ColByFieldName("ProjectID").Eq(m.ProjectID),
-						tbl.ColByFieldName("WasmResourceID").Eq(m.WasmResourceID),
-					),
-				),
-				builder.Comment("Applet.DeleteByProjectIDAndWasmResourceID"),
 			),
 	)
 	return err

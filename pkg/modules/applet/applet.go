@@ -6,16 +6,14 @@ import (
 	"mime/multipart"
 	"os"
 
-	confid "github.com/machinefi/Bumblebee/conf/id"
-	"github.com/machinefi/Bumblebee/kit/sqlx"
-	"github.com/machinefi/Bumblebee/kit/sqlx/builder"
-	"github.com/machinefi/Bumblebee/kit/sqlx/datatypes"
-
-	"github.com/machinefi/w3bstream/pkg/modules/vm"
-
+	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/builder"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/datatypes"
 	"github.com/machinefi/w3bstream/pkg/errors/status"
 	"github.com/machinefi/w3bstream/pkg/models"
 	"github.com/machinefi/w3bstream/pkg/modules/resource"
+	"github.com/machinefi/w3bstream/pkg/modules/vm"
 	"github.com/machinefi/w3bstream/pkg/types"
 )
 
@@ -43,28 +41,24 @@ func CreateApplet(ctx context.Context, projectID types.SFID, r *CreateAppletReq)
 	defer l.End()
 
 	appletID := idg.MustGenSFID()
-	_, filename, sum, err := resource.Upload(ctx, r.File, appletID.String())
+
+	_, fullName, fileName, sum, err := resource.Upload(ctx, r.File, appletID.String())
 	if err != nil {
 		l.Error(err)
 		return nil, status.UploadFileFailed.StatusErr().WithDesc(err.Error())
 	}
 
-	resourceID := idg.MustGenSFID()
-	mResource := &models.WasmResource{
-		RelProject:      models.RelProject{ProjectID: projectID},
-		RelWasmResource: models.RelWasmResource{WasmResourceID: resourceID},
-		WasmResourceInfo: models.WasmResourceInfo{
-			Name: filename,
-			Path: filename,
-			Md5:  sum,
-		},
-	}
+	// TODO which one????
+	mResource := &models.WasmResource{WasmResourceInfo: models.WasmResourceInfo{Md5: sum}}
+	//if mResource, err = wasmresource.FetchOrCreateResourceByMd5(ctx, sum); err != nil {
+	//	l.Error(err)
+	//	return nil, status.CheckDatabaseError(err, "FetchOrCreateResourceByMd5")
+	//}
 
 	mApplet := &models.Applet{
-		RelProject:      models.RelProject{ProjectID: projectID},
-		RelApplet:       models.RelApplet{AppletID: appletID},
-		RelWasmResource: models.RelWasmResource{WasmResourceID: resourceID},
-		AppletInfo:      models.AppletInfo{Name: r.AppletName},
+		RelProject: models.RelProject{ProjectID: projectID},
+		RelApplet:  models.RelApplet{AppletID: appletID},
+		AppletInfo: models.AppletInfo{Name: r.AppletName, WasmName: fileName},
 	}
 	if len(r.Info.Strategies) == 0 {
 		r.Info.Strategies = append(r.Info.Strategies, models.DefaultStrategyInfo)
@@ -72,9 +66,22 @@ func CreateApplet(ctx context.Context, projectID types.SFID, r *CreateAppletReq)
 
 	err = sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
-			return mResource.Create(db)
+			if err = mResource.FetchByMd5(db); err != nil {
+				// TODO check err type
+				mResource.WasmResourceID = idg.MustGenSFID()
+				mResource.WasmResourceInfo.Path = ""
+				mResource.WasmResourceInfo.Md5 = sum
+				mResource.WasmResourceInfo.RefCnt = 0
+				if err = mResource.Create(db); err != nil {
+					return err
+				}
+			}
+			mResource.WasmResourceInfo.Path = fullName
+			mResource.WasmResourceInfo.RefCnt += 1
+			return mResource.UpdateByWasmResourceID(db)
 		},
 		func(db sqlx.DBExecutor) error {
+			mApplet.RelWasmResource = mResource.RelWasmResource
 			return mApplet.Create(db)
 		},
 		func(db sqlx.DBExecutor) error {
@@ -93,7 +100,7 @@ func CreateApplet(ctx context.Context, projectID types.SFID, r *CreateAppletReq)
 	).Do()
 
 	if err != nil {
-		defer os.RemoveAll(filename)
+		defer os.RemoveAll(fullName)
 		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "CreateApplet")
 	}
@@ -110,17 +117,23 @@ func UpdateApplet(ctx context.Context, appletID types.SFID, r *UpdateAppletReq) 
 	d := types.MustDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	mApplet := &models.Applet{RelApplet: models.RelApplet{AppletID: appletID}}
-	mResource := &models.WasmResource{}
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
 
 	_, l = l.Start(ctx, "UpdateApplet")
 	defer l.End()
 
-	_, filename, sum, err := resource.Upload(ctx, r.File, appletID.String())
+	_, fullName, fileName, sum, err := resource.Upload(ctx, r.File, appletID.String())
 	if err != nil {
 		l.Error(err)
 		return status.UploadFileFailed.StatusErr().WithDesc(err.Error())
 	}
+
+	// TODO which one ????
+	mResource := &models.WasmResource{WasmResourceInfo: models.WasmResourceInfo{Md5: sum}}
+	//if mResource, err = wasmresource.FetchOrCreateResourceByMd5(ctx, sum); err != nil {
+	//	l.Error(err)
+	//	return status.CheckDatabaseError(err, "FetchOrCreateResourceByMd5")
+	//}
 
 	oldPath := ""
 	needUpdateStrategies := r.Info != nil && len(r.Strategies) > 0
@@ -130,19 +143,34 @@ func UpdateApplet(ctx context.Context, appletID types.SFID, r *UpdateAppletReq) 
 			return mApplet.FetchByAppletID(db)
 		},
 		func(db sqlx.DBExecutor) error {
-			mResource.WasmResourceID = mApplet.WasmResourceID
-			return mResource.FetchByWasmResourceID(db)
+			m := &models.WasmResource{RelWasmResource: models.RelWasmResource{WasmResourceID: mApplet.RelWasmResource.WasmResourceID}}
+			if err = m.FetchByWasmResourceID(db); err != nil {
+				return err
+			}
+			m.WasmResourceInfo.RefCnt -= 1
+			return m.UpdateByWasmResourceID(db, "RefCnt")
 		},
 		func(db sqlx.DBExecutor) error {
-			oldPath = mResource.Path
-			mResource.Path, mResource.Md5 = filename, sum
-			if r.Info != nil {
-				mResource.Name = filename
+			if err = mResource.FetchByMd5(db); err != nil {
+				// TODO check err type
+				mResource.WasmResourceID = idg.MustGenSFID()
+				mResource.WasmResourceInfo.Path = ""
+				mResource.WasmResourceInfo.Md5 = sum
+				mResource.WasmResourceInfo.RefCnt = 0
+				if err = mResource.Create(db); err != nil {
+					return err
+				}
 			}
+			if len(mResource.WasmResourceInfo.Path) > 0 {
+				oldPath = mResource.WasmResourceInfo.Path
+			}
+			mResource.WasmResourceInfo.Path = fullName
+			mResource.WasmResourceInfo.RefCnt += 1
 			return mResource.UpdateByWasmResourceID(db)
 		},
 		func(db sqlx.DBExecutor) error {
 			mApplet.RelWasmResource = mResource.RelWasmResource
+			mApplet.WasmName = fileName
 			if r.Info != nil {
 				mApplet.Name = r.AppletName
 			}
@@ -183,12 +211,14 @@ func UpdateApplet(ctx context.Context, appletID types.SFID, r *UpdateAppletReq) 
 
 	if err != nil {
 		l.Error(err)
-		os.RemoveAll(filename)
+		os.RemoveAll(fullName)
 	} else {
-		os.RemoveAll(oldPath)
+		if len(oldPath) > 0 {
+			os.RemoveAll(oldPath)
+		}
 	}
 
-	l.WithValues("applet", appletID, "path", filename).Info("applet uploaded")
+	l.WithValues("applet", appletID, "path", fullName).Info("applet uploaded")
 	return nil
 }
 
@@ -285,6 +315,7 @@ func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
+			// TODO applet must have a wasm
 			mResource.WasmResourceID = mApplet.WasmResourceID
 			err = mResource.FetchByWasmResourceID(d)
 			if err != nil {
@@ -303,10 +334,11 @@ func RemoveApplet(ctx context.Context, r *RemoveAppletReq) error {
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
-			err = mResource.DeleteByWasmResourceID(d)
+			mResource.WasmResourceInfo.RefCnt -= 1
+			err = mResource.UpdateByWasmResourceID(d, "RefCnt")
 			if err != nil {
 				l.Error(err)
-				return status.CheckDatabaseError(err, "DeleteByWasmResourceID")
+				return status.CheckDatabaseError(err, "UpdateByWasmResourceID")
 			}
 			return nil
 		},
