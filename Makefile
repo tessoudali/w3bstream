@@ -27,15 +27,9 @@ migrate: install_toolkit install_easyjson
 ## build srv-applet-mgr
 build_server:
 	@cd cmd/srv-applet-mgr && go build
-	@mkdir -p build
-	@mv cmd/srv-applet-mgr/srv-applet-mgr build
-	@rm -rf build/config
-	@mkdir -p build/config
-	@cp cmd/srv-applet-mgr/config/default.yml build/config/default.yml
-	@cp build_image/etc/srv-applet-mgr/config/local.yml build/config/local.yml
-	@echo 'succeed! srv-applet-mgr =>build/srv-applet-mgr*'
-	@echo 'succeed! config =>build/config/'
-	@echo 'modify config/local.yaml to use your server config'
+	@echo 'succeed! srv-applet-mgr =>cmd/srv-applet-mgr/srv-applet-mgrr*'
+	@echo 'succeed! config =>cmd/srv-applet-mgr/config'
+	@echo 'modify cmd/srv-applet-mgr/config/local.yaml to use your server config'
 
 build_server_for_docker: update_go_module
 	@cd cmd/srv-applet-mgr && GOOS=linux GOWORK=off CGO_ENABLED=1 go build

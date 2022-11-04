@@ -3,7 +3,7 @@ Suppose `$working_dir` is the directory you want to store your data.
 
 ## Install docker-compose
 
-https://docker-docs.netlify.app/compose/install/#uninstallation
+https://docker-docs.netlify.app/compose/install/#install-compose
 
 ## Download docker-compose.yaml
 
