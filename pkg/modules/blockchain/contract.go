@@ -59,7 +59,7 @@ func (t *contract) do(ctx context.Context) {
 			return
 		}
 
-		c.BlockCurrent = toBlock
+		c.BlockCurrent = toBlock + 1
 		if err := c.UpdateByID(d); err != nil {
 			l.Error(errors.Wrap(err, "update contractlog db failed"))
 			return
