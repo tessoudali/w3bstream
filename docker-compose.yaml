@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   w3bapp:
-    image: ${WS_BACKEND_IMAGE:-ghcr.io/machinefi/w3bstream:latest}
+    image: ${WS_BACKEND_IMAGE:-ghcr.io/machinefi/w3bstream:main}
     depends_on:
       - "postgres"
       - "mqtt"
@@ -24,26 +24,27 @@ services:
       - ${WS_WORKING_DIR:-.}/asserts:/w3bstream/asserts
 
   w3bstream-studio:
-    image: ${WS_STUDIO_IMAGE:-ghcr.io/machinefi/w3bstream-studio:latest}
+    image: ${WS_STUDIO_IMAGE:-ghcr.io/machinefi/w3bstream-studio:main}
     container_name: w3bstream-studio
     restart: always
     working_dir: /w3bstream-studio
     command: ["node", "server.js"]
     depends_on:
       - "postgres"
+      - "w3bapp"
     ports:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?schema=applet_management"
       DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?schema=monitor"
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://w3bapp:8888}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8888}
 
   mqtt:
     image: eclipse-mosquitto:1.6.15
     container_name: mosquitto
     restart: always
     volumes:
-      - ${WS_WORKING_DIR:-.}/postgres:/var/lib/postgresql/data
+      - ${WS_WORKING_DIR:-.}/mqtt:/mosquitto/data
 
   postgres:
     image: postgres:13
@@ -54,7 +55,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-PaSsW0Rd}
       POSTGRES_DB: ${POSTGRES_DB:-w3bstream}
     volumes:
-      - ${WS_WORKING_DIR:-.}/mqtt:/mosquitto/data
+      - ${WS_WORKING_DIR:-.}/postgres:/var/lib/postgresql/data
 
   graphql-engine:
     image: hasura/graphql-engine:v2.14.0
