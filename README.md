@@ -24,33 +24,37 @@ You will run with prebuilt docker image from recent stable versions.
 
 ## Run with docker
 
-### init frontend
+### init submodules
 
 ```bash
-make init_frontend
+make init_submodules
 ```
 
-### Update frontend to latest if needed
+### Update studio to latest if needed
 
 ```bash
-make update_frontend
+make update_studio
 ```
 
-### Build docker image
+### Build docker images
 
 ```bash
-make build_image
+make build_docker_images
 ```
 
-### Run docker container
+### Run server in docker containers
 
 ```bash
- make run_image
+ make run_docker
  ```
 
- ### drop docker image
+ ### stop server running in docker containers
  ```bash
- make drop_image
+ make stop_docker
+ ```
+ ### delete docker resources
+ ```bash
+ make drop_docker
  ```
 
 ## Access W3bstream Studio

@@ -4,6 +4,7 @@ build
 .session.vim
 .undodir
 .vscode
+working_dir
 asserts
 vendor
 pgdata
