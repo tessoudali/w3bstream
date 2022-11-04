@@ -5,21 +5,21 @@ services:
     image: ${WS_BACKEND_IMAGE:-ghcr.io/machinefi/w3bstream:main}
     depends_on:
       - "postgres"
-      - "mqtt"
+      - "mqtt_server"
     container_name: w3bstream
     working_dir: /w3bstream
     restart: always
     ports:
       - "8888:8888"
     environment:
-      SRV_APPLET_MGR__ETHCLIENTCONFIG__ChainEndpoint: "https://babel-api.testnet.iotex.io/"
-      SRV_APPLET_MGR__ETHCLIENTCONFIG__PrivateKey: ""
+      SRV_APPLET_MGR__ETHCLIENTCONFIG__ChainEndpoint: ${CHAIN_ENDPOINT:-https://babel-api.testnet.iotex.io/}
+      SRV_APPLET_MGR__ETHCLIENTCONFIG__PrivateKey: ${PRIVATE_KEY:-""}
       SRV_APPLET_MGR__JWT__ExpIn: 1h
-      SRV_APPLET_MGR__JWT__Issuer: "srv-applet-mgr"
-      SRV_APPLET_MGR__JWT__SignKey: "xxxx"
+      SRV_APPLET_MGR__JWT__Issuer: ${JWT_ISSUER:-w3bstream}
+      SRV_APPLET_MGR__JWT__SignKey: ${JWT_SIGN_KEY:-xxxx}
       SRV_APPLET_MGR__PGCLI__Master: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?sslmode=disable"
       SRV_APPLET_MGR__SERVER__Port: "8888"
-      SRV_APPLET_MGR__BROKER__Server: mqtt://mqtt:1883
+      SRV_APPLET_MGR__BROKER__Server: mqtt://mqtt_server:1883
     volumes:
       - ${WS_WORKING_DIR:-.}/asserts:/w3bstream/asserts
 
@@ -39,7 +39,7 @@ services:
       DATABASE_URL_MONITOR: "postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?schema=monitor"
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8888}
 
-  mqtt:
+  mqtt_server:
     image: eclipse-mosquitto:1.6.15
     container_name: mosquitto
     restart: always

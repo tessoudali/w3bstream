@@ -3,13 +3,13 @@ Suppose `$working_dir` is the directory you want to store your data.
 
 ## Install docker-compose
 
-https://docker-docs.netlify.app/compose/install/#install-compose
+https://docker-docs.netlify.app/compose/install/
 
 ## Download docker-compose.yaml
 
 ```bash
 cd $working_dir
-curl https://raw.githubusercontent.com/machinefi/w3bstream/docker/docker-compose.yaml > docker-compose.yaml
+curl https://raw.githubusercontent.com/machinefi/w3bstream/main/docker-compose.yaml > docker-compose.yaml
 
 docker-compose up -d
 ```
@@ -18,7 +18,7 @@ You are all set.
 ## Customize settings
 ```bash
 cd $working_dir
-curl https://raw.githubusercontent.com/machinefi/w3bstream/docker/.env.tmpl > .env
+curl https://raw.githubusercontent.com/machinefi/w3bstream/main/.env.tmpl > .env
 ```
 
 then modify the corresponding parameters in `.env`, and restart your docker containers
