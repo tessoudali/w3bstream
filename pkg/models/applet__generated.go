@@ -110,12 +110,12 @@ func (*Applet) FieldAppletID() string {
 	return "AppletID"
 }
 
-func (m *Applet) ColWasmResourceID() *builder.Column {
-	return AppletTable.ColByFieldName(m.FieldWasmResourceID())
+func (m *Applet) ColResourceID() *builder.Column {
+	return AppletTable.ColByFieldName(m.FieldResourceID())
 }
 
-func (*Applet) FieldWasmResourceID() string {
-	return "WasmResourceID"
+func (*Applet) FieldResourceID() string {
+	return "ResourceID"
 }
 
 func (m *Applet) ColName() *builder.Column {

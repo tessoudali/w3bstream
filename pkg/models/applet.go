@@ -15,7 +15,7 @@ type Applet struct {
 	datatypes.PrimaryID
 	RelProject
 	RelApplet
-	RelWasmResource
+	RelResource
 	AppletInfo
 	datatypes.OperationTimes
 }
