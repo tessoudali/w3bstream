@@ -76,9 +76,13 @@ make build_docker_images
 ### Dependencies:
 
 - OS : macOS(11.0+) / Linux (tested on Ubuntu 16+)
+- Go: golang (1.18+)
 - Docker: to start a postgres
-- Httpie: a simple curl command (used to interact with W3bstream node via cli)
 - Tinygo: to build wasm code
+- make: run makefile
+- GCC: 11.3.0
+- protobuf: 3.12+
+- Httpie: (optional) a simple curl command (used to interact with W3bstream node via cli)
 
 ### Init protocols and database
 
@@ -98,4 +102,3 @@ keep the terminal alive, and open a new terminal for the other commands.
 ### Interact with W3bstream using CLI
 
 Please refer to [HOWTO.md](./HOWTO.md) for more details.
-
