@@ -2,46 +2,30 @@ package blockchain
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
+	"errors"
 
 	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
 	"github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
+	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/datatypes"
 	"github.com/machinefi/w3bstream/pkg/enums"
 	"github.com/machinefi/w3bstream/pkg/errors/status"
 	"github.com/machinefi/w3bstream/pkg/models"
 	"github.com/machinefi/w3bstream/pkg/types"
 )
 
-type CreateMonitorReq struct {
-	Contractlog *CreateContractlogReq `json:"contractLog,omitempty"`
-	Chaintx     *CreateChaintxReq     `json:"chainTx,omitempty"`
-	ChainHeight *CreateChainHeightReq `json:"chainHeight,omitempty"`
-}
+const chainUniqFlag = 0
 
 type (
-	CreateContractlogReq = models.ContractlogInfo
-	CreateChaintxReq     = models.ChaintxInfo
+	CreateContractLogReq = models.ContractLogInfo
+	CreateChainTxReq     = models.ChainTxInfo
 	CreateChainHeightReq = models.ChainHeightInfo
 )
 
-func CreateMonitor(ctx context.Context, projectName string, r *CreateMonitorReq) (interface{}, error) {
+func CreateContractLog(ctx context.Context, projectName string, r *CreateContractLogReq) (*models.ContractLog, error) {
 	d := types.MustMonitorDBExecutorFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
-	switch {
-	case r.Contractlog != nil:
-		return createContractLog(d, projectName, r.Contractlog, idg)
-	case r.Chaintx != nil:
-		return createChainTx(d, projectName, r.Chaintx, idg)
-	case r.ChainHeight != nil:
-		return createChainHeight(d, projectName, r.ChainHeight, idg)
-	default:
-		return nil, status.BadRequest
-	}
-}
 
-func createContractLog(d sqlx.DBExecutor, projectName string, r *CreateContractlogReq, idg confid.SFIDGenerator) (*models.Contractlog, error) {
 	if err := checkChainID(d, r.ChainID); err != nil {
 		return nil, err
 	}
@@ -49,11 +33,12 @@ func createContractLog(d sqlx.DBExecutor, projectName string, r *CreateContractl
 	n := *r
 	n.BlockCurrent = n.BlockStart
 	n.EventType = getEventType(n.EventType)
-	m := &models.Contractlog{
-		RelContractlog: models.RelContractlog{ContractlogID: idg.MustGenSFID()},
-		ContractlogData: models.ContractlogData{
+	m := &models.ContractLog{
+		RelContractLog: models.RelContractLog{ContractLogID: idg.MustGenSFID()},
+		ContractLogData: models.ContractLogData{
 			ProjectName:     projectName,
-			ContractlogInfo: n,
+			Uniq:            chainUniqFlag,
+			ContractLogInfo: n,
 		},
 	}
 	if err := m.Create(d); err != nil {
@@ -62,18 +47,23 @@ func createContractLog(d sqlx.DBExecutor, projectName string, r *CreateContractl
 	return m, nil
 }
 
-func createChainTx(d sqlx.DBExecutor, projectName string, r *CreateChaintxReq, idg confid.SFIDGenerator) (*models.Chaintx, error) {
+func CreateChainTx(ctx context.Context, projectName string, r *CreateChainTxReq) (*models.ChainTx, error) {
+	d := types.MustMonitorDBExecutorFromContext(ctx)
+	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
 	if err := checkChainID(d, r.ChainID); err != nil {
 		return nil, err
 	}
 
 	n := *r
 	n.EventType = getEventType(n.EventType)
-	m := &models.Chaintx{
-		RelChaintx: models.RelChaintx{ChaintxID: idg.MustGenSFID()},
-		ChaintxData: models.ChaintxData{
+	m := &models.ChainTx{
+		RelChainTx: models.RelChainTx{ChainTxID: idg.MustGenSFID()},
+		ChainTxData: models.ChainTxData{
 			ProjectName: projectName,
-			ChaintxInfo: n,
+			Uniq:        chainUniqFlag,
+			Finished:    datatypes.FALSE,
+			ChainTxInfo: n,
 		},
 	}
 	if err := m.Create(d); err != nil {
@@ -82,7 +72,10 @@ func createChainTx(d sqlx.DBExecutor, projectName string, r *CreateChaintxReq, i
 	return m, nil
 }
 
-func createChainHeight(d sqlx.DBExecutor, projectName string, r *CreateChainHeightReq, idg confid.SFIDGenerator) (*models.ChainHeight, error) {
+func CreateChainHeight(ctx context.Context, projectName string, r *CreateChainHeightReq) (*models.ChainHeight, error) {
+	d := types.MustMonitorDBExecutorFromContext(ctx)
+	idg := confid.MustSFIDGeneratorFromContext(ctx)
+
 	if err := checkChainID(d, r.ChainID); err != nil {
 		return nil, err
 	}
@@ -93,6 +86,8 @@ func createChainHeight(d sqlx.DBExecutor, projectName string, r *CreateChainHeig
 		RelChainHeight: models.RelChainHeight{ChainHeightID: idg.MustGenSFID()},
 		ChainHeightData: models.ChainHeightData{
 			ProjectName:     projectName,
+			Uniq:            chainUniqFlag,
+			Finished:        datatypes.FALSE,
 			ChainHeightInfo: n,
 		},
 	}
@@ -110,62 +105,69 @@ func checkChainID(d sqlx.DBExecutor, id uint64) error {
 	return nil
 }
 
-type RemoveMonitorReq struct {
-	ContractlogID types.SFID `json:"contractlogID,omitempty"`
-	ChaintxID     types.SFID `json:"chaintxID,omitempty"`
-	ChainHeightID types.SFID `json:"chainHeightID,omitempty"`
-}
-
-func RemoveMonitor(ctx context.Context, projectName string, r *RemoveMonitorReq) error {
+func RemoveContractLog(ctx context.Context, projectName string, id types.SFID) error {
 	d := types.MustMonitorDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 
-	_, l = l.Start(ctx, "RemoveMonitor")
+	_, l = l.Start(ctx, "RemoveContractLog")
 	defer l.End()
 
 	l = l.WithValues("project", projectName)
 
-	switch {
-	case r.ContractlogID != 0:
-		m := &models.Contractlog{RelContractlog: models.RelContractlog{ContractlogID: r.ContractlogID}}
-		if err := m.FetchByContractlogID(d); err != nil {
-			return status.CheckDatabaseError(err, "FetchByContractlogID")
-		}
-		if err := checkProjectName(m.ProjectName, projectName, l); err != nil {
-			return err
-		}
-		if err := m.DeleteByContractlogID(d); err != nil {
-			return status.CheckDatabaseError(err, "DeleteByContractlogID")
-		}
-
-	case r.ChaintxID != 0:
-		m := &models.Chaintx{RelChaintx: models.RelChaintx{ChaintxID: r.ChaintxID}}
-		if err := m.FetchByChaintxID(d); err != nil {
-			return status.CheckDatabaseError(err, "FetchByChaintxID")
-		}
-		if err := checkProjectName(m.ProjectName, projectName, l); err != nil {
-			return err
-		}
-		if err := m.DeleteByChaintxID(d); err != nil {
-			return status.CheckDatabaseError(err, "DeleteByChaintxID")
-		}
-
-	case r.ChainHeightID != 0:
-		m := &models.ChainHeight{RelChainHeight: models.RelChainHeight{ChainHeightID: r.ChainHeightID}}
-		if err := m.FetchByChainHeightID(d); err != nil {
-			return status.CheckDatabaseError(err, "FetchByChainHeightID")
-		}
-		if err := checkProjectName(m.ProjectName, projectName, l); err != nil {
-			return err
-		}
-		if err := m.DeleteByChainHeightID(d); err != nil {
-			return status.CheckDatabaseError(err, "DeleteByChainHeightID")
-		}
-
-	default:
-		return status.BadRequest
+	m := &models.ContractLog{RelContractLog: models.RelContractLog{ContractLogID: id}}
+	if err := m.FetchByContractLogID(d); err != nil {
+		return status.CheckDatabaseError(err, "FetchByContractLogID")
 	}
+	if err := checkProjectName(m.ProjectName, projectName, l); err != nil {
+		return err
+	}
+	if err := m.DeleteByContractLogID(d); err != nil {
+		return status.CheckDatabaseError(err, "DeleteByContractLogID")
+	}
+	return nil
+}
 
+func RemoveChainTx(ctx context.Context, projectName string, id types.SFID) error {
+	d := types.MustMonitorDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "RemoveChainTx")
+	defer l.End()
+
+	l = l.WithValues("project", projectName)
+
+	m := &models.ChainTx{RelChainTx: models.RelChainTx{ChainTxID: id}}
+	if err := m.FetchByChainTxID(d); err != nil {
+		return status.CheckDatabaseError(err, "FetchByChainTxID")
+	}
+	if err := checkProjectName(m.ProjectName, projectName, l); err != nil {
+		return err
+	}
+	if err := m.DeleteByChainTxID(d); err != nil {
+		return status.CheckDatabaseError(err, "DeleteByChainTxID")
+	}
+	return nil
+}
+
+func RemoveChainHeight(ctx context.Context, projectName string, id types.SFID) error {
+	d := types.MustMonitorDBExecutorFromContext(ctx)
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "RemoveChainHeight")
+	defer l.End()
+
+	l = l.WithValues("project", projectName)
+
+	m := &models.ChainHeight{RelChainHeight: models.RelChainHeight{ChainHeightID: id}}
+	if err := m.FetchByChainHeightID(d); err != nil {
+		return status.CheckDatabaseError(err, "FetchByChainHeightID")
+	}
+	if err := checkProjectName(m.ProjectName, projectName, l); err != nil {
+		return err
+	}
+	if err := m.DeleteByChainHeightID(d); err != nil {
+		return status.CheckDatabaseError(err, "DeleteByChainHeightID")
+	}
 	return nil
 }
 
