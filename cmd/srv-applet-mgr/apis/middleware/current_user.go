@@ -47,7 +47,7 @@ type CurrentAccount struct {
 func (v *CurrentAccount) WithProjectContextByName(ctx context.Context, prjName string) (context.Context, error) {
 	a := CurrentAccountFromContext(ctx)
 	d := types.MustDBExecutorFromContext(ctx)
-	m := &models.Project{ProjectInfo: models.ProjectInfo{Name: prjName}}
+	m := &models.Project{ProjectName: models.ProjectName{Name: prjName}}
 	if err := m.FetchByName(d); err != nil {
 		return ctx, status.CheckDatabaseError(err, "GetProjectByName")
 	}
