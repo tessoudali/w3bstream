@@ -19,7 +19,7 @@ func TestInit(t *testing.T) {
 	NewWithT(t).Expect(Redis.Port).To(Equal(6379))
 }
 
-func TestLivenessCheck(t *testing.T) {
+func DISABLE_TestLivenessCheck(t *testing.T) {
 	kvs := Redis.LivenessCheck()
 	NewWithT(t).Expect(kvs[Redis.Host]).To(Equal("ok"))
 
