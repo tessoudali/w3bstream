@@ -51,7 +51,7 @@ func init() {
 		MonitorDB:  monitordb,
 		MqttBroker: &confmqtt.Broker{},
 		Redis:      &confredis.Redis{},
-		Server:     &confhttp.Server{},
+		Server:     server,
 		Jwt:        &confjwt.Jwt{},
 		Logger:     &conflog.Log{},
 		StdLogger:  conflog.Std(),
