@@ -296,7 +296,6 @@ func jsonifyRows(rawRows *sql.Rows) ([]byte, error) {
 	for rawRows.Next() {
 		scanArgs := make([]interface{}, len(columnTypes))
 		for i := range columnTypes {
-			// fmt.Println(columnTypes[i].DatabaseTypeName(), columnTypes[i].ScanType().Name())
 			switch columnTypes[i].DatabaseTypeName() {
 			case "VARCHAR", "TEXT", "CHAR":
 				scanArgs[i] = new(sql.NullString)
@@ -309,6 +308,7 @@ func jsonifyRows(rawRows *sql.Rows) ([]byte, error) {
 			case "FLOAT", "FLOAT4", "FLOAT8", "DOUBLE":
 				scanArgs[i] = new(sql.NullFloat64)
 			default:
+				// fmt.Println(columnTypes[i].DatabaseTypeName(), columnTypes[i].ScanType().Name())
 				scanArgs[i] = new(sql.NullString)
 			}
 		}
