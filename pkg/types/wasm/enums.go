@@ -16,14 +16,10 @@ const (
 	ResultStatusCode_TransDataToVMFailed
 	ResultStatusCode_TransDataFromVMFailed
 	ResultStatusCode_HostInternal
+	ResultStatusCode_EnvKeyNotFound
 
 	// TODO following result status
 	ResultStatusCode_Failed = -1 // reserved for wasm invoke failed
 )
 
 type InstanceState = enums.InstanceState
-
-const (
-	KVStore_MEM = iota
-	KVStore_REDS
-)
