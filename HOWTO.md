@@ -185,11 +185,21 @@ output like
 }
 ```
 
+deploy applet with cache and chain client config
+
+```sh
+echo '{"cache":{"mode": "MEMORY"}, "chainClient":{"privateKey":"xxx","chainEndpoint":"https://babel-api.testnet.iotex.io/"}}' | http post :8888/srv-applet-mgr/v0/deploy/applet/$APPLETID -A bearer -a $TOK
+```
+
 start applet
 
 ```sh
 export INSTANCEID=${instance_id}
 http put :8888/srv-applet-mgr/v0/deploy/$INSTANCEID/START -A bearer -a $TOK
+```
+output like 
+
+```json
 ```
 
 ### Register publisher
@@ -236,7 +246,8 @@ http -v get :8888/srv-applet-mgr/v0/strategy/$PROJECTNAME appletID==$APPLETID -A
 export PUBTOKEN=${pub_token}
 export EVENTTYPE=DEFAULT # default means start handler
 export EVENTID=`uuidgen`
-echo '{"events":[{"header":{"event_id":"'$EVENTID'","event_type":"'$EVENTTYPE'","pub_id":"'$PUBKEY'","pub_time":'`date +%s`',"token":"'$PUBTOKEN'"},"payload":"xxx yyy zzz"}]}' | http post :8888/srv-applet-mgr/v0/event/$PROJECTNAME
+export PAYLOAD=${payload} # set your payload
+echo '{"events":[{"header":{"event_id":"'$EVENTID'","event_type":"'$EVENTTYPE'","pub_id":"'$PUBKEY'","pub_time":'`date +%s`',"token":"'$PUBTOKEN'"},"payload":"'`echo $PAYLOAD | base64`'"}]}' | http post :8888/srv-applet-mgr/v0/event/$PROJECTNAME
 ```
 
 output like
