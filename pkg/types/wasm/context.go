@@ -2,6 +2,7 @@ package wasm
 
 import (
 	"context"
+	"github.com/machinefi/w3bstream/pkg/modules/plog"
 
 	"github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/x/contextx"
@@ -10,14 +11,15 @@ import (
 )
 
 type (
-	CtxSQLStore        struct{}
-	CtxKVStore         struct{}
-	CtxLogger          struct{}
-	CtxEnv             struct{}
-	CtxEnvPrefix       struct{}
-	CtxRedisPrefix     struct{}
-	CtxChainClient     struct{}
-	CtxRuntimeResource struct{}
+	CtxSQLStore          struct{}
+	CtxKVStore           struct{}
+	CtxLogger            struct{}
+	CtxPersistenceLogger struct{}
+	CtxEnv               struct{}
+	CtxEnvPrefix         struct{}
+	CtxRedisPrefix       struct{}
+	CtxChainClient       struct{}
+	CtxRuntimeResource   struct{}
 )
 
 func WithSQLStore(ctx context.Context, v SQLStore) context.Context {
@@ -79,6 +81,27 @@ func LoggerFromContext(ctx context.Context) (log.Logger, bool) {
 
 func MustLoggerFromContext(ctx context.Context) log.Logger {
 	v, ok := LoggerFromContext(ctx)
+	must.BeTrue(ok)
+	return v
+}
+
+func WithPersistenceLogger(ctx context.Context, v plog.PersistenceLog) context.Context {
+	return contextx.WithValue(ctx, CtxPersistenceLogger{}, v)
+}
+
+func WithPersistenceLoggerContext(v plog.PersistenceLog) contextx.WithContext {
+	return func(ctx context.Context) context.Context {
+		return contextx.WithValue(ctx, CtxPersistenceLogger{}, v)
+	}
+}
+
+func PersistenceLoggerFromContext(ctx context.Context) (plog.PersistenceLog, bool) {
+	v, ok := ctx.Value(CtxPersistenceLogger{}).(plog.PersistenceLog)
+	return v, ok
+}
+
+func MustPersistenceLoggerFromContext(ctx context.Context) plog.PersistenceLog {
+	v, ok := PersistenceLoggerFromContext(ctx)
 	must.BeTrue(ok)
 	return v
 }

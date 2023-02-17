@@ -2,22 +2,14 @@ package wasmtime
 
 import (
 	"context"
-
-	"github.com/machinefi/w3bstream/pkg/types/wasm/sql_util"
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 
 	conflog "github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/x/mapx"
+	"github.com/machinefi/w3bstream/pkg/modules/plog"
 	"github.com/machinefi/w3bstream/pkg/types/wasm"
-)
-
-const (
-	logTraceLevel uint32 = iota + 1
-	logDebugLevel
-	logInfoLevel
-	logWarnLevel
-	logErrorLevel
+	"github.com/machinefi/w3bstream/pkg/types/wasm/sql_util"
 )
 
 type (
@@ -35,6 +27,7 @@ type (
 		db  wasm.SQLStore
 		log conflog.Logger
 		cl  *wasm.ChainClient
+		pl  plog.PersistenceLog
 	}
 )
 
@@ -43,6 +36,7 @@ func NewExportFuncs(ctx context.Context, rt *Runtime) (*ExportFuncs, error) {
 		res: wasm.MustRuntimeResourceFromContext(ctx),
 		kvs: wasm.MustKVStoreFromContext(ctx),
 		log: wasm.MustLoggerFromContext(ctx),
+		pl:  wasm.MustPersistenceLoggerFromContext(ctx),
 	}
 	ef.cl, _ = wasm.ChainClientFromContext(ctx)
 	ef.db, _ = wasm.SQLStoreFromContext(ctx)
@@ -79,22 +73,25 @@ func (ef *ExportFuncs) Log(logLevel, ptr, size int32) int32 {
 	buf, err := ef.rt.Read(ptr, size)
 	if err != nil {
 		ef.log.Error(err)
+		ef.pl.PersLog(conflog.ErrorLevel.String(), err.Error())
 		return wasm.ResultStatusCode_Failed
 	}
-	switch uint32(logLevel) {
-	case logTraceLevel:
+	switch conflog.Level(logLevel) {
+	case conflog.TraceLevel:
 		ef.log.Trace(string(buf))
-	case logDebugLevel:
+	case conflog.DebugLevel:
 		ef.log.Debug(string(buf))
-	case logInfoLevel:
+	case conflog.InfoLevel:
 		ef.log.Info(string(buf))
-	case logWarnLevel:
+	case conflog.WarnLevel:
 		ef.log.Warn(errors.New(string(buf)))
-	case logErrorLevel:
+	case conflog.ErrorLevel:
 		ef.log.Error(errors.New(string(buf)))
 	default:
+		ef.pl.PersLog(conflog.ErrorLevel.String(), string(buf))
 		return wasm.ResultStatusCode_Failed
 	}
+	ef.pl.PersLog(conflog.Level(logLevel).String(), string(buf))
 	return int32(wasm.ResultStatusCode_OK)
 }
 

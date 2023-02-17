@@ -2,6 +2,8 @@ package deploy
 
 import (
 	"context"
+	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
+	plog "github.com/machinefi/w3bstream/pkg/modules/plog"
 
 	"github.com/machinefi/w3bstream/pkg/depends/x/contextx"
 	"github.com/machinefi/w3bstream/pkg/models"
@@ -14,6 +16,7 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 	d := types.MustMgrDBExecutorFromContext(parent)
 	ins := types.MustInstanceFromContext(parent)
 	ctx := contextx.WithContextCompose(
+		confid.WithSFIDGeneratorContext(confid.MustSFIDGeneratorFromContext(parent)),
 		types.WithInstanceContext(ins),
 		types.WithLoggerContext(types.MustLoggerFromContext(parent)),
 		types.WithWasmDBExecutorContext(types.MustWasmDBExecutorFromContext(parent)),
@@ -49,10 +52,19 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		ctx = wasm.DefaultCache().WithContext(ctx)
 	}
 	ctx = wasm.WithChainClient(ctx, wasm.NewChainClient(parent))
+
+	logSource := "wasm"
 	ctx = wasm.WithLogger(ctx, types.MustLoggerFromContext(ctx).WithValues(
-		"@src", "wasm",
+		"@src", logSource,
 		"@prj", prj.Name,
 		"@app", app.Name,
 	))
+
+	pl := plog.PersistenceLog{
+		DB:  d,
+		Ctx: ctx,
+		Src: logSource,
+	}
+	ctx = wasm.WithPersistenceLogger(ctx, pl)
 	return ctx, nil
 }
