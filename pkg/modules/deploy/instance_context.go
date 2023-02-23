@@ -2,9 +2,8 @@ package deploy
 
 import (
 	"context"
-	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
-	plog "github.com/machinefi/w3bstream/pkg/modules/plog"
 
+	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
 	"github.com/machinefi/w3bstream/pkg/depends/x/contextx"
 	"github.com/machinefi/w3bstream/pkg/models"
 	"github.com/machinefi/w3bstream/pkg/modules/config"
@@ -21,6 +20,8 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		types.WithLoggerContext(types.MustLoggerFromContext(parent)),
 		types.WithWasmDBExecutorContext(types.MustWasmDBExecutorFromContext(parent)),
 		types.WithRedisEndpointContext(types.MustRedisEndpointFromContext(parent)),
+		types.WithTaskWorkerContext(types.MustTaskWorkerFromContext(parent)),
+		types.WithTaskBoardContext(types.MustTaskBoardFromContext(parent)),
 	)(context.Background())
 
 	app := &models.Applet{RelApplet: models.RelApplet{AppletID: ins.AppletID}}
@@ -60,11 +61,6 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		"@app", app.Name,
 	))
 
-	pl := plog.PersistenceLog{
-		DB:  d,
-		Ctx: ctx,
-		Src: logSource,
-	}
-	ctx = wasm.WithPersistenceLogger(ctx, pl)
+	ctx = types.WithLogSource(ctx, logSource)
 	return ctx, nil
 }

@@ -20,6 +20,7 @@ type (
 	CtxWasmDBExecutor    struct{} // CtxWasmDBExecutor sqlx.DBExecutor
 	CtxPgEndpoint        struct{} // CtxPgEndpoint postgres.Endpoint
 	CtxLogger            struct{} // CtxLogger log.Logger
+	CtxLogSource         struct{}
 	CtxMqttBroker        struct{} // CtxMqttBroker mqtt.Broker
 	CtxRedisEndpoint     struct{} // CtxRedisEndpoint redis.Redis
 	CtxUploadConfig      struct{} // CtxUploadConfig UploadConfig
@@ -150,6 +151,27 @@ func LoggerFromContext(ctx context.Context) (log.Logger, bool) {
 
 func MustLoggerFromContext(ctx context.Context) log.Logger {
 	v, ok := LoggerFromContext(ctx)
+	must.BeTrue(ok)
+	return v
+}
+
+func WithLogSource(ctx context.Context, v string) context.Context {
+	return contextx.WithValue(ctx, CtxLogSource{}, v)
+}
+
+func WithLogSourceContext(v string) contextx.WithContext {
+	return func(ctx context.Context) context.Context {
+		return contextx.WithValue(ctx, CtxLogSource{}, v)
+	}
+}
+
+func LogSourceFromContext(ctx context.Context) (string, bool) {
+	v, ok := ctx.Value(CtxLogSource{}).(string)
+	return v, ok
+}
+
+func MustLogSourceFromContext(ctx context.Context) string {
+	v, ok := LogSourceFromContext(ctx)
 	must.BeTrue(ok)
 	return v
 }
