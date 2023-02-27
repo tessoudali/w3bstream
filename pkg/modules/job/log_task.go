@@ -1,4 +1,4 @@
-package plog
+package job
 
 import (
 	"context"
@@ -12,14 +12,13 @@ import (
 	"github.com/machinefi/w3bstream/pkg/types"
 )
 
-func NewTask(ctx context.Context, logLevel, msg string) *Task {
-	return &Task{
-		pLog: &models.RuntimeLog{
-			RelRuntimeLog: models.RelRuntimeLog{RuntimeLogID: confid.MustSFIDGeneratorFromContext(ctx).MustGenSFID()},
-			RuntimeLogInfo: models.RuntimeLogInfo{
+func NewWasmLogTask(ctx context.Context, logLevel, msg string) *WasmLogTask {
+	return &WasmLogTask{
+		wasmLog: &models.WasmLog{
+			RelWasmLog: models.RelWasmLog{WasmLogID: confid.MustSFIDGeneratorFromContext(ctx).MustGenSFID()},
+			WasmLogInfo: models.WasmLogInfo{
 				ProjectName: types.MustProjectFromContext(ctx).ProjectName.Name,
 				AppletName:  types.MustAppletFromContext(ctx).Name,
-				SourceName:  types.MustLogSourceFromContext(ctx),
 				InstanceID:  types.MustInstanceFromContext(ctx).InstanceID,
 				Level:       logLevel,
 				LogTime:     base.AsTimestamp(time.Now()),
@@ -29,21 +28,21 @@ func NewTask(ctx context.Context, logLevel, msg string) *Task {
 	}
 }
 
-type Task struct {
-	pLog *models.RuntimeLog
+type WasmLogTask struct {
+	wasmLog *models.WasmLog
 	mq.TaskState
 }
 
-var _ mq.Task = (*Task)(nil)
+var _ mq.Task = (*WasmLogTask)(nil)
 
-func (t *Task) Subject() string {
+func (t *WasmLogTask) Subject() string {
 	return "DbLogStoring"
 }
 
-func (t *Task) Arg() interface{} {
-	return t.pLog
+func (t *WasmLogTask) Arg() interface{} {
+	return t.wasmLog
 }
 
-func (t *Task) ID() string {
-	return fmt.Sprintf("%s::%s", t.Subject(), t.pLog.RuntimeLogID)
+func (t *WasmLogTask) ID() string {
+	return fmt.Sprintf("%s::%s", t.Subject(), t.wasmLog.WasmLogID)
 }

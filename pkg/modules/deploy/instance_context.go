@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"context"
-
 	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
 	"github.com/machinefi/w3bstream/pkg/depends/x/contextx"
 	"github.com/machinefi/w3bstream/pkg/models"
@@ -54,13 +53,11 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 	}
 	ctx = wasm.WithChainClient(ctx, wasm.NewChainClient(parent))
 
-	logSource := "wasm"
 	ctx = wasm.WithLogger(ctx, types.MustLoggerFromContext(ctx).WithValues(
-		"@src", logSource,
+		"@src", "wasm",
 		"@prj", prj.Name,
 		"@app", app.Name,
 	))
 
-	ctx = types.WithLogSource(ctx, logSource)
 	return ctx, nil
 }

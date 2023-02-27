@@ -8,7 +8,6 @@ import (
 
 	conflog "github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/x/mapx"
-	"github.com/machinefi/w3bstream/pkg/modules/plog"
 	"github.com/machinefi/w3bstream/pkg/types/wasm"
 	"github.com/machinefi/w3bstream/pkg/types/wasm/sql_util"
 )
@@ -74,7 +73,7 @@ func (ef *ExportFuncs) Log(logLevel, ptr, size int32) int32 {
 	buf, err := ef.rt.Read(ptr, size)
 	if err != nil {
 		ef.log.Error(err)
-		job.Dispatch(ef.ctx, plog.NewTask(ef.ctx, conflog.ErrorLevel.String(), err.Error()))
+		job.Dispatch(ef.ctx, job.NewWasmLogTask(ef.ctx, conflog.ErrorLevel.String(), err.Error()))
 		return wasm.ResultStatusCode_Failed
 	}
 	switch conflog.Level(logLevel) {
@@ -89,10 +88,10 @@ func (ef *ExportFuncs) Log(logLevel, ptr, size int32) int32 {
 	case conflog.ErrorLevel:
 		ef.log.Error(errors.New(string(buf)))
 	default:
-		job.Dispatch(ef.ctx, plog.NewTask(ef.ctx, conflog.ErrorLevel.String(), string(buf)))
-		return wasm.ResultStatusCode_Failed
+		job.Dispatch(ef.ctx, job.NewWasmLogTask(ef.ctx, conflog.TraceLevel.String(), string(buf)))
+		return int32(wasm.ResultStatusCode_OK)
 	}
-	job.Dispatch(ef.ctx, plog.NewTask(ef.ctx, conflog.Level(logLevel).String(), string(buf)))
+	job.Dispatch(ef.ctx, job.NewWasmLogTask(ef.ctx, conflog.Level(logLevel).String(), string(buf)))
 	return int32(wasm.ResultStatusCode_OK)
 }
 

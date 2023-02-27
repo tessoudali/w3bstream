@@ -5,26 +5,25 @@ import (
 	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/datatypes"
 )
 
-// RuntimeLog database model event
+// WasmLog database model event
 // @def primary                           ID
-// @def unique_index UI_runtime_log_id    RuntimeLogID
+// @def unique_index UI_wasm_log_id       WasmLogID
 //
-//go:generate toolkit gen model RuntimeLog --database DB
-type RuntimeLog struct {
+//go:generate toolkit gen model WasmLog --database DB
+type WasmLog struct {
 	datatypes.PrimaryID
-	RelRuntimeLog
-	RuntimeLogInfo
+	RelWasmLog
+	WasmLogInfo
 	datatypes.OperationTimes
 }
 
-type RelRuntimeLog struct {
-	RuntimeLogID types.SFID `db:"f_runtime_log_id" json:"runtimeLogID"`
+type RelWasmLog struct {
+	WasmLogID types.SFID `db:"f_wasm_log_id" json:"wasmLogID"`
 }
 
-type RuntimeLogInfo struct {
+type WasmLogInfo struct {
 	ProjectName string          `db:"f_project_name" json:"projectName"`
 	AppletName  string          `db:"f_applet_name,default=''" json:"appletName"`
-	SourceName  string          `db:"f_source_name,default=''" json:"sourceName"`
 	InstanceID  types.SFID      `db:"f_instance_id,default='0'" json:"instanceID"`
 	Level       string          `db:"f_level,default=''" json:"level"`
 	LogTime     types.Timestamp `db:"f_log_time,default='0'" json:"logTime"`
