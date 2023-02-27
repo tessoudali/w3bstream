@@ -20,7 +20,6 @@ type (
 	CtxWasmDBExecutor    struct{} // CtxWasmDBExecutor sqlx.DBExecutor
 	CtxPgEndpoint        struct{} // CtxPgEndpoint postgres.Endpoint
 	CtxLogger            struct{} // CtxLogger log.Logger
-	CtxLogSource         struct{}
 	CtxMqttBroker        struct{} // CtxMqttBroker mqtt.Broker
 	CtxRedisEndpoint     struct{} // CtxRedisEndpoint redis.Redis
 	CtxUploadConfig      struct{} // CtxUploadConfig UploadConfig
