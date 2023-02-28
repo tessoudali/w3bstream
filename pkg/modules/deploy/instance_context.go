@@ -18,6 +18,7 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		types.WithLoggerContext(types.MustLoggerFromContext(parent)),
 		types.WithWasmDBExecutorContext(types.MustWasmDBExecutorFromContext(parent)),
 		types.WithRedisEndpointContext(types.MustRedisEndpointFromContext(parent)),
+		types.WithMqttBrokerContext(types.MustMqttBrokerFromContext(parent)),
 	)(context.Background())
 
 	app := &models.Applet{RelApplet: models.RelApplet{AppletID: ins.AppletID}}
