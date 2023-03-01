@@ -10,15 +10,15 @@ import (
 )
 
 type (
-	CtxSQLStore          struct{}
-	CtxKVStore           struct{}
-	CtxLogger            struct{}
-	CtxPersistenceLogger struct{}
-	CtxEnv               struct{}
-	CtxEnvPrefix         struct{}
-	CtxRedisPrefix       struct{}
-	CtxChainClient       struct{}
-	CtxRuntimeResource   struct{}
+	CtxSQLStore        struct{}
+	CtxKVStore         struct{}
+	CtxLogger          struct{}
+	CtxEnv             struct{}
+	CtxEnvPrefix       struct{}
+	CtxRedisPrefix     struct{}
+	CtxChainClient     struct{}
+	CtxRuntimeResource struct{}
+	CtxMqttClient      struct{}
 )
 
 func WithSQLStore(ctx context.Context, v SQLStore) context.Context {
@@ -185,6 +185,27 @@ func RuntimeResourceFromContext(ctx context.Context) (*mapx.Map[uint32, []byte],
 
 func MustRuntimeResourceFromContext(ctx context.Context) *mapx.Map[uint32, []byte] {
 	v, ok := RuntimeResourceFromContext(ctx)
+	must.BeTrue(ok)
+	return v
+}
+
+func WithMQTTClient(ctx context.Context, mq *MqttClient) context.Context {
+	return contextx.WithValue(ctx, CtxMqttClient{}, mq)
+}
+
+func WithMQTTClientContext(mq *MqttClient) contextx.WithContext {
+	return func(ctx context.Context) context.Context {
+		return contextx.WithValue(ctx, CtxMqttClient{}, mq)
+	}
+}
+
+func MQTTClientFromContext(ctx context.Context) (*MqttClient, bool) {
+	v, ok := ctx.Value(CtxMqttClient{}).(*MqttClient)
+	return v, ok
+}
+
+func MustMQTTClientFromContext(ctx context.Context) *MqttClient {
+	v, ok := MQTTClientFromContext(ctx)
 	must.BeTrue(ok)
 	return v
 }

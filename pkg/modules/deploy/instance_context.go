@@ -21,6 +21,7 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		types.WithRedisEndpointContext(types.MustRedisEndpointFromContext(parent)),
 		types.WithTaskWorkerContext(types.MustTaskWorkerFromContext(parent)),
 		types.WithTaskBoardContext(types.MustTaskBoardFromContext(parent)),
+		types.WithMqttBrokerContext(types.MustMqttBrokerFromContext(parent)),
 	)(context.Background())
 
 	app := &models.Applet{RelApplet: models.RelApplet{AppletID: ins.AppletID}}
