@@ -9,15 +9,26 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/tidwall/gjson"
 	"golang.org/x/text/encoding/unicode"
 
 	conflog "github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/x/mapx"
 	"github.com/machinefi/w3bstream/pkg/modules/job"
+	"github.com/machinefi/w3bstream/pkg/types"
 	"github.com/machinefi/w3bstream/pkg/types/wasm"
 	"github.com/machinefi/w3bstream/pkg/types/wasm/sql_util"
 )
+
+var _blockChainTxMtc = prometheus.NewCounterVec(prometheus.CounterOpts{
+	Name: "w3b_blockchain_tx_metrics",
+	Help: "blockchain transaction counter metrics.",
+}, []string{"project"})
+
+func init() {
+	prometheus.MustRegister(_blockChainTxMtc)
+}
 
 type (
 	Import func(module, name string, f interface{}) error
@@ -309,6 +320,9 @@ func (ef *ExportFuncs) SendTX(chainID int32, offset, size, vmAddrPtr, vmSizePtr 
 		ef.log.Error(err)
 		return wasm.ResultStatusCode_Failed
 	}
+
+	_blockChainTxMtc.WithLabelValues(types.MustProjectFromContext(ef.ctx).Name).Inc()
+
 	ret := gjson.Parse(string(buf))
 	txHash, err := ef.cl.SendTX(uint32(chainID), ret.Get("to").String(), ret.Get("value").String(), ret.Get("data").String())
 	if err != nil {
@@ -362,6 +376,9 @@ func (ef *ExportFuncs) CallContract(chainID int32, offset, size int32, vmAddrPtr
 		ef.log.Error(err)
 		return wasm.ResultStatusCode_Failed
 	}
+
+	_blockChainTxMtc.WithLabelValues(types.MustProjectFromContext(ef.ctx).Name).Inc()
+
 	ret := gjson.Parse(string(buf))
 	data, err := ef.cl.CallContract(uint32(chainID), ret.Get("to").String(), ret.Get("data").String())
 	if err != nil {
