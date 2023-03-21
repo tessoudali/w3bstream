@@ -14,10 +14,20 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/tidwall/gjson"
 
 	wsTypes "github.com/machinefi/w3bstream/pkg/types"
 )
+
+var _blockChainTxMtc = prometheus.NewCounterVec(prometheus.CounterOpts{
+	Name: "w3b_blockchain_tx_metrics",
+	Help: "blockchain transaction counter metrics.",
+}, []string{"project"})
+
+func init() {
+	prometheus.MustRegister(_blockChainTxMtc)
+}
 
 type ChainClient struct {
 	pvk       *ecdsa.PrivateKey
@@ -59,7 +69,7 @@ func decodeEndpoints(in string) (ret map[uint32]string) {
 	return
 }
 
-func (c *ChainClient) SendTX(chainID uint32, toStr, valueStr, dataStr string) (string, error) {
+func (c *ChainClient) SendTX(projectName string, chainID uint32, toStr, valueStr, dataStr string) (string, error) {
 	if c == nil {
 		return "", nil
 	}
@@ -123,6 +133,9 @@ func (c *ChainClient) SendTX(chainID uint32, toStr, valueStr, dataStr string) (s
 	if err != nil {
 		return "", err
 	}
+
+	_blockChainTxMtc.WithLabelValues(projectName).Inc()
+
 	err = cli.SendTransaction(context.Background(), signedTx)
 	if err != nil {
 		return "", err
@@ -147,7 +160,7 @@ func (c *ChainClient) getEthClient(chainID uint32) (*ethclient.Client, error) {
 	return chain, nil
 }
 
-func (c *ChainClient) CallContract(chainID uint32, toStr, dataStr string) ([]byte, error) {
+func (c *ChainClient) CallContract(projectName string, chainID uint32, toStr, dataStr string) ([]byte, error) {
 	var (
 		to = common.HexToAddress(toStr)
 	)
@@ -164,5 +177,8 @@ func (c *ChainClient) CallContract(chainID uint32, toStr, dataStr string) ([]byt
 		To:   &to,
 		Data: data,
 	}
+
+	_blockChainTxMtc.WithLabelValues(projectName, string(chainID)).Inc()
+
 	return cli.CallContract(context.Background(), msg, nil)
 }

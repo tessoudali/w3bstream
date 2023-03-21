@@ -18,7 +18,6 @@ services:
       SRV_APPLET_MGR__PGCLI__Master: postgresql://${POSTGRES_USER:-w3badmin}:${POSTGRES_PASSWORD:-PaSsW0Rd}@postgres:5432/${POSTGRES_DB:-w3bstream}?sslmode=disable
       SRV_APPLET_MGR__SERVER__Port: "8888"
       SRV_APPLET_MGR__BROKER__Server: mqtt://mqtt_server:1883
-      SRV_APPLET_MGR__EthClient_PrivateKey: ${PRIVATE_KEY:-}
       SRV_APPLET_MGR__EthClient_Endpoints: '{"4689": "https://babel-api.mainnet.iotex.io", "4690": "https://babel-api.testnet.iotex.io"}'
       SRV_APPLET_MGR__Jwt_ExpIn: 1h
       SRV_APPLET_MGR__Jwt_Issuer: ${JWT_ISSUER:-w3bstream}
@@ -82,3 +81,30 @@ services:
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_ADMIN_SECRET: ${ADMIN_SECRET:-w3baAdmiNsecrEtkey}
+
+  prometheus:
+    image: prom/prometheus:v2.41.0
+    depends_on:
+      - "w3bapp"
+      - "pg-prometheus"
+    user: root
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./build/var/prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${WS_WORKING_DIR:-.}/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+#    environment:
+#      W3B_SERVICE: http://w3bapp:8888
+#      PG_ADAPTER_SERVICE: http://pg-prometheus:9201
+
+  pg-prometheus:
+    image: imoocc/postgresql-prometheus-adapter:latest
+    container_name: postgresql-prometheus-adapter
+    restart: always
+    ports:
+      - "9201:9201"
+    environment:
+      DATABASE_URL: user=${POSTGRES_USER:-w3badmin} password=${POSTGRES_PASSWORD:-PaSsW0Rd} host=postgres port=5432 database=${POSTGRES_DB:-w3bstream}
