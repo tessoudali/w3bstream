@@ -64,6 +64,7 @@ func FetchOrCreateAccountByEthAddress(ctx context.Context, address types.EthAddr
 			} else {
 				acc.Role = enums.ACCOUNT_ROLE__DEVELOPER
 				acc.State = enums.ACCOUNT_STATE__ENABLED
+				acc.OperatorPrivateKey = generateRandomPrivateKey()
 				if err := acc.Create(db); err != nil {
 					return status.CheckDatabaseError(err, "CreateAccount")
 				}
@@ -115,6 +116,13 @@ func ValidateLoginByEthAddress(ctx context.Context, r *LoginByEthAddressReq) (*m
 	}
 
 	address := strings.ToLower(msg.GetAddress().String())
+
+	if lst, ok := types.WhiteListFromContext(ctx); ok {
+		if !lst.Validate(address) {
+			return nil, status.WhiteListForbidden
+		}
+	}
+
 	acc, _, err := FetchOrCreateAccountByEthAddress(ctx, types.EthAddress(address))
 
 	if err != nil {
