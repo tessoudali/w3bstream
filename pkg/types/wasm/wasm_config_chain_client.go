@@ -30,15 +30,17 @@ func init() {
 }
 
 type ChainClient struct {
-	pvk       *ecdsa.PrivateKey
-	endpoints map[uint32]string
-	clientMap map[uint32]*ethclient.Client
+	projectName string
+	pvk         *ecdsa.PrivateKey
+	endpoints   map[uint32]string
+	clientMap   map[uint32]*ethclient.Client
 }
 
 func NewChainClient(ctx context.Context) *ChainClient {
 	c := &ChainClient{
-		clientMap: make(map[uint32]*ethclient.Client, 0),
-		endpoints: make(map[uint32]string),
+		projectName: wsTypes.MustProjectFromContext(ctx).Name,
+		clientMap:   make(map[uint32]*ethclient.Client, 0),
+		endpoints:   make(map[uint32]string),
 	}
 	ethcli, ok := wsTypes.ETHClientConfigFromContext(ctx)
 	if !ok || ethcli == nil {
@@ -69,7 +71,7 @@ func decodeEndpoints(in string) (ret map[uint32]string) {
 	return
 }
 
-func (c *ChainClient) SendTX(projectName string, chainID uint32, toStr, valueStr, dataStr string) (string, error) {
+func (c *ChainClient) SendTX(chainID uint32, toStr, valueStr, dataStr string) (string, error) {
 	if c == nil {
 		return "", nil
 	}
@@ -134,7 +136,7 @@ func (c *ChainClient) SendTX(projectName string, chainID uint32, toStr, valueStr
 		return "", err
 	}
 
-	_blockChainTxMtc.WithLabelValues(projectName).Inc()
+	_blockChainTxMtc.WithLabelValues(c.projectName).Inc()
 
 	err = cli.SendTransaction(context.Background(), signedTx)
 	if err != nil {
@@ -160,7 +162,7 @@ func (c *ChainClient) getEthClient(chainID uint32) (*ethclient.Client, error) {
 	return chain, nil
 }
 
-func (c *ChainClient) CallContract(projectName string, chainID uint32, toStr, dataStr string) ([]byte, error) {
+func (c *ChainClient) CallContract(chainID uint32, toStr, dataStr string) ([]byte, error) {
 	var (
 		to = common.HexToAddress(toStr)
 	)
@@ -178,7 +180,7 @@ func (c *ChainClient) CallContract(projectName string, chainID uint32, toStr, da
 		Data: data,
 	}
 
-	_blockChainTxMtc.WithLabelValues(projectName, string(chainID)).Inc()
+	_blockChainTxMtc.WithLabelValues(c.projectName, string(chainID)).Inc()
 
 	return cli.CallContract(context.Background(), msg, nil)
 }

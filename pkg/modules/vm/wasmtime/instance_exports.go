@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/machinefi/w3bstream/pkg/types"
 	"math/rand"
 	"strings"
 	"time"
@@ -311,7 +310,7 @@ func (ef *ExportFuncs) SendTX(chainID int32, offset, size, vmAddrPtr, vmSizePtr 
 		return wasm.ResultStatusCode_Failed
 	}
 	ret := gjson.Parse(string(buf))
-	txHash, err := ef.cl.SendTX(types.MustProjectFromContext(ef.ctx).Name, uint32(chainID), ret.Get("to").String(), ret.Get("value").String(), ret.Get("data").String())
+	txHash, err := ef.cl.SendTX(uint32(chainID), ret.Get("to").String(), ret.Get("value").String(), ret.Get("data").String())
 	if err != nil {
 		ef.log.Error(err)
 		return wasm.ResultStatusCode_Failed
@@ -364,7 +363,7 @@ func (ef *ExportFuncs) CallContract(chainID int32, offset, size int32, vmAddrPtr
 		return wasm.ResultStatusCode_Failed
 	}
 	ret := gjson.Parse(string(buf))
-	data, err := ef.cl.CallContract(types.MustProjectFromContext(ef.ctx).Name, uint32(chainID), ret.Get("to").String(), ret.Get("data").String())
+	data, err := ef.cl.CallContract(uint32(chainID), ret.Get("to").String(), ret.Get("data").String())
 	if err != nil {
 		ef.log.Error(err)
 		return wasm.ResultStatusCode_Failed

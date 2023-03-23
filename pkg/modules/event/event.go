@@ -19,7 +19,7 @@ import (
 var _receiveEventMtc = prometheus.NewCounterVec(prometheus.CounterOpts{
 	Name: "w3b_receive_event_metrics",
 	Help: "receive event counter metrics.",
-}, []string{"project"})
+}, []string{"project", "publisher"})
 
 func init() {
 	prometheus.MustRegister(_receiveEventMtc)
@@ -45,7 +45,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	defer l.End()
 
 	l = l.WithValues("project_name", projectName)
-	_receiveEventMtc.WithLabelValues(projectName).Inc()
+	_receiveEventMtc.WithLabelValues(projectName, r.Header.PubId).Inc()
 
 	eventType := enums.EVENTTYPEDEFAULT
 	if r.Header != nil && len(r.Header.EventType) > 0 {
