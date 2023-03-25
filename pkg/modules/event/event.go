@@ -2,12 +2,12 @@ package event
 
 import (
 	"context"
+	"errors"
 	"sync"
 
+	"github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/protocol/eventpb"
 	"github.com/machinefi/w3bstream/pkg/enums"
-	"github.com/machinefi/w3bstream/pkg/models"
-	"github.com/machinefi/w3bstream/pkg/modules/publisher"
 	"github.com/machinefi/w3bstream/pkg/modules/strategy"
 	"github.com/machinefi/w3bstream/pkg/modules/vm"
 	"github.com/machinefi/w3bstream/pkg/types"
@@ -35,12 +35,6 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 
 	l = l.WithValues("project_name", projectName)
 
-	eventType := enums.EVENTTYPEDEFAULT
-	if r.Header != nil && len(r.Header.EventType) > 0 {
-		eventType = r.Header.EventType
-	}
-	l = l.WithValues("event_type", eventType)
-
 	ret = &HandleEventResult{
 		ProjectName: projectName,
 		EventID:     r.Header.EventId,
@@ -52,20 +46,17 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		}
 	}()
 
-	var (
-		pub      *models.Publisher
-		handlers []*strategy.InstanceHandler
-	)
-
-	if r.Header != nil && len(r.Header.PubId) > 0 {
-		pub, err = publisher.GetPublisherByPubKeyAndProjectName(ctx, r.Header.PubId, projectName)
-		if err != nil {
-			return
-		}
-		ret.PubID, ret.PubName = pub.PublisherID, pub.Name
-		l.WithValues("pub_id", pub.PublisherID)
+	if err = publisherVerification(r, l); err != nil {
+		l.Error(err)
+		return
 	}
 
+	eventType := enums.EVENTTYPEDEFAULT
+	if r.Header != nil && len(r.Header.EventType) > 0 {
+		eventType = r.Header.EventType
+	}
+	l = l.WithValues("event_type", eventType)
+	var handlers []*strategy.InstanceHandler
 	handlers, err = strategy.FindStrategyInstances(ctx, projectName, eventType)
 	if err != nil {
 		l.Error(err)
@@ -90,17 +81,30 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 
 		wg.Add(1)
 		go func(v *strategy.InstanceHandler) {
+			defer wg.Done()
 			res <- i.HandleEvent(ctx, v.Handler, []byte(r.Payload))
-			wg.Done()
 		}(v)
 	}
 	wg.Wait()
 	close(res)
 
 	for v := range res {
+		if v == nil {
+			continue
+		}
 		ret.WasmResults = append(ret.WasmResults, *v)
 	}
 	return ret, nil
+}
+
+func publisherVerification(r *eventpb.Event, l log.Logger) error {
+	if r.Header == nil || len(r.Header.Token) == 0 {
+		return errors.New("message token is invalid")
+	}
+
+	// fetch Publisher by jwt token
+
+	return nil
 }
 
 func HandleEvents(ctx context.Context, projectName string, r *HandleEventReq) []*HandleEventResult {
