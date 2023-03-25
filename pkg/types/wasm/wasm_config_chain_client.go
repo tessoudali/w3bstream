@@ -23,7 +23,7 @@ import (
 var _blockChainTxMtc = prometheus.NewCounterVec(prometheus.CounterOpts{
 	Name: "w3b_blockchain_tx_metrics",
 	Help: "blockchain transaction counter metrics.",
-}, []string{"project"})
+}, []string{"project", "chainID"})
 
 func init() {
 	prometheus.MustRegister(_blockChainTxMtc)
@@ -136,7 +136,7 @@ func (c *ChainClient) SendTX(chainID uint32, toStr, valueStr, dataStr string) (s
 		return "", err
 	}
 
-	_blockChainTxMtc.WithLabelValues(c.projectName).Inc()
+	_blockChainTxMtc.WithLabelValues(c.projectName, string(chainID)).Inc()
 
 	err = cli.SendTransaction(context.Background(), signedTx)
 	if err != nil {
