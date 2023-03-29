@@ -5,9 +5,12 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/machinefi/w3bstream/pkg/depends/conf/jwt"
 	"github.com/machinefi/w3bstream/pkg/depends/conf/log"
 	"github.com/machinefi/w3bstream/pkg/depends/protocol/eventpb"
 	"github.com/machinefi/w3bstream/pkg/enums"
+	"github.com/machinefi/w3bstream/pkg/errors/status"
+	"github.com/machinefi/w3bstream/pkg/models"
 	"github.com/machinefi/w3bstream/pkg/modules/strategy"
 	"github.com/machinefi/w3bstream/pkg/modules/vm"
 	"github.com/machinefi/w3bstream/pkg/types"
@@ -16,7 +19,6 @@ import (
 
 type HandleEventResult struct {
 	ProjectName string                   `json:"projectName"`
-	PubID       types.SFID               `json:"pubID,omitempty"`
 	PubName     string                   `json:"pubName,omitempty"`
 	EventID     string                   `json:"eventID"`
 	ErrMsg      string                   `json:"errMsg,omitempty"`
@@ -46,7 +48,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		}
 	}()
 
-	if err = publisherVerification(r, l); err != nil {
+	if err = publisherVerification(ctx, r, l); err != nil {
 		l.Error(err)
 		return
 	}
@@ -97,14 +99,44 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	return ret, nil
 }
 
-func publisherVerification(r *eventpb.Event, l log.Logger) error {
+func publisherVerification(ctx context.Context, r *eventpb.Event, l log.Logger) error {
 	if r.Header == nil || len(r.Header.Token) == 0 {
 		return errors.New("message token is invalid")
 	}
 
-	// fetch Publisher by jwt token
+	d := types.MustMgrDBExecutorFromContext(ctx)
+	p := types.MustProjectFromContext(ctx)
+	pj := jwt.MustPublisherAuthFromContext(ctx)
 
-	return nil
+	claim, err := pj.ParseToken(r.Header.Token)
+	if err != nil {
+		l.Error(err)
+		return err
+	}
+
+	v, ok := claim.Payload.(string)
+	if !ok {
+		l.Error(errors.New("claim of publisher convert string error"))
+		return status.InvalidAuthValue
+	}
+	publisherID := types.SFID(0)
+	if err := publisherID.UnmarshalText([]byte(v)); err != nil {
+		return status.InvalidAuthPublisherID
+	}
+
+	m := &models.Publisher{RelPublisher: models.RelPublisher{PublisherID: publisherID}}
+	err = m.FetchByPublisherID(d)
+	if err != nil {
+		l.Error(err)
+		return status.CheckDatabaseError(err, "FetchByPublisherID")
+	}
+
+	if m.ProjectID == p.ProjectID {
+		return nil
+	} else {
+		return status.NoProjectPermission
+	}
+
 }
 
 func HandleEvents(ctx context.Context, projectName string, r *HandleEventReq) []*HandleEventResult {

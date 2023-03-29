@@ -24,7 +24,7 @@ type CreatePublisherReq struct {
 func CreatePublisher(ctx context.Context, projectID types.SFID, r *CreatePublisherReq) (*models.Publisher, error) {
 	d := types.MustMgrDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
-	j := jwt.MustConfFromContext(ctx)
+	pj := jwt.MustPublisherAuthFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
 
 	_, l = l.Start(ctx, "CreatePublisher")
@@ -32,7 +32,7 @@ func CreatePublisher(ctx context.Context, projectID types.SFID, r *CreatePublish
 
 	// TODO generate token, maybe use public key
 	publisherID := idg.MustGenSFID()
-	token, err := j.GenerateTokenByPayload(publisherID)
+	token, err := pj.GenerateTokenByPayload(publisherID)
 	if err != nil {
 		l.Error(err)
 		return nil, status.InternalServerError.StatusErr().WithDesc(err.Error())
@@ -182,14 +182,13 @@ func RemovePublisher(ctx context.Context, r *RemovePublisherReq) error {
 func UpdatePublisher(ctx context.Context, publisherID types.SFID, r *CreatePublisherReq) (err error) {
 	d := types.MustMgrDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
-	j := jwt.MustConfFromContext(ctx)
+	pj := jwt.MustPublisherAuthFromContext(ctx)
 	m := models.Publisher{RelPublisher: models.RelPublisher{PublisherID: publisherID}}
 
 	_, l = l.Start(ctx, "UpdatePublisher")
 	defer l.End()
 
-	// TODO generate token, maybe use public key
-	token, err := j.GenerateTokenByPayload(publisherID)
+	token, err := pj.GenerateTokenByPayload(publisherID)
 	if err != nil {
 		l.Error(err)
 		return status.InternalServerError.StatusErr().WithDesc(err.Error())

@@ -22,7 +22,7 @@ func (r *UpdatePublisher) Path() string {
 
 func (r *UpdatePublisher) Output(ctx context.Context) (interface{}, error) {
 	a := middleware.CurrentAccountFromContext(ctx)
-	if _, err := a.ValidateProjectPermByPrjName(ctx, r.ProjectName); err != nil {
+	if _, err := a.WithProjectContextByName(ctx, r.ProjectName); err != nil {
 		return nil, err
 	}
 
