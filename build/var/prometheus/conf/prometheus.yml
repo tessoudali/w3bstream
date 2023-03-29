@@ -11,9 +11,3 @@ scrape_configs:
     # scheme defaults to 'http'.
     static_configs:
       - targets: ['w3bapp:8888']
-
-remote_write:
-  - url: "http://pg-prometheus:9201/write"
-
-remote_read:
-  - url: "http://pg-prometheus:9201/read"
