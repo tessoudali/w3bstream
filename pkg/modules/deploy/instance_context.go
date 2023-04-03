@@ -54,7 +54,12 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 	if _, ok := wasm.KVStoreFromContext(ctx); !ok {
 		ctx = wasm.DefaultCache().WithContext(ctx)
 	}
-	ctx = wasm.WithChainClient(ctx, wasm.NewChainClient(ctx))
+
+	acc := &models.Account{RelAccount: prj.RelAccount}
+	if err := acc.FetchByAccountID(d); err != nil {
+		return nil, err
+	}
+	ctx = wasm.WithChainClient(ctx, wasm.NewChainClient(ctx, &acc.OperatorPrivateKey))
 
 	ctx = wasm.WithLogger(ctx, types.MustLoggerFromContext(ctx).WithValues(
 		"@src", "wasm",

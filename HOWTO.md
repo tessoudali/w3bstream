@@ -37,7 +37,8 @@ docker-compose restart
 command
 
 ```sh
-echo '{"username":"admin","password":"${password}"}' | http put :8888/srv-applet-mgr/v0/login
+# the default password is "iotex.W3B.admin"
+echo '{"username":"admin","password":"iotex.W3B.admin"}' | http put :8888/srv-applet-mgr/v0/login 
 ```
 
 output like
@@ -76,7 +77,7 @@ output like
 }
 ```
 
-### Create project with database schema for wasm db storage
+### Create project database schema for wasm db storage
 
 ```sh
 export PROJECTSCHEMA='{
@@ -130,6 +131,42 @@ echo '{"env":'$PROJECTENV'}' | http post :8888/srv-applet-mgr/v0/project_config/
 > the database for wasm storage is configured by w3bstream server and the name
 > of schema is name of project.
 
+### Create project with project env vars and schema
+
+```sh
+echo '{"name":"'$PROJECTNAME'","envs":'$PROJECTENV',"schema":'$PROJECTSCHEMA'}' | http post :8888/srv-applet-mgr/v0/project -A bearer -a $TOK
+```
+
+output like 
+```json
+{
+    "envs": [
+        [
+            "key1",
+            "value1"
+        ],
+        [
+            "key2",
+            "value2"
+        ],
+        [
+            "key3",
+            "value3"
+        ]
+    ],
+    "project": {
+        "accountID": "186913331796320263",
+        "createdAt": "2023-03-27T14:52:20.037217+08:00",
+        "name": "demo2",
+        "projectID": "186913955765090305",
+        "updatedAt": "2023-03-27T14:52:20.037217+08:00"
+    },
+    "schema": {
+        "name": "wasm_project__demo2"
+    }
+}
+```
+
 ### Review your project config
 
 ```shell
@@ -145,7 +182,9 @@ upload wasm script
 ```sh
 ## set env vars
 export WASMFILE=${wasm_path}
-http --form post :8888/srv-applet-mgr/v0/applet/$PROJECTNAME file@$WASMFILE info='{"appletName":"log","wasmName":"log.wasm","strategies":[{"eventType":"DEFAULT","handler":"start"}]}' -A bearer -a $TOK
+export APPLETNAME=${applet_name}
+export WASMNAME=${wasm_name}
+http --form post :8888/srv-applet-mgr/v0/applet/$PROJECTNAME file@$WASMFILE info='{"appletName":"'$APPLETNAME'","wasmName":"'$WASMNAME'","strategies":[{"eventType":"DEFAULT","handler":"start"}]}' -A bearer -a $TOK
 ```
 
 output like
@@ -165,6 +204,9 @@ deploy applet
 ```sh
 export APPLETID=${applet_id}
 http post :8888/srv-applet-mgr/v0/deploy/applet/$APPLETID -A bearer -a $TOK
+
+# in-memory cache is used in default, to use redis cache:
+# echo '{"cache":{"mode": "REDIS"}}' | http post :8888/srv-applet-mgr/v0/deploy/applet/$APPLETID -A bearer -a $TOK
 ```
 
 output like
@@ -174,12 +216,6 @@ output like
   "instanceID": "${instance_id}",
   "instanceState": "CREATED"
 }
-```
-
-deploy applet with cache and chain client config
-
-```sh
-echo '{"cache":{"mode": "MEMORY"}}' | http post :8888/srv-applet-mgr/v0/deploy/applet/$APPLETID -A bearer -a $TOK
 ```
 
 start applet
@@ -405,4 +441,22 @@ http delete :8888/srv-applet-mgr/v0/applet/$APPLETID -A bearer -a $TOK
 ```shell
 export PROJECTNAME=${project_name}
 http delete :8888/srv-applet-mgr/v0/project/$PROJECTNAME -A bearer -a $TOK
+```
+
+### eth sigin/signup
+
+```shell
+export MESSAGE=...   # siwe serailized message
+export SIGNATURE=... # message signature
+echo '{"message":"'$MESSAGE'","signature":"'$SIGNATURE'"}' | http put :8888/srv-applet-mgr/v0/login/eth
+```
+output like:
+```json
+{
+    "accountID": "186912900253363206",
+    "accountRole": "DEVELOPER",
+    "expireAt": "2023-03-16T19:07:57.624481+08:00",
+    "issuer": "iotex-w3bstream",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjoiMTg2OTEyOTAwMjUzMzYzMjA2IiwiaXNzIjoiaW90ZXgtdzNic3RyZWFtIiwiZXhwIjoxNjc4OTY0ODc3fQ.u7wLOBUeehHTURNY2L2d_F4u-dZ5sHnBBHZKujnpMRw"
+}
 ```
