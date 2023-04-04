@@ -24,6 +24,7 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		types.WithTaskWorkerContext(types.MustTaskWorkerFromContext(parent)),
 		types.WithTaskBoardContext(types.MustTaskBoardFromContext(parent)),
 		types.WithMqttBrokerContext(types.MustMqttBrokerFromContext(parent)),
+		types.WithETHClientConfigContext(types.MustETHClientConfigFromContext(parent)),
 	)(context.Background())
 
 	app := &models.Applet{RelApplet: models.RelApplet{AppletID: ins.AppletID}}
@@ -59,11 +60,12 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 	if _, ok := wasm.KVStoreFromContext(ctx); !ok {
 		ctx = wasm.DefaultCache().WithContext(ctx)
 	}
+
 	acc := &models.Account{RelAccount: prj.RelAccount}
 	if err := acc.FetchByAccountID(d); err != nil {
 		return nil, err
 	}
-	ctx = wasm.WithChainClient(ctx, wasm.NewChainClient(parent, &acc.OperatorPrivateKey))
+	ctx = wasm.WithChainClient(ctx, wasm.NewChainClient(ctx, &acc.OperatorPrivateKey))
 
 	ctx = wasm.WithLogger(ctx, types.MustLoggerFromContext(ctx).WithValues(
 		"@src", "wasm",

@@ -4,6 +4,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/machinefi/w3bstream/pkg/depends/protocol/eventpb"
 	"github.com/machinefi/w3bstream/pkg/enums"
 	"github.com/machinefi/w3bstream/pkg/models"
@@ -13,6 +15,15 @@ import (
 	"github.com/machinefi/w3bstream/pkg/types"
 	"github.com/machinefi/w3bstream/pkg/types/wasm"
 )
+
+var _receiveEventMtc = prometheus.NewCounterVec(prometheus.CounterOpts{
+	Name: "w3b_receive_event_metrics",
+	Help: "receive event counter metrics.",
+}, []string{"project", "publisher"})
+
+func init() {
+	prometheus.MustRegister(_receiveEventMtc)
+}
 
 type HandleEventResult struct {
 	ProjectName string                   `json:"projectName"`
@@ -34,6 +45,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	defer l.End()
 
 	l = l.WithValues("project_name", projectName)
+	_receiveEventMtc.WithLabelValues(projectName, r.Header.PubId).Inc()
 
 	eventType := enums.EVENTTYPEDEFAULT
 	if r.Header != nil && len(r.Header.EventType) > 0 {
