@@ -10,7 +10,6 @@ import (
 	"github.com/machinefi/w3bstream/pkg/depends/protocol/eventpb"
 	"github.com/machinefi/w3bstream/pkg/enums"
 	"github.com/machinefi/w3bstream/pkg/errors/status"
-	"github.com/machinefi/w3bstream/pkg/models"
 	"github.com/machinefi/w3bstream/pkg/modules/strategy"
 	"github.com/machinefi/w3bstream/pkg/modules/vm"
 	"github.com/machinefi/w3bstream/pkg/types"
@@ -50,7 +49,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 
 	if err = publisherVerification(ctx, r, l); err != nil {
 		l.Error(err)
-		return
+		return ret, err
 	}
 
 	eventType := enums.EVENTTYPEDEFAULT
@@ -62,7 +61,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	handlers, err = strategy.FindStrategyInstances(ctx, projectName, eventType)
 	if err != nil {
 		l.Error(err)
-		return
+		return ret, err
 	}
 
 	l.Info("matched strategies: %d", len(handlers))
@@ -104,11 +103,14 @@ func publisherVerification(ctx context.Context, r *eventpb.Event, l log.Logger) 
 		return errors.New("message token is invalid")
 	}
 
-	d := types.MustMgrDBExecutorFromContext(ctx)
 	p := types.MustProjectFromContext(ctx)
-	pj := jwt.MustPublisherAuthFromContext(ctx)
 
-	claim, err := pj.ParseToken(r.Header.Token)
+	publisherJwt := &jwt.Jwt{
+		Issuer:  p.ProjectBase.Issuer,
+		ExpIn:   p.ProjectBase.ExpIn,
+		SignKey: p.ProjectBase.SignKey,
+	}
+	claim, err := publisherJwt.ParseToken(r.Header.Token)
 	if err != nil {
 		l.Error(err)
 		return err
@@ -119,19 +121,12 @@ func publisherVerification(ctx context.Context, r *eventpb.Event, l log.Logger) 
 		l.Error(errors.New("claim of publisher convert string error"))
 		return status.InvalidAuthValue
 	}
-	publisherID := types.SFID(0)
-	if err := publisherID.UnmarshalText([]byte(v)); err != nil {
-		return status.InvalidAuthPublisherID
+	projectID := types.SFID(0)
+	if err := projectID.UnmarshalText([]byte(v)); err != nil {
+		return status.InvalidAuthPorjectID
 	}
 
-	m := &models.Publisher{RelPublisher: models.RelPublisher{PublisherID: publisherID}}
-	err = m.FetchByPublisherID(d)
-	if err != nil {
-		l.Error(err)
-		return status.CheckDatabaseError(err, "FetchByPublisherID")
-	}
-
-	if m.ProjectID == p.ProjectID {
+	if projectID == p.ProjectID {
 		return nil
 	} else {
 		return status.NoProjectPermission

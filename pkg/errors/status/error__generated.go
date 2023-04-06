@@ -33,7 +33,6 @@ func (v Error) Code() int {
 		return with.ServiceCode() + int(v)
 	}
 	return int(v)
-
 }
 
 func (v Error) Key() string {
@@ -64,6 +63,8 @@ func (v Error) Key() string {
 		return "InvalidEthLoginSignature"
 	case InvalidEthLoginMessage:
 		return "InvalidEthLoginMessage"
+	case InvalidAuthPorjectID:
+		return "InvalidAuthPorjectID"
 	case Forbidden:
 		return "Forbidden"
 	case InstanceLimit:
@@ -120,6 +121,8 @@ func (v Error) Msg() string {
 		return "Invalid Siwe Signature"
 	case InvalidEthLoginMessage:
 		return "Invalid Siwe Message"
+	case InvalidAuthPorjectID:
+		return "Invalid Auth Project ID"
 	case Forbidden:
 		return "Forbidden"
 	case InstanceLimit:
@@ -175,6 +178,8 @@ func (v Error) CanBeTalk() bool {
 	case InvalidEthLoginSignature:
 		return true
 	case InvalidEthLoginMessage:
+		return true
+	case InvalidAuthPorjectID:
 		return true
 	case Forbidden:
 		return true

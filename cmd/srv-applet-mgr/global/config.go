@@ -37,33 +37,31 @@ var (
 
 func init() {
 	config := &struct {
-		Postgres     *confpostgres.Endpoint
-		MonitorDB    *confpostgres.Endpoint
-		WasmDB       *confpostgres.Endpoint
-		MqttBroker   *confmqtt.Broker
-		Redis        *confredis.Redis
-		Server       *confhttp.Server
-		Jwt          *confjwt.Jwt
-		PublisherJwt *confjwt.PublisherJwt
-		Logger       *conflog.Log
-		StdLogger    conflog.Logger
-		UploadConf   *types.UploadConfig
-		EthClient    *types.ETHClientConfig
-		WhiteList    *types.WhiteList
+		Postgres   *confpostgres.Endpoint
+		MonitorDB  *confpostgres.Endpoint
+		WasmDB     *confpostgres.Endpoint
+		MqttBroker *confmqtt.Broker
+		Redis      *confredis.Redis
+		Server     *confhttp.Server
+		Jwt        *confjwt.Jwt
+		Logger     *conflog.Log
+		StdLogger  conflog.Logger
+		UploadConf *types.UploadConfig
+		EthClient  *types.ETHClientConfig
+		WhiteList  *types.WhiteList
 	}{
-		Postgres:     db,
-		MonitorDB:    monitordb,
-		WasmDB:       wasmdb,
-		MqttBroker:   &confmqtt.Broker{},
-		Redis:        &confredis.Redis{},
-		Server:       server,
-		Jwt:          &confjwt.Jwt{},
-		PublisherJwt: &confjwt.PublisherJwt{},
-		Logger:       &conflog.Log{},
-		StdLogger:    conflog.Std(),
-		UploadConf:   &types.UploadConfig{},
-		EthClient:    &types.ETHClientConfig{},
-		WhiteList:    &types.WhiteList{"1"},
+		Postgres:   db,
+		MonitorDB:  monitordb,
+		WasmDB:     wasmdb,
+		MqttBroker: &confmqtt.Broker{},
+		Redis:      &confredis.Redis{},
+		Server:     server,
+		Jwt:        &confjwt.Jwt{},
+		Logger:     &conflog.Log{},
+		StdLogger:  conflog.Std(),
+		UploadConf: &types.UploadConfig{},
+		EthClient:  &types.ETHClientConfig{},
+		WhiteList:  &types.WhiteList{"1"},
 	}
 
 	name := os.Getenv(consts.EnvProjectName)
@@ -99,7 +97,6 @@ func init() {
 		types.WithUploadConfigContext(config.UploadConf),
 		confid.WithSFIDGeneratorContext(confid.MustNewSFIDGenerator()),
 		confjwt.WithConfContext(config.Jwt),
-		confjwt.WithPublisherAuthContext(config.PublisherJwt),
 		types.WithTaskWorkerContext(worker),
 		types.WithTaskBoardContext(mq.NewTaskBoard(tasks)),
 		types.WithETHClientConfigContext(config.EthClient),
