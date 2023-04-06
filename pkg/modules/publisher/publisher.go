@@ -196,7 +196,7 @@ func UpdatePublisher(ctx context.Context, publisherID types.SFID, r *CreatePubli
 		ExpIn:   project.ProjectBase.ExpIn,
 		SignKey: project.ProjectBase.SignKey,
 	}
-	token, err := publisherJwt.GenerateTokenByPayload(publisherID)
+	token, err := publisherJwt.GenerateTokenByPayload(project.ProjectID)
 	if err != nil {
 		l.Error(err)
 		return status.InternalServerError.StatusErr().WithDesc(err.Error())

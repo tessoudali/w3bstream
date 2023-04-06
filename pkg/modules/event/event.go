@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"errors"
+	"github.com/machinefi/w3bstream/pkg/modules/publisher"
 	"sync"
 
 	"github.com/machinefi/w3bstream/pkg/depends/conf/jwt"
@@ -18,6 +19,7 @@ import (
 
 type HandleEventResult struct {
 	ProjectName string                   `json:"projectName"`
+	PubID       types.SFID               `json:"pubID,omitempty"`
 	PubName     string                   `json:"pubName,omitempty"`
 	EventID     string                   `json:"eventID"`
 	ErrMsg      string                   `json:"errMsg,omitempty"`
@@ -50,6 +52,15 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	if err = publisherVerification(ctx, r, l); err != nil {
 		l.Error(err)
 		return ret, err
+	}
+
+	if r.Header != nil && len(r.Header.PubId) > 0 {
+		pub, e := publisher.GetPublisherByPubKeyAndProjectName(ctx, r.Header.PubId, projectName)
+		if e != nil {
+			return
+		}
+		ret.PubID, ret.PubName = pub.PublisherID, pub.Name
+		l.WithValues("pub_id", pub.PublisherID)
 	}
 
 	eventType := enums.EVENTTYPEDEFAULT
