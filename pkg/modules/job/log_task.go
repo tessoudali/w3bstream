@@ -3,6 +3,7 @@ package job
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	base "github.com/machinefi/w3bstream/pkg/depends/base/types"
@@ -22,7 +23,7 @@ func NewWasmLogTask(ctx context.Context, logLevel, msg string) *WasmLogTask {
 				InstanceID:  types.MustInstanceFromContext(ctx).InstanceID,
 				Level:       logLevel,
 				LogTime:     base.AsTimestamp(time.Now()),
-				Msg:         msg,
+				Msg:         strings.TrimSpace(msg),
 			},
 		},
 	}
