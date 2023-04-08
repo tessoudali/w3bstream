@@ -28,5 +28,5 @@ func (r *UpdatePublisher) Output(ctx context.Context) (interface{}, error) {
 	}
 	prj := types.MustProjectFromContext(ctx)
 
-	return nil, publisher.UpdatePublisher(ctx, r.PublisherID, &r.CreatePublisherReq, prj)
+	return nil, publisher.UpdatePublisher(ctx, prj, r.PublisherID, &r.CreatePublisherReq)
 }

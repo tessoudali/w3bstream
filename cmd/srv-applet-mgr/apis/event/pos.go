@@ -24,6 +24,5 @@ func (r *HandleEvent) Output(ctx context.Context) (interface{}, error) {
 	}
 	ctx = types.WithProject(ctx, prj)
 
-	_ = event.HandleEvents(ctx, r.ProjectName, &r.HandleEventReq) // async operation
-	return nil, nil                                               // return statusOK to the sender
+	return event.HandleEvents(ctx, r.ProjectName, &r.HandleEventReq), nil
 }

@@ -35,6 +35,9 @@ func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (
 	_, l = l.Start(ctx, "CreateProject")
 	defer l.End()
 
+	if len(r.SignKey) == 0 {
+		r.ProjectBase.SignKey = idg.MustGenSFID().String()
+	}
 	m := &models.Project{
 		RelProject:  models.RelProject{ProjectID: idg.MustGenSFID()},
 		RelAccount:  models.RelAccount{AccountID: a.AccountID},

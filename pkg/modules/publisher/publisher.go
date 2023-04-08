@@ -36,7 +36,7 @@ func CreatePublisher(ctx context.Context, project *models.Project, r *CreatePubl
 	}
 
 	publisherID := idg.MustGenSFID()
-	token, err := publisherJwt.GenerateTokenByPayload(project.ProjectID)
+	token, err := publisherJwt.GenerateTokenByPayload(publisherID)
 	if err != nil {
 		l.Error(err)
 		return nil, status.InternalServerError.StatusErr().WithDesc(err.Error())
@@ -183,7 +183,7 @@ func RemovePublisher(ctx context.Context, r *RemovePublisherReq) error {
 	).Do()
 }
 
-func UpdatePublisher(ctx context.Context, publisherID types.SFID, r *CreatePublisherReq, project *models.Project) (err error) {
+func UpdatePublisher(ctx context.Context, project *models.Project, publisherID types.SFID, r *CreatePublisherReq) (err error) {
 	d := types.MustMgrDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	m := models.Publisher{RelPublisher: models.RelPublisher{PublisherID: publisherID}}
@@ -196,7 +196,7 @@ func UpdatePublisher(ctx context.Context, publisherID types.SFID, r *CreatePubli
 		ExpIn:   project.ProjectBase.ExpIn,
 		SignKey: project.ProjectBase.SignKey,
 	}
-	token, err := publisherJwt.GenerateTokenByPayload(project.ProjectID)
+	token, err := publisherJwt.GenerateTokenByPayload(publisherID)
 	if err != nil {
 		l.Error(err)
 		return status.InternalServerError.StatusErr().WithDesc(err.Error())
