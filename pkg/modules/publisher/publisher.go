@@ -2,6 +2,7 @@ package publisher
 
 import (
 	"context"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/pkg/errors"
 
@@ -15,6 +16,15 @@ import (
 	"github.com/machinefi/w3bstream/pkg/modules/project"
 	"github.com/machinefi/w3bstream/pkg/types"
 )
+
+var _registerPublisherMtc = prometheus.NewCounterVec(prometheus.CounterOpts{
+	Name: "w3b_register_publisher_metrics",
+	Help: "register publisher counter metrics.",
+}, []string{"project"})
+
+func init() {
+	prometheus.MustRegister(_registerPublisherMtc)
+}
 
 type CreatePublisherReq struct {
 	Name string `json:"name"`
@@ -41,6 +51,8 @@ func CreatePublisher(ctx context.Context, project *models.Project, r *CreatePubl
 		l.Error(err)
 		return nil, status.InternalServerError.StatusErr().WithDesc(err.Error())
 	}
+
+	_registerPublisherMtc.WithLabelValues(project.Name).Inc()
 
 	m := &models.Publisher{
 		RelProject:    models.RelProject{ProjectID: project.ProjectID},

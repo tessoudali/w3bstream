@@ -13,20 +13,31 @@ import (
 	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
 	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/builder"
 	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx/datatypes"
+	"github.com/machinefi/w3bstream/pkg/depends/schema"
 	"github.com/machinefi/w3bstream/pkg/enums"
 	"github.com/machinefi/w3bstream/pkg/errors/status"
 	"github.com/machinefi/w3bstream/pkg/models"
 	"github.com/machinefi/w3bstream/pkg/modules/mq"
 	"github.com/machinefi/w3bstream/pkg/modules/vm"
 	"github.com/machinefi/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/pkg/types/wasm"
 )
 
 type CreateProjectReq struct {
 	models.ProjectName
 	models.ProjectBase
+	Envs   [][2]string  `json:"envs,omitempty"`
+	Schema *wasm.Schema `json:"schema,omitempty"`
+	// TODO if each project has its own mqtt broker should add *wasm.MqttClient
 }
 
-func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (*models.Project, error) {
+type CreateProjectRsp struct {
+	*models.Project `json:"project"`
+	Envs            [][2]string  `json:"envs,omitempty"`
+	Schema          *wasm.Schema `json:"schema,omitempty"`
+}
+
+func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (*CreateProjectRsp, error) {
 	d := types.MustMgrDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	a := middleware.CurrentAccountFromContext(ctx)
@@ -51,15 +62,45 @@ func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (
 			WithDesc(fmt.Sprintf("create channel: [project:%s] [err:%v]", m.Name, err))
 	}
 
-	if err := m.Create(d); err != nil {
-		l.Error(err)
-		if sqlx.DBErr(err).IsConflict() {
-			return nil, status.ProjectNameConflict
-		}
-		return nil, status.DatabaseError.StatusErr().WithDesc(err.Error())
-	}
+	err := sqlx.NewTasks(d).With(
+		func(d sqlx.DBExecutor) error {
+			if err := m.Create(d); err != nil {
+				l.WithValues("stg", "CreateProject").Error(err)
+				if sqlx.DBErr(err).IsConflict() {
+					return status.ProjectNameConflict
+				}
+				return status.DatabaseError.StatusErr().
+					WithDesc(errors.Wrap(err, "CreateProject").Error())
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
+			ctx = types.WithProject(ctx, m)
+			if err := CreateOrUpdateProjectEnv(ctx, &wasm.Env{Env: r.Envs}); err != nil {
+				return err
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
+			if r.Schema == nil {
+				sch := schema.NewSchema(r.Name)
+				r.Schema = &wasm.Schema{Schema: *sch}
+			}
+			if err := CreateProjectSchema(ctx, r.Schema); err != nil {
+				return err
+			}
+			return nil
+		},
+	).Do()
 
-	return m, nil
+	if err != nil {
+		return nil, err
+	}
+	return &CreateProjectRsp{
+		Project: m,
+		Envs:    r.Envs,
+		Schema:  r.Schema,
+	}, nil
 }
 
 type ListProjectReq struct {
