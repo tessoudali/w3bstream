@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/machinefi/w3bstream/pkg/depends/base/consts"
 	base "github.com/machinefi/w3bstream/pkg/depends/base/types"
 	confid "github.com/machinefi/w3bstream/pkg/depends/conf/id"
 	"github.com/machinefi/w3bstream/pkg/depends/kit/mq"
@@ -23,7 +24,7 @@ func NewWasmLogTask(ctx context.Context, logLevel, msg string) *WasmLogTask {
 				InstanceID:  types.MustInstanceFromContext(ctx).InstanceID,
 				Level:       logLevel,
 				LogTime:     base.AsTimestamp(time.Now()),
-				Msg:         strings.TrimSpace(msg),
+				Msg:         strings.TrimSpace(msg)[0:consts.WasmLogMaxLength],
 			},
 		},
 	}
