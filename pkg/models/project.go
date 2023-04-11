@@ -33,6 +33,6 @@ type ProjectBase struct {
 	Version string         `db:"f_version,default=''" json:"version,omitempty"`  // Version project version
 	Proto   enums.Protocol `db:"f_proto,default='0'"  json:"protocol,omitempty"` // Proto project protocol for event publisher
 	Issuer  string         `db:"f_issuer,default='web3stream'" json:"issuer,omitempty"`
-	ExpIn   types.Duration `db:"f_exp_in,default='9223372036854775807'" json:"expIn,omitempty"`
+	ExpIn   types.Duration `db:"f_exp_in,default='0'" json:"expIn,omitempty"`
 	SignKey string         `db:"f_sign_key,default='web3stream'" json:"signKey,omitempty"`
 }

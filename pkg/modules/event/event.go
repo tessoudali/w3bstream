@@ -71,8 +71,9 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	pulisherMtc := projectName
 	if r.Header != nil && len(r.Header.PubId) > 0 {
 		pulisherMtc = r.Header.PubId
-		pub, e := publisher.GetPublisherByPubKeyAndProjectName(ctx, r.Header.PubId, projectName)
-		if e != nil {
+		var pub *models.Publisher
+		pub, err = publisher.GetPublisherByPubKeyAndProjectName(ctx, r.Header.PubId, projectName)
+		if err != nil {
 			l.Error(err)
 			return
 		}
