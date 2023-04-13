@@ -242,6 +242,7 @@ func GetPublisherByPubKeyAndProjectName(ctx context.Context, pubKey, prjName str
 	defer l.End()
 
 	pub := &models.Publisher{PublisherInfo: models.PublisherInfo{Key: pubKey}}
+	// TODO change prjName to projectID, then use FetchByProjectIDAndKey
 	if err := pub.FetchByKey(d); err != nil {
 		l.Error(err)
 		return nil, status.CheckDatabaseError(err, "GetPublisherByKey")
