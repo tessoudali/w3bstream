@@ -42,6 +42,9 @@ func (r *ReDeployInstance) Path() string {
 func (r *ReDeployInstance) Output(ctx context.Context) (interface{}, error) {
 	ca := middleware.CurrentAccountFromContext(ctx)
 	ctx, err := ca.WithAppletContext(ctx, r.AppletID)
+	if err != nil {
+		return nil, err
+	}
 	ctx, err = ca.WithInstanceContext(ctx, r.InstanceID)
 	if err != nil {
 		return nil, err

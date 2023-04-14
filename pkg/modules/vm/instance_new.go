@@ -10,8 +10,7 @@ import (
 )
 
 func NewInstance(ctx context.Context, path string, id types.SFID) error {
-	NewInstanceWithState(ctx, path, id, enums.INSTANCE_STATE__CREATED)
-	return nil
+	return NewInstanceWithState(ctx, path, id, enums.INSTANCE_STATE__CREATED)
 }
 
 func NewInstanceWithState(ctx context.Context, path string, id types.SFID, state enums.InstanceState) error {
