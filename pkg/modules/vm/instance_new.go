@@ -2,9 +2,9 @@ package vm
 
 import (
 	"context"
-	"github.com/machinefi/w3bstream/pkg/enums"
 	"os"
 
+	"github.com/machinefi/w3bstream/pkg/enums"
 	"github.com/machinefi/w3bstream/pkg/modules/vm/wasmtime"
 	"github.com/machinefi/w3bstream/pkg/types"
 )
