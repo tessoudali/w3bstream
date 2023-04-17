@@ -61,38 +61,26 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	}()
 
 	eventType := enums.EVENTTYPEDEFAULT
-	publisherMtc := projectName
-	if r.Header != nil {
-		if len(r.Header.Token) > 0 {
-			var pub *models.Publisher
-			if pub, err = publisherVerification(ctx, r, l); err != nil {
-				l.Error(err)
-				return
-			}
-			publisherMtc = pub.Key
-			pub, err = publisher.GetPublisherByPubKeyAndProjectName(ctx, pub.Key, projectName)
-			if err != nil {
-				return
-			}
-			ret.PubID, ret.PubName = pub.PublisherID, pub.Name
-			l.WithValues("pub_id", pub.PublisherID)
-		}
-		if len(r.Header.EventId) > 0 {
-			ret.EventID = r.Header.EventId
-		}
-		if len(r.Header.EventType) > 0 {
-			eventType = r.Header.EventType
-		}
+	eventType, err = checkHeader(ctx, projectName, l, ret, r)
+	if err != nil {
+		return
 	}
-	_receiveEventMtc.WithLabelValues(projectName, publisherMtc).Inc()
+	l = l.WithValues("event_type", eventType)
+
+	return HandleEvent(ctx, projectName, eventType, ret, r.Payload)
+}
+
+func HandleEvent(ctx context.Context, projectName string, eventType string, ret *HandleEventResult, payload []byte) (*HandleEventResult, error) {
+	l := types.MustLoggerFromContext(ctx)
+
+	_, l = l.Start(ctx, "HandleEvent")
+	defer l.End()
 
 	l = l.WithValues("event_type", eventType)
-	var handlers []*strategy.InstanceHandler
-	l = l.WithValues("event_type", eventType)
-	handlers, err = strategy.FindStrategyInstances(ctx, projectName, eventType)
+	handlers, err := strategy.FindStrategyInstances(ctx, projectName, eventType)
 	if err != nil {
 		l.Error(err)
-		return
+		return nil, err
 	}
 
 	l.Info("matched strategies: %d", len(handlers))
@@ -114,7 +102,7 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 		wg.Add(1)
 		go func(v *strategy.InstanceHandler) {
 			defer wg.Done()
-			res <- i.HandleEvent(ctx, v.Handler, []byte(r.Payload))
+			res <- i.HandleEvent(ctx, v.Handler, payload)
 		}(v)
 	}
 	wg.Wait()
@@ -129,7 +117,38 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	return ret, nil
 }
 
-func publisherVerification(ctx context.Context, r *eventpb.Event, l log.Logger) (*models.Publisher, error) {
+func checkHeader(ctx context.Context, projectName string, l log.Logger, ret *HandleEventResult, r *eventpb.Event) (eventType string, err error) {
+	publisherMtc := projectName
+	eventType = enums.EVENTTYPEDEFAULT
+
+	if r.Header != nil {
+		if len(r.Header.Token) > 0 {
+			var pub *models.Publisher
+			if pub, err = publisherVerification(ctx, l, r); err != nil {
+				l.Error(err)
+				return
+			}
+			publisherMtc = pub.Key
+			pub, err = publisher.GetPublisherByPubKeyAndProjectName(ctx, pub.Key, projectName)
+			if err != nil {
+				l.Error(err)
+				return
+			}
+			ret.PubID, ret.PubName = pub.PublisherID, pub.Name
+			l.WithValues("pub_id", pub.PublisherID)
+		}
+		if len(r.Header.EventId) > 0 {
+			ret.EventID = r.Header.EventId
+		}
+		if len(r.Header.EventType) > 0 {
+			eventType = r.Header.EventType
+		}
+	}
+	_receiveEventMtc.WithLabelValues(projectName, publisherMtc).Inc()
+	return
+}
+
+func publisherVerification(ctx context.Context, l log.Logger, r *eventpb.Event) (*models.Publisher, error) {
 	if r.Header == nil || len(r.Header.Token) == 0 {
 		return nil, errors.New("message token is invalid")
 	}
