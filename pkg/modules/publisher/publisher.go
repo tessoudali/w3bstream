@@ -193,17 +193,10 @@ func RemovePublisher(ctx context.Context, r *RemovePublisherReq) error {
 func UpdatePublisher(ctx context.Context, project *models.Project, publisherID types.SFID, r *CreatePublisherReq) (err error) {
 	d := types.MustMgrDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
-	publisherJwt := jwt.MustConfFromContext(ctx)
 	m := models.Publisher{RelPublisher: models.RelPublisher{PublisherID: publisherID}}
 
 	_, l = l.Start(ctx, "UpdatePublisher")
 	defer l.End()
-
-	token, err := publisherJwt.GenerateTokenWithoutExpByPayload(publisherID)
-	if err != nil {
-		l.Error(err)
-		return status.InternalServerError.StatusErr().WithDesc(err.Error())
-	}
 
 	err = sqlx.NewTasks(d).With(
 		func(db sqlx.DBExecutor) error {
@@ -212,7 +205,6 @@ func UpdatePublisher(ctx context.Context, project *models.Project, publisherID t
 		func(db sqlx.DBExecutor) error {
 			m.PublisherInfo.Name = r.Name
 			m.PublisherInfo.Key = r.Key
-			m.PublisherInfo.Token = token
 			return m.UpdateByPublisherID(d)
 		},
 	).Do()
