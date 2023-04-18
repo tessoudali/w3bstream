@@ -172,7 +172,7 @@ type UpdateAndDeployReq struct {
 	Cache *wasm.Cache `name:"cache,omitempty"`
 }
 
-func UpdateAndDeploy(ctx context.Context, r *UpdateAndDeployReq) (err error) {
+func UpdateAndDeploy(ctx context.Context, r *UpdateAndDeployReq) error {
 	d := types.MustMgrDBExecutorFromContext(ctx)
 	l := types.MustLoggerFromContext(ctx)
 	idg := confid.MustSFIDGeneratorFromContext(ctx)
@@ -182,14 +182,14 @@ func UpdateAndDeploy(ctx context.Context, r *UpdateAndDeployReq) (err error) {
 	_, l = l.Start(ctx, "UpdateAndDeploy")
 	defer l.End()
 
-	mResource := &models.Resource{}
-	if mResource, err = resource.FetchOrCreateResource(ctx, r.File); err != nil {
+	mResource, err := resource.FetchOrCreateResource(ctx, r.File)
+	if err != nil {
 		l.Error(err)
 		return err
 	}
 
 	needUpdateAppletName := r.Info != nil && len(r.Info.AppletName) > 0
-	needUpdateStrategies := r.Info != nil && len(r.Strategies) > 0
+	needUpdateStrategies := r.Info != nil && len(r.Info.Strategies) > 0
 
 	_ctx := context.Background()
 	err = sqlx.NewTasks(d).With(
