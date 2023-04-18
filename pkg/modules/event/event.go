@@ -106,7 +106,7 @@ func HandleEvent(ctx context.Context, projectName string, eventType string, ret 
 		wg.Add(1)
 		go func(v *strategy.InstanceHandler) {
 			defer wg.Done()
-			res <- i.HandleEvent(ctx, v.Handler, payload)
+			res <- i.HandleEvent(ctx, v.Handler, eventType, payload)
 		}(v)
 	}
 	wg.Wait()

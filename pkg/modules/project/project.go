@@ -48,7 +48,7 @@ func CreateProject(ctx context.Context, r *CreateProjectReq, hdl mq.OnMessage) (
 	m := &models.Project{
 		RelProject:  models.RelProject{ProjectID: idg.MustGenSFID()},
 		RelAccount:  models.RelAccount{AccountID: a.AccountID},
-		ProjectName: r.ProjectName,
+		ProjectName: models.ProjectName{Name: r.Name},
 		ProjectBase: r.ProjectBase,
 	}
 
@@ -367,6 +367,8 @@ func RemoveProjectByProjectID(ctx context.Context, prjID types.SFID) error {
 		applets    []models.Applet
 		mInstance  = &models.Instance{}
 		instances  []models.Instance
+		mCronJob   = &models.CronJob{}
+		cronJobs   []models.CronJob
 		err        error
 	)
 
@@ -423,6 +425,15 @@ func RemoveProjectByProjectID(ctx context.Context, prjID types.SFID) error {
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
+			mCronJob.ProjectID = prjID
+			cronJobs, err = mCronJob.List(d, mCronJob.ColProjectID().Eq(prjID))
+			if err != nil {
+				l.Error(err)
+				return status.CheckDatabaseError(err, "ListCronJobsByProjectID")
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
 			for _, i := range instances {
 				if err = vm.DelInstance(ctx, i.InstanceID); err != nil {
 					l.Error(err)
@@ -465,6 +476,16 @@ func RemoveProjectByProjectID(ctx context.Context, prjID types.SFID) error {
 				if err != nil {
 					l.Error(err)
 					return status.CheckDatabaseError(err, "DeletePublisherByStrategyID")
+				}
+			}
+			return nil
+		},
+		func(d sqlx.DBExecutor) error {
+			for _, app := range cronJobs {
+				err = app.DeleteByCronJobID(d)
+				if err != nil {
+					l.Error(err)
+					return status.CheckDatabaseError(err, "DeleteCronJobByCronJobID")
 				}
 			}
 			return nil
