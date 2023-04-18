@@ -67,10 +67,14 @@ func OnEventReceived(ctx context.Context, projectName string, r *eventpb.Event) 
 	}
 	l = l.WithValues("event_type", eventType)
 
-	return HandleEvent(ctx, projectName, eventType, ret, r.Payload)
+	err = HandleEvent(ctx, projectName, eventType, ret, r.Payload)
+	if err != nil {
+		return
+	}
+	return ret, nil
 }
 
-func HandleEvent(ctx context.Context, projectName string, eventType string, ret *HandleEventResult, payload []byte) (*HandleEventResult, error) {
+func HandleEvent(ctx context.Context, projectName string, eventType string, ret *HandleEventResult, payload []byte) error {
 	l := types.MustLoggerFromContext(ctx)
 
 	_, l = l.Start(ctx, "HandleEvent")
@@ -80,7 +84,7 @@ func HandleEvent(ctx context.Context, projectName string, eventType string, ret 
 	handlers, err := strategy.FindStrategyInstances(ctx, projectName, eventType)
 	if err != nil {
 		l.Error(err)
-		return nil, err
+		return err
 	}
 
 	l.Info("matched strategies: %d", len(handlers))
@@ -114,7 +118,7 @@ func HandleEvent(ctx context.Context, projectName string, eventType string, ret 
 		}
 		ret.WasmResults = append(ret.WasmResults, *v)
 	}
-	return ret, nil
+	return nil
 }
 
 func checkHeader(ctx context.Context, projectName string, l log.Logger, ret *HandleEventResult, r *eventpb.Event) (eventType string, err error) {
