@@ -24,35 +24,21 @@ func GenRandomVisibleString(length int) string {
 }
 
 func SubStringWithLength(str string, start, length int) string {
-	if start > len(str) {
-		return ""
-	}
-	if length < 0 {
-		length = 0
-	}
-
-	var i, n, leng, end int
+	rs := []rune(str)
+	strLen := len(rs)
 
 	if start < 0 {
-		end = len(str) + start
-		if end > 0 {
-			start = end - length
-		} else {
-			return ""
-		}
+		start += strLen
 	}
-	if start >= 0 {
-		leng = start + length
-	} else {
+	if start < 0 {
 		start = 0
-		leng = end
 	}
-	for i = range str {
-		if n == leng {
-			break
-		}
-		n++
+	if start >= strLen || length <= 0 {
+		return ""
 	}
-
-	return str[start:i]
+	end := start + length
+	if end > strLen {
+		end = strLen
+	}
+	return string(rs[start:end])
 }
