@@ -22,23 +22,3 @@ func GenRandomVisibleString(length int) string {
 	}
 	return string(result)
 }
-
-func SubStringWithLength(str string, start, length int) string {
-	rs := []rune(str)
-	strLen := len(rs)
-
-	if start < 0 {
-		start += strLen
-	}
-	if start < 0 {
-		start = 0
-	}
-	if start >= strLen || length <= 0 {
-		return ""
-	}
-	end := start + length
-	if end > strLen {
-		end = strLen
-	}
-	return string(rs[start:end])
-}
