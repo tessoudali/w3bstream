@@ -325,7 +325,7 @@ func (ef *ExportFuncs) SendTX(chainID int32, offset, size, vmAddrPtr, vmSizePtr 
 }
 
 func (ef *ExportFuncs) SendMqttMsg(topicAddr, topicSize, msgAddr, msgSize int32) int32 {
-	if ef.mq == nil {
+	if ef.mq == nil || ef.mq.Client == nil {
 		ef.log.Error(errors.New("mq client doesn't exist"))
 		return wasm.ResultStatusCode_Failed
 	}
