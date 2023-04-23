@@ -23,7 +23,7 @@ func NewWasmLogTask(ctx context.Context, logLevel, msg string) *WasmLogTask {
 				InstanceID:  types.MustInstanceFromContext(ctx).InstanceID,
 				Level:       logLevel,
 				LogTime:     base.AsTimestamp(time.Now()),
-				Msg:         SubStringWithLength(msg, consts.WasmLogMaxLength),
+				Msg:         subStringWithLength(msg, consts.WasmLogMaxLength),
 			},
 		},
 	}
@@ -48,11 +48,11 @@ func (t *WasmLogTask) ID() string {
 	return fmt.Sprintf("%s::%s", t.Subject(), t.wasmLog.WasmLogID)
 }
 
-// SubStringWithLength
+// subStringWithLength
 // If the length is negative, an empty string is returned.
 // If the length is greater than the length of the input string, the entire string is returned.
 // Otherwise, a substring of the input string with the specified length is returned.
-func SubStringWithLength(str string, length int) string {
+func subStringWithLength(str string, length int) string {
 	if length < 0 {
 		return ""
 	}
@@ -60,7 +60,7 @@ func SubStringWithLength(str string, length int) string {
 	strLen := len(rs)
 
 	if length > strLen {
-		return string(rs)
+		return str
 	}
 	return string(rs[0:length])
 }
