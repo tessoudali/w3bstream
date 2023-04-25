@@ -83,6 +83,10 @@ const (
 	ConfigConflict
 	// @errTalk Publisher Conflict
 	PublisherConflict
+	// @errTalk Resource Path Conflict
+	ResourcePathConflict
+	// @errTalk Resource Account and WasmName Conflict
+	ResourceAccountConflict
 	// @errTalk Cron Job Conflict
 	CronJobConflict
 )
