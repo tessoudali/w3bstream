@@ -2971,7 +2971,7 @@
               "schema": {
                 "allOf": [
                   {
-                    "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsChainHeightInfo"
+                    "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModulesBlockchainCreateChainHeightReq"
                   },
                   {
                     "x-go-field-name": "CreateChainHeightReq"
@@ -3021,7 +3021,7 @@
             },
             "x-status-errors": [
               "@StatusErr[AccountIdentityNotFound][404999009][Account Identity Not Found]!",
-              "@StatusErr[NotFound][404999001][NotFound]!",
+              "@StatusErr[BlockchainNotFound][404999012][Blockchain Not Found]!",
               "@StatusErr[NotFound][404999001][NotFound]!",
               "@StatusErr[ProjectNotFound][404999002][Project Not Found]!"
             ]
@@ -3036,7 +3036,7 @@
               }
             },
             "x-status-errors": [
-              "@StatusErr[Conflict][409999001][Conflict conflict error]!",
+              "@StatusErr[ChainHeightConflict][409999012][Chain Height Conflict]!",
               "@StatusErr[Conflict][409999001][Conflict conflict error]!"
             ]
           },
@@ -3052,7 +3052,6 @@
             "x-status-errors": [
               "@StatusErr[DatabaseError][500999002][Database Error]!",
               "@StatusErr[DatabaseError][500999002][Database Error]!",
-              "@StatusErr[InternalServerError][500999001][internal error]",
               "@StatusErr[InternalServerError][500999001][internal error]"
             ]
           }
@@ -3121,19 +3120,6 @@
           "204": {
             "description": ""
           },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgDependsKitStatusxStatusErr"
-                }
-              }
-            },
-            "x-status-errors": [
-              "@StatusErr[BadRequest][400999001][BadRequest]!"
-            ]
-          },
           "401": {
             "description": "",
             "content": {
@@ -3163,7 +3149,7 @@
             },
             "x-status-errors": [
               "@StatusErr[AccountIdentityNotFound][404999009][Account Identity Not Found]!",
-              "@StatusErr[NotFound][404999001][NotFound]!",
+              "@StatusErr[ContractLogNotFound][404999013][Contract Log Not Found]!",
               "@StatusErr[NotFound][404999001][NotFound]!",
               "@StatusErr[ProjectNotFound][404999002][Project Not Found]!"
             ]
@@ -3178,7 +3164,6 @@
               }
             },
             "x-status-errors": [
-              "@StatusErr[Conflict][409999001][Conflict conflict error]!",
               "@StatusErr[Conflict][409999001][Conflict conflict error]!"
             ]
           },
@@ -3194,7 +3179,6 @@
             "x-status-errors": [
               "@StatusErr[DatabaseError][500999002][Database Error]!",
               "@StatusErr[DatabaseError][500999002][Database Error]!",
-              "@StatusErr[InternalServerError][500999001][internal error]",
               "@StatusErr[InternalServerError][500999001][internal error]"
             ]
           }
@@ -3250,7 +3234,7 @@
               "schema": {
                 "allOf": [
                   {
-                    "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsChainTxInfo"
+                    "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModulesBlockchainCreateChainTxReq"
                   },
                   {
                     "x-go-field-name": "CreateChainTxReq"
@@ -3300,7 +3284,7 @@
             },
             "x-status-errors": [
               "@StatusErr[AccountIdentityNotFound][404999009][Account Identity Not Found]!",
-              "@StatusErr[NotFound][404999001][NotFound]!",
+              "@StatusErr[BlockchainNotFound][404999012][Blockchain Not Found]!",
               "@StatusErr[NotFound][404999001][NotFound]!",
               "@StatusErr[ProjectNotFound][404999002][Project Not Found]!"
             ]
@@ -3315,7 +3299,7 @@
               }
             },
             "x-status-errors": [
-              "@StatusErr[Conflict][409999001][Conflict conflict error]!",
+              "@StatusErr[ChainTxConflict][409999011][Chain Tx Conflict]!",
               "@StatusErr[Conflict][409999001][Conflict conflict error]!"
             ]
           },
@@ -3331,7 +3315,6 @@
             "x-status-errors": [
               "@StatusErr[DatabaseError][500999002][Database Error]!",
               "@StatusErr[DatabaseError][500999002][Database Error]!",
-              "@StatusErr[InternalServerError][500999001][internal error]",
               "@StatusErr[InternalServerError][500999001][internal error]"
             ]
           }
@@ -3400,19 +3383,6 @@
           "204": {
             "description": ""
           },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgDependsKitStatusxStatusErr"
-                }
-              }
-            },
-            "x-status-errors": [
-              "@StatusErr[BadRequest][400999001][BadRequest]!"
-            ]
-          },
           "401": {
             "description": "",
             "content": {
@@ -3442,7 +3412,7 @@
             },
             "x-status-errors": [
               "@StatusErr[AccountIdentityNotFound][404999009][Account Identity Not Found]!",
-              "@StatusErr[NotFound][404999001][NotFound]!",
+              "@StatusErr[ChainTxNotFound][404999014][Chain Tx Not Found]!",
               "@StatusErr[NotFound][404999001][NotFound]!",
               "@StatusErr[ProjectNotFound][404999002][Project Not Found]!"
             ]
@@ -3457,7 +3427,6 @@
               }
             },
             "x-status-errors": [
-              "@StatusErr[Conflict][409999001][Conflict conflict error]!",
               "@StatusErr[Conflict][409999001][Conflict conflict error]!"
             ]
           },
@@ -3473,7 +3442,6 @@
             "x-status-errors": [
               "@StatusErr[DatabaseError][500999002][Database Error]!",
               "@StatusErr[DatabaseError][500999002][Database Error]!",
-              "@StatusErr[InternalServerError][500999001][internal error]",
               "@StatusErr[InternalServerError][500999001][internal error]"
             ]
           }
@@ -3529,7 +3497,7 @@
               "schema": {
                 "allOf": [
                   {
-                    "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsContractLogInfo"
+                    "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModulesBlockchainCreateContractLogReq"
                   },
                   {
                     "x-go-field-name": "CreateContractLogReq"
@@ -3579,7 +3547,7 @@
             },
             "x-status-errors": [
               "@StatusErr[AccountIdentityNotFound][404999009][Account Identity Not Found]!",
-              "@StatusErr[NotFound][404999001][NotFound]!",
+              "@StatusErr[BlockchainNotFound][404999012][Blockchain Not Found]!",
               "@StatusErr[NotFound][404999001][NotFound]!",
               "@StatusErr[ProjectNotFound][404999002][Project Not Found]!"
             ]
@@ -3595,7 +3563,7 @@
             },
             "x-status-errors": [
               "@StatusErr[Conflict][409999001][Conflict conflict error]!",
-              "@StatusErr[Conflict][409999001][Conflict conflict error]!"
+              "@StatusErr[ContractLogConflict][409999010][Contract Log Conflict]!"
             ]
           },
           "500": {
@@ -3610,7 +3578,6 @@
             "x-status-errors": [
               "@StatusErr[DatabaseError][500999002][Database Error]!",
               "@StatusErr[DatabaseError][500999002][Database Error]!",
-              "@StatusErr[InternalServerError][500999001][internal error]",
               "@StatusErr[InternalServerError][500999001][internal error]"
             ]
           }
@@ -3679,19 +3646,6 @@
           "204": {
             "description": ""
           },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgDependsKitStatusxStatusErr"
-                }
-              }
-            },
-            "x-status-errors": [
-              "@StatusErr[BadRequest][400999001][BadRequest]!"
-            ]
-          },
           "401": {
             "description": "",
             "content": {
@@ -3721,7 +3675,7 @@
             },
             "x-status-errors": [
               "@StatusErr[AccountIdentityNotFound][404999009][Account Identity Not Found]!",
-              "@StatusErr[NotFound][404999001][NotFound]!",
+              "@StatusErr[ContractLogNotFound][404999013][Contract Log Not Found]!",
               "@StatusErr[NotFound][404999001][NotFound]!",
               "@StatusErr[ProjectNotFound][404999002][Project Not Found]!"
             ]
@@ -3736,7 +3690,6 @@
               }
             },
             "x-status-errors": [
-              "@StatusErr[Conflict][409999001][Conflict conflict error]!",
               "@StatusErr[Conflict][409999001][Conflict conflict error]!"
             ]
           },
@@ -3752,7 +3705,6 @@
             "x-status-errors": [
               "@StatusErr[DatabaseError][500999002][Database Error]!",
               "@StatusErr[DatabaseError][500999002][Database Error]!",
-              "@StatusErr[InternalServerError][500999001][internal error]",
               "@StatusErr[InternalServerError][500999001][internal error]"
             ]
           }
@@ -8734,6 +8686,42 @@
         ],
         "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/applet.UpdateReq",
         "x-id": "GithubComMachinefiW3BstreamPkgModulesAppletUpdateReq"
+      },
+      "GithubComMachinefiW3BstreamPkgModulesBlockchainCreateChainHeightReq": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsChainHeightInfo"
+          },
+          {
+            "type": "object",
+            "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/blockchain.CreateChainHeightReq",
+            "x-id": "GithubComMachinefiW3BstreamPkgModulesBlockchainCreateChainHeightReq"
+          }
+        ]
+      },
+      "GithubComMachinefiW3BstreamPkgModulesBlockchainCreateChainTxReq": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsChainTxInfo"
+          },
+          {
+            "type": "object",
+            "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/blockchain.CreateChainTxReq",
+            "x-id": "GithubComMachinefiW3BstreamPkgModulesBlockchainCreateChainTxReq"
+          }
+        ]
+      },
+      "GithubComMachinefiW3BstreamPkgModulesBlockchainCreateContractLogReq": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsContractLogInfo"
+          },
+          {
+            "type": "object",
+            "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/blockchain.CreateContractLogReq",
+            "x-id": "GithubComMachinefiW3BstreamPkgModulesBlockchainCreateContractLogReq"
+          }
+        ]
       },
       "GithubComMachinefiW3BstreamPkgModulesCronjobCreateReq": {
         "allOf": [
