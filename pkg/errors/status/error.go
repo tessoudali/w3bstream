@@ -34,6 +34,8 @@ const (
 	GenPublisherTokenFailed
 	// @errTalk Create Instance Failed
 	CreateInstanceFailed
+	// @errTalk Batch Remove Applet Failed
+	BatchRemoveAppletFailed
 	// @errTalk Md5 Checksum Failed
 	MD5ChecksumFailed
 )
@@ -97,6 +99,8 @@ const (
 	PublisherConflict
 	// @errTalk Multi Instance Deployed
 	MultiInstanceDeployed
+	// @errTalk Applet Name Conflict
+	AppletNameConflict
 	// @errTalk Cron Job Conflict
 	CronJobConflict
 )
