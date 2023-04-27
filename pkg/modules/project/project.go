@@ -4,7 +4,6 @@ package project
 
 import (
 	"context"
-	"github.com/machinefi/w3bstream/pkg/types/wasm"
 
 	"github.com/pkg/errors"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/machinefi/w3bstream/pkg/modules/config"
 	"github.com/machinefi/w3bstream/pkg/modules/transporter/mqtt"
 	"github.com/machinefi/w3bstream/pkg/types"
+	"github.com/machinefi/w3bstream/pkg/types/wasm"
 )
 
 func GetBySFID(ctx context.Context, prj types.SFID) (*models.Project, error) {
