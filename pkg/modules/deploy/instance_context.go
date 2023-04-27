@@ -27,7 +27,6 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		types.WithTaskBoardContext(types.MustTaskBoardFromContext(parent)),
 		types.WithMqttBrokerContext(types.MustMqttBrokerFromContext(parent)),
 		types.WithETHClientConfigContext(types.MustETHClientConfigFromContext(parent)),
-		types.WithFileSystemOpContext(types.MustFileSystemOpFromContext(parent)),
 	)(context.Background())
 
 	prj := &models.Project{RelProject: models.RelProject{ProjectID: app.ProjectID}}
