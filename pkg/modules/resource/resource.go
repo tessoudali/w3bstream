@@ -21,7 +21,7 @@ func Create(ctx context.Context, acc types.SFID, fh *multipart.FileHeader, filen
 	}
 	defer f.Close()
 
-	path, data, err := UploadFile(ctx, f, md5)
+	path, sum, data, err := UploadFile(ctx, f, md5)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -32,7 +32,7 @@ func Create(ctx context.Context, acc types.SFID, fh *multipart.FileHeader, filen
 
 	err = sqlx.NewTasks(types.MustMgrDBExecutorFromContext(ctx)).With(
 		func(d sqlx.DBExecutor) error {
-			res.Md5 = md5
+			res.Md5 = sum
 			if err = res.FetchByMd5(d); err != nil {
 				if sqlx.DBErr(err).IsNotFound() {
 					found = false
@@ -49,7 +49,7 @@ func Create(ctx context.Context, acc types.SFID, fh *multipart.FileHeader, filen
 			}
 			res = &models.Resource{
 				RelResource:  models.RelResource{ResourceID: id},
-				ResourceInfo: models.ResourceInfo{Path: path, Md5: md5},
+				ResourceInfo: models.ResourceInfo{Path: path, Md5: sum},
 			}
 			if err = res.Create(d); err != nil {
 				if sqlx.DBErr(err).IsConflict() {

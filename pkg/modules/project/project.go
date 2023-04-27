@@ -134,16 +134,20 @@ func Create(ctx context.Context, r *CreateReq) (*CreateRsp, error) {
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
-			_, err := config.Create(ctx, prj.ProjectID, r.Env)
-			if err != nil {
-				return err
+			if r.Env != nil {
+				_, err := config.Create(ctx, prj.ProjectID, r.Env)
+				if err != nil {
+					return err
+				}
+				rsp.Env = r.Env
 			}
-			rsp.Env = r.Env
-			_, err = config.Create(ctx, prj.ProjectID, r.Database)
-			if err != nil {
-				return err
+			if r.Database != nil {
+				_, err := config.Create(ctx, prj.ProjectID, r.Database)
+				if err != nil {
+					return err
+				}
+				rsp.Database = r.Database
 			}
-			rsp.Database = r.Database
 			return nil
 		},
 	).Do()

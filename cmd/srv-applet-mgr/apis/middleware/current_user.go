@@ -74,7 +74,7 @@ func (v *CurrentAccount) WithProjectContextByName(ctx context.Context, name stri
 	if v.AccountID != prj.AccountID {
 		return nil, status.NoProjectPermission
 	}
-	return types.WithProject(ctx, prj), nil
+	return types.WithProject(v.WithAccount(ctx), prj), nil
 }
 
 // WithProjectContextBySFID With project context by project SFID
