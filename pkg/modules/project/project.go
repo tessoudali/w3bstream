@@ -4,6 +4,7 @@ package project
 
 import (
 	"context"
+	"github.com/machinefi/w3bstream/pkg/types/wasm"
 
 	"github.com/pkg/errors"
 
@@ -120,7 +121,9 @@ func Create(ctx context.Context, r *CreateReq) (*CreateRsp, error) {
 		},
 	}
 
-	rsp := &CreateRsp{}
+	rsp := &CreateRsp{
+		Project: prj,
+	}
 
 	err := sqlx.NewTasks(d).With(
 		func(d sqlx.DBExecutor) error {
@@ -134,20 +137,22 @@ func Create(ctx context.Context, r *CreateReq) (*CreateRsp, error) {
 			return nil
 		},
 		func(d sqlx.DBExecutor) error {
-			if r.Env != nil {
-				_, err := config.Create(ctx, prj.ProjectID, r.Env)
-				if err != nil {
-					return err
-				}
-				rsp.Env = r.Env
+			if r.Env == nil {
+				r.Env = &wasm.Env{}
 			}
-			if r.Database != nil {
-				_, err := config.Create(ctx, prj.ProjectID, r.Database)
-				if err != nil {
-					return err
-				}
-				rsp.Database = r.Database
+			_, err := config.Create(ctx, prj.ProjectID, r.Env)
+			if err != nil {
+				return err
 			}
+			rsp.Env = r.Env
+			if r.Database == nil {
+				r.Database = &wasm.Database{}
+			}
+			_, err = config.Create(ctx, prj.ProjectID, r.Database)
+			if err != nil {
+				return err
+			}
+			rsp.Database = r.Database
 			return nil
 		},
 	).Do()
@@ -159,13 +164,9 @@ func Create(ctx context.Context, r *CreateReq) (*CreateRsp, error) {
 		conflog.FromContext(ctx).WithValues("prj", prj.Name).
 			Warn(errors.Wrap(err, "channel create failed"))
 	}
+	rsp.ChannelState = datatypes.BooleanValue(err == nil)
 
-	return &CreateRsp{
-		Project:      prj,
-		Env:          r.Env,
-		Database:     r.Database,
-		ChannelState: datatypes.BooleanValue(err == nil),
-	}, nil
+	return rsp, nil
 }
 
 func RemoveBySFID(ctx context.Context, id types.SFID) error {

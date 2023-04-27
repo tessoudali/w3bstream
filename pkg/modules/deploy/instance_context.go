@@ -15,9 +15,11 @@ import (
 func WithInstanceRuntimeContext(parent context.Context) (context.Context, error) {
 	d := types.MustMgrDBExecutorFromContext(parent)
 	ins := types.MustInstanceFromContext(parent)
+	app := types.MustAppletFromContext(parent)
 	ctx := contextx.WithContextCompose(
 		confid.WithSFIDGeneratorContext(confid.MustSFIDGeneratorFromContext(parent)),
 		types.WithInstanceContext(ins),
+		types.WithAppletContext(app),
 		types.WithLoggerContext(types.MustLoggerFromContext(parent)),
 		types.WithWasmDBEndpointContext(types.MustWasmDBEndpointFromContext(parent)),
 		types.WithRedisEndpointContext(types.MustRedisEndpointFromContext(parent)),
@@ -28,11 +30,6 @@ func WithInstanceRuntimeContext(parent context.Context) (context.Context, error)
 		types.WithFileSystemOpContext(types.MustFileSystemOpFromContext(parent)),
 	)(context.Background())
 
-	app := &models.Applet{RelApplet: models.RelApplet{AppletID: ins.AppletID}}
-	if err := app.FetchByAppletID(d); err != nil {
-		return nil, err
-	}
-	ctx = types.WithApplet(ctx, app)
 	prj := &models.Project{RelProject: models.RelProject{ProjectID: app.ProjectID}}
 	if err := prj.FetchByProjectID(d); err != nil {
 		return nil, err
