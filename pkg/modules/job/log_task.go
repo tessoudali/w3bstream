@@ -22,7 +22,7 @@ func NewWasmLogTask(ctx context.Context, logLevel, msg string) *WasmLogTask {
 				AppletName:  types.MustAppletFromContext(ctx).Name,
 				InstanceID:  types.MustInstanceFromContext(ctx).InstanceID,
 				Level:       logLevel,
-				LogTime:     base.AsTimestamp(time.Now()),
+				LogTime:     base.AsTimestamp(time.Unix(0, time.Now().UnixNano())),
 				Msg:         subStringWithLength(msg, consts.WasmLogMaxLength),
 			},
 		},
