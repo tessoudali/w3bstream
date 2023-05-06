@@ -214,6 +214,7 @@ func UpsertByCode(ctx context.Context, r *CreateReq, code []byte, state enums.In
 					fmt.Sprintf("database: %v arg: %v", ins.InstanceID, old[0]),
 				)
 			}
+			ins.State = state
 			forUpdate = true
 			return nil
 		},
