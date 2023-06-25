@@ -10982,6 +10982,17 @@
               }
             ]
           },
+          "startAt": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgDependsBaseTypesTimestamp"
+              },
+              {
+                "x-go-field-name": "StartAt",
+                "x-tag-json": "startAt"
+              }
+            ]
+          },
           "threshold": {
             "type": "integer",
             "format": "int32",
@@ -10992,7 +11003,8 @@
         "required": [
           "threshold",
           "duration",
-          "apiType"
+          "apiType",
+          "startAt"
         ],
         "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/models.TrafficLimitInfo",
         "x-id": "GithubComMachinefiW3BstreamPkgModelsTrafficLimitInfo"
@@ -12084,16 +12096,44 @@
         "x-id": "GithubComMachinefiW3BstreamPkgModulesStrategyListRsp"
       },
       "GithubComMachinefiW3BstreamPkgModulesTrafficlimitCreateReq": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsTrafficLimitInfo"
+        "type": "object",
+        "properties": {
+          "apiType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgEnumsTrafficLimitType"
+              },
+              {
+                "x-go-field-name": "ApiType",
+                "x-tag-json": "apiType"
+              }
+            ]
           },
-          {
-            "type": "object",
-            "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/trafficlimit.CreateReq",
-            "x-id": "GithubComMachinefiW3BstreamPkgModulesTrafficlimitCreateReq"
+          "duration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgDependsBaseTypesDuration"
+              },
+              {
+                "x-go-field-name": "Duration",
+                "x-tag-json": "duration"
+              }
+            ]
+          },
+          "threshold": {
+            "type": "integer",
+            "format": "int32",
+            "x-go-field-name": "Threshold",
+            "x-tag-json": "threshold"
           }
-        ]
+        },
+        "required": [
+          "threshold",
+          "duration",
+          "apiType"
+        ],
+        "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/trafficlimit.CreateReq",
+        "x-id": "GithubComMachinefiW3BstreamPkgModulesTrafficlimitCreateReq"
       },
       "GithubComMachinefiW3BstreamPkgModulesTrafficlimitListRsp": {
         "type": "object",
@@ -12121,16 +12161,32 @@
         "x-id": "GithubComMachinefiW3BstreamPkgModulesTrafficlimitListRsp"
       },
       "GithubComMachinefiW3BstreamPkgModulesTrafficlimitUpdateReq": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgModelsTrafficLimitInfo"
+        "type": "object",
+        "properties": {
+          "duration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GithubComMachinefiW3BstreamPkgDependsBaseTypesDuration"
+              },
+              {
+                "x-go-field-name": "Duration",
+                "x-tag-json": "duration"
+              }
+            ]
           },
-          {
-            "type": "object",
-            "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/trafficlimit.UpdateReq",
-            "x-id": "GithubComMachinefiW3BstreamPkgModulesTrafficlimitUpdateReq"
+          "threshold": {
+            "type": "integer",
+            "format": "int32",
+            "x-go-field-name": "Threshold",
+            "x-tag-json": "threshold"
           }
-        ]
+        },
+        "required": [
+          "threshold",
+          "duration"
+        ],
+        "x-go-vendor-type": "github.com/machinefi/w3bstream/pkg/modules/trafficlimit.UpdateReq",
+        "x-id": "GithubComMachinefiW3BstreamPkgModulesTrafficlimitUpdateReq"
       },
       "GithubComMachinefiW3BstreamPkgTypesWasmCache": {
         "type": "object",
