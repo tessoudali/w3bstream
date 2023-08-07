@@ -42,6 +42,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.10.1
 	github.com/agiledragon/gomonkey/v2 v2.10.1
 	github.com/aws/aws-sdk-go v1.44.245
+	github.com/blocto/solana-go-sdk v1.25.0
 	github.com/bytecodealliance/wasmtime-go/v8 v8.0.0
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-co-op/gocron v1.22.0
@@ -57,6 +58,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
 	github.com/ClickHouse/ch-go v0.52.1 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
@@ -98,6 +100,7 @@ require (
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/openzipkin/zipkin-go v0.4.0 // indirect
 	github.com/paulmach/orb v0.9.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
