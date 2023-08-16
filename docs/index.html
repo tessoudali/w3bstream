@@ -16,9 +16,9 @@
             <thead>
                 <tr>
                     <th>endpoint</th>
-                    <th><a href="https://devnet-prod.w3bstream.com/liveness">prod</a></th>
-                    <th><a href="https://devnet-staging.w3bstream.com/liveness">staging</a></th>
-                    <th><a href="https://dev.w3bstream.com/liveness">dev</a></th>
+                    <th><a href="https://devnet-prod.w3bstream.com">prod</a></th>
+                    <th><a href="https://devnet-staging.w3bstream.com">staging</a></th>
+                    <th><a href="https://dev.w3bstream.com">dev</a></th>
                 </tr>
             </thead>
             <tbody>
@@ -28,9 +28,9 @@
     <script>
         $(document).ready(function () {
             var urls = [
-                'https://devnet-prod.w3bstream.com',
-                'https://devnet-staging.w3bstream.com',
-                'https://dev.w3bstream.com'
+                'https://devnet-prod.w3bstream.com/liveness',
+                'https://devnet-staging.w3bstream.com/liveness',
+                'https://dev.w3bstream.com/liveness'
             ];
 
             var results = [];
@@ -71,8 +71,8 @@
                             }
                             result[i]=temp
                         });
-
-                        if (index === 0) {
+                        console.log(index)
+                        if (index == 0) {
                             for (var key in result[0]) {
                                 console.log(key)
                                 var row = '<tr><td>' + key + '</td>';
