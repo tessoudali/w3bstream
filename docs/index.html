@@ -40,6 +40,7 @@
                     url: url,
                     method: 'GET',
                     success: function(data) {
+                        console.log(data)
                         results[index] = data;
                         result = []
                         results.forEach((obj, i) => {
@@ -71,10 +72,8 @@
                             }
                             result[i]=temp
                         });
-                        console.log(index)
-                        if (index == 0) {
+                        if (result.length == urls.length) {
                             for (var key in result[0]) {
-                                console.log(key)
                                 var row = '<tr><td>' + key + '</td>';
                                 for (var i = 0; i < result.length; i++) {
                                     row += '<td>' + result[i][key] + '</td>';
