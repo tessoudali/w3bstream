@@ -51,7 +51,7 @@
                                     v = '❌'
                                 }
                                 if(prop.startsWith('Server/srv-applet-mgr')) {
-                                    temp['Server/srv-applet-mgr']=v;
+                                    temp['Server/srv-applet-mgr']=v + '     ' + prop.split('@')[1] ;
                                 }
                                 if(prop.startsWith('TaskWorker/DbLogStoring')) {
                                     temp['TaskWorker/DbLogStoring']=v;
