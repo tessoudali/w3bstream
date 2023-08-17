@@ -40,7 +40,6 @@
                     url: url,
                     method: 'GET',
                     success: function(data) {
-                        console.log(data)
                         results[index] = data;
                         result = []
                         results.forEach((obj, i) => {
@@ -52,7 +51,8 @@
                                     v = '❌'
                                 }
                                 if(prop.startsWith('Server/srv-applet-mgr')) {
-                                    temp['Server/srv-applet-mgr']=v + '     ' + prop.split('@')[1] ;
+                                    temp['version'] = prop.split('@')[1]
+                                    temp['Server/srv-applet-mgr']=v;
                                 }
                                 if(prop.startsWith('TaskWorker/DbLogStoring')) {
                                     temp['TaskWorker/DbLogStoring']=v;
@@ -72,8 +72,10 @@
                             }
                             result[i]=temp
                         });
+
                         if (result.length == urls.length) {
                             for (var key in result[0]) {
+                                console.log(key)
                                 var row = '<tr><td>' + key + '</td>';
                                 for (var i = 0; i < result.length; i++) {
                                     row += '<td>' + result[i][key] + '</td>';
