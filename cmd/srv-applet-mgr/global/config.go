@@ -29,6 +29,7 @@ import (
 	"github.com/machinefi/w3bstream/pkg/depends/x/contextx"
 	"github.com/machinefi/w3bstream/pkg/enums"
 	"github.com/machinefi/w3bstream/pkg/models"
+	"github.com/machinefi/w3bstream/pkg/modules/operator/pool"
 	"github.com/machinefi/w3bstream/pkg/modules/vm/wasmapi"
 	"github.com/machinefi/w3bstream/pkg/types"
 	"github.com/machinefi/w3bstream/pkg/types/wasm/kvdb"
@@ -142,10 +143,11 @@ func init() {
 	proxy.SetDefault()
 
 	redisKvDB := kvdb.NewRedisDB(config.Redis)
+	operatorPool := pool.NewPool(config.Postgres)
 
 	tb := mq.NewTaskBoard(tasks)
 
-	wasmApiServer, err := wasmapi.NewServer(std, config.Redis, config.Postgres, redisKvDB, config.ChainConfig, tb, worker)
+	wasmApiServer, err := wasmapi.NewServer(std, config.Redis, config.Postgres, redisKvDB, config.ChainConfig, tb, worker, operatorPool)
 	if err != nil {
 		std.Fatal(err)
 	}
@@ -173,6 +175,7 @@ func init() {
 		types.WithMetricsCenterConfigContext(config.MetricsCenter),
 		types.WithRobotNotifierConfigContext(config.RobotNotifier),
 		types.WithWasmApiServerContext(wasmApiServer),
+		types.WithOperatorPoolContext(operatorPool),
 	)
 	Context = WithContext(context.Background())
 }

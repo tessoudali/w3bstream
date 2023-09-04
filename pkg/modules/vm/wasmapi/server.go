@@ -14,6 +14,7 @@ import (
 	"github.com/machinefi/w3bstream/pkg/depends/conf/redis"
 	"github.com/machinefi/w3bstream/pkg/depends/kit/mq"
 	"github.com/machinefi/w3bstream/pkg/depends/kit/sqlx"
+	optypes "github.com/machinefi/w3bstream/pkg/modules/operator/pool/types"
 	"github.com/machinefi/w3bstream/pkg/modules/vm/wasmapi/async"
 	"github.com/machinefi/w3bstream/pkg/modules/vm/wasmapi/handler"
 	apitypes "github.com/machinefi/w3bstream/pkg/modules/vm/wasmapi/types"
@@ -57,12 +58,12 @@ func (s *Server) Shutdown() {
 	s.srv.Shutdown()
 }
 
-func newRouter(mgrDB sqlx.DBExecutor, chainConf *types.ChainConfig) *gin.Engine {
+func newRouter(mgrDB sqlx.DBExecutor, chainConf *types.ChainConfig, opPool optypes.Pool) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(handler.ParamValidate())
 
-	handlers := handler.New(mgrDB, chainConf)
+	handlers := handler.New(mgrDB, chainConf, opPool)
 
 	router.GET("/system/hello", handlers.Hello)
 	router.GET("/system/read_tx", handlers.ReadTx)
@@ -71,8 +72,8 @@ func newRouter(mgrDB sqlx.DBExecutor, chainConf *types.ChainConfig) *gin.Engine 
 	return router
 }
 
-func NewServer(l log.Logger, redisConf *redis.Redis, mgrDB sqlx.DBExecutor, kv *kvdb.RedisDB, chainConf *types.ChainConfig, tb *mq.TaskBoard, tw *mq.TaskWorker) (*Server, error) {
-	router := newRouter(mgrDB, chainConf)
+func NewServer(l log.Logger, redisConf *redis.Redis, mgrDB sqlx.DBExecutor, kv *kvdb.RedisDB, chainConf *types.ChainConfig, tb *mq.TaskBoard, tw *mq.TaskWorker, opPool optypes.Pool) (*Server, error) {
+	router := newRouter(mgrDB, chainConf, opPool)
 
 	redisCli := asynq.RedisClientOpt{
 		Network:      redisConf.Protocol,

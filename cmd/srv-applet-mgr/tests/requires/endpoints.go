@@ -26,6 +26,7 @@ import (
 	"github.com/machinefi/w3bstream/pkg/depends/x/misc/retry"
 	"github.com/machinefi/w3bstream/pkg/depends/x/ptrx"
 	"github.com/machinefi/w3bstream/pkg/models"
+	"github.com/machinefi/w3bstream/pkg/modules/operator/pool"
 	"github.com/machinefi/w3bstream/pkg/modules/vm/wasmapi"
 	"github.com/machinefi/w3bstream/pkg/types"
 	"github.com/machinefi/w3bstream/pkg/types/wasm/kvdb"
@@ -215,10 +216,11 @@ func init() {
 	_chainConf.Init()
 
 	redisKvDB := kvdb.NewRedisDB(_redis)
+	operatorPool := pool.NewPool(_dbMgr)
 
 	tb := mq.NewTaskBoard(_tasks)
 
-	wasmApiServer, err := wasmapi.NewServer(conflog.Std(), _redis, _dbMgr, redisKvDB, _chainConf, tb, _workers)
+	wasmApiServer, err := wasmapi.NewServer(conflog.Std(), _redis, _dbMgr, redisKvDB, _chainConf, tb, _workers, operatorPool)
 	if err != nil {
 		conflog.Std().Fatal(err)
 	}
@@ -242,6 +244,7 @@ func init() {
 		types.WithChainConfigContext(_chainConf),
 		types.WithWasmApiServerContext(wasmApiServer),
 		types.WithProxyClientContext(&client.Client{}),
+		types.WithOperatorPoolContext(operatorPool),
 	)
 
 	_ctx = _injection(context.Background())
