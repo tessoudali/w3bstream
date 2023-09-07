@@ -19,6 +19,8 @@ func ParseTransactionStateFromString(s string) (TransactionState, error) {
 		return TRANSACTION_STATE_UNKNOWN, InvalidTransactionState
 	case "":
 		return TRANSACTION_STATE_UNKNOWN, nil
+	case "INIT":
+		return TRANSACTION_STATE__INIT, nil
 	case "PENDING":
 		return TRANSACTION_STATE__PENDING, nil
 	case "IN_BLOCK":
@@ -36,6 +38,8 @@ func ParseTransactionStateFromLabel(s string) (TransactionState, error) {
 		return TRANSACTION_STATE_UNKNOWN, InvalidTransactionState
 	case "":
 		return TRANSACTION_STATE_UNKNOWN, nil
+	case "INIT":
+		return TRANSACTION_STATE__INIT, nil
 	case "PENDING":
 		return TRANSACTION_STATE__PENDING, nil
 	case "IN_BLOCK":
@@ -57,6 +61,8 @@ func (v TransactionState) String() string {
 		return "UNKNOWN"
 	case TRANSACTION_STATE_UNKNOWN:
 		return ""
+	case TRANSACTION_STATE__INIT:
+		return "INIT"
 	case TRANSACTION_STATE__PENDING:
 		return "PENDING"
 	case TRANSACTION_STATE__IN_BLOCK:
@@ -74,6 +80,8 @@ func (v TransactionState) Label() string {
 		return "UNKNOWN"
 	case TRANSACTION_STATE_UNKNOWN:
 		return ""
+	case TRANSACTION_STATE__INIT:
+		return "INIT"
 	case TRANSACTION_STATE__PENDING:
 		return "PENDING"
 	case TRANSACTION_STATE__IN_BLOCK:
@@ -90,7 +98,7 @@ func (v TransactionState) TypeName() string {
 }
 
 func (v TransactionState) ConstValues() []enum.IntStringerEnum {
-	return []enum.IntStringerEnum{TRANSACTION_STATE__PENDING, TRANSACTION_STATE__IN_BLOCK, TRANSACTION_STATE__CONFIRMED, TRANSACTION_STATE__FAILED}
+	return []enum.IntStringerEnum{TRANSACTION_STATE__INIT, TRANSACTION_STATE__PENDING, TRANSACTION_STATE__IN_BLOCK, TRANSACTION_STATE__CONFIRMED, TRANSACTION_STATE__FAILED}
 }
 
 func (v TransactionState) MarshalText() ([]byte, error) {
