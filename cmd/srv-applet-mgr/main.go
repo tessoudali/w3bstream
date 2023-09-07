@@ -43,6 +43,17 @@ func main() {
 				kit.Run(tasks.Root, global.TaskServer())
 			},
 			func() {
+				passwd, err := account.CreateAdminIfNotExist(ctx)
+				if err != nil {
+					l.Error(err)
+					panic(err)
+				}
+				if passwd == "" {
+					l.Info("admin already exists")
+				} else {
+					l.Info("admin created, default password is: '%s'", passwd)
+				}
+
 				if err := deploy.Init(ctx); err != nil {
 					l.Error(err)
 					panic(err)
@@ -55,18 +66,6 @@ func main() {
 			func() {
 				if err := trafficlimit.Init(ctx); err != nil {
 					panic(err)
-				}
-			},
-			func() {
-				passwd, err := account.CreateAdminIfNotExist(ctx)
-				if err != nil {
-					l.Error(err)
-					panic(err)
-				}
-				if passwd == "" {
-					l.Info("admin already exists")
-				} else {
-					l.Info("admin created, default password is: '%s'", passwd)
 				}
 			},
 			func() {
