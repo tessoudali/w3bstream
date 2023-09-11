@@ -68,9 +68,13 @@ func (c *ETHClientConfig) Init() {
 }
 
 type Chain struct {
-	ChainID  uint64          `json:"chainID,omitempty"`
-	Name     enums.ChainName `json:"name"`
-	Endpoint string          `json:"endpoint"`
+	ChainID                         uint64          `json:"chainID,omitempty"`
+	Name                            enums.ChainName `json:"name"`
+	Endpoint                        string          `json:"endpoint"`
+	AABundlerEndpoint               string          `json:"aaBundlerEndpoint"`
+	AAPaymasterEndpoint             string          `json:"aaPaymasterEndpoint"`
+	AAEntryPointContractAddress     string          `json:"aaEntryPointContractAddress"`
+	AAAccountFactoryContractAddress string          `json:"aaAccountFactoryContractAddress"`
 }
 
 func (c *Chain) IsSolana() bool {
@@ -81,10 +85,15 @@ func (c *Chain) IsEth() bool {
 	return c.ChainID != 0
 }
 
+func (c *Chain) IsAASupported() bool {
+	return c.AABundlerEndpoint != "" && c.AAPaymasterEndpoint != "" && c.AAEntryPointContractAddress != "" && c.AAAccountFactoryContractAddress != ""
+}
+
 type ChainConfig struct {
-	Configs  string                     `env:""     json:"-"`
-	Chains   map[enums.ChainName]*Chain `env:"-"    json:"-"`
-	ChainIDs map[uint64]*Chain          `env:"-"    json:"-"`
+	Configs          string                     `env:""     json:"-"`
+	Chains           map[enums.ChainName]*Chain `env:"-"    json:"-"`
+	ChainIDs         map[uint64]*Chain          `env:"-"    json:"-"`
+	AAUserOpEndpoint string                     `env:""     json:"-"`
 }
 
 func (cc *ChainConfig) LivenessCheck() map[string]string {
